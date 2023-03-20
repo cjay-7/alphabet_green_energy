@@ -1,0 +1,43 @@
+name: alphabet_green_energy
+description: Alphabet Green Energy App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.2 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  google_fonts: ^4.0.3
+  flutter_native_splash: ^2.2.19
+  get: ^4.6.5
+  flutter_otp_text_field: ^1.1.1
+  image_picker: ^0.8.7
+#  firebase_storage: ^11.0.15
+#  cloud_firestore: ^4.4.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter_native_splash:
+  color: "#f7f6f1"
+  color_dark: "#272727"
+  image: assets/images/ag-logo.png
+  image_dark: assets/images/ag-logo.png
+
+  android_12:
+    image: assets/images/ag-logo.png
+    icon_background_color: "#f7f6f1"
+    image_dark: assets/images/ag-logo.png
+    icon_background_color_dark: "#272727"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/images/forgot_password/
+    - assets/logo/
