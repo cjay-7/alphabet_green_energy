@@ -9,4 +9,5 @@ const String aAlphabetGreensLogo = "assets/logo/ag-logo.png";
 const String aGoogleLogoImage = "assets/logo/google-logo.png";
 
 // -- Forget Password Images
-const String aForgetPasswordImage = "assets/images/forgot_password_image.png";
+const String aForgetPasswordImage =
+    "assets/images/forgot_password/forgot_password_image.png";

@@ -15,6 +15,8 @@ dependencies:
   get: ^4.6.5
   flutter_otp_text_field: ^1.1.1
   image_picker: ^0.8.7
+  firebase_core: ^2.8.0
+  firebase_auth: ^4.3.0
 #  firebase_storage: ^11.0.15
 #  cloud_firestore: ^4.4.4
 

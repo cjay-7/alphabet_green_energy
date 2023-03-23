@@ -2,16 +2,18 @@ import 'package:alphabet_green_energy/src/common_widgets/form_header_widget.dart
 import 'package:alphabet_green_energy/src/constants/image_strings.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
+import 'package:alphabet_green_energy/src/features/authentication/controllers/signin_controller.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/forget_password_otp/opt_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
-class ForgetPasswordMailScreen extends StatelessWidget {
-  const ForgetPasswordMailScreen({Key? key}) : super(key: key);
+class ForgetPasswordPhoneScreen extends StatelessWidget {
+  const ForgetPasswordPhoneScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(SignInController());
+    final _formKey = GlobalKey<FormState>();
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -30,20 +32,26 @@ class ForgetPasswordMailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: aFormHeight),
                 Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration(
-                            label: Text(aEmail),
-                            hintText: aEmail,
-                            prefixIcon: Icon(Icons.mail_outline_rounded)),
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(
+                            label: Text(aPhoneNo),
+                            hintText: aPhoneNo,
+                            prefixIcon: Icon(Icons.phone)),
                       ),
                       const SizedBox(height: 20.0),
                       SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                               onPressed: () {
-                                Get.to(() => const OTPScreen());
+                                if (_formKey.currentState!.validate()) {
+                                  SignInController.instance.phoneAuthentication(
+                                      controller.phoneNo.text.trim());
+                                  Get.to(() => const OTPScreen());
+                                }
                               },
                               child: const Text(aNext)))
                     ],

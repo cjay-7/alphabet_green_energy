@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1098077986035",
+    "project_id": "alphabetgreens",
+    "storage_bucket": "alphabetgreens.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098077986035:android:70f4ef1b7c68ac29e7ab86",
+        "android_client_info": {
+          "package_name": "com.alphabetgreenenergy.alphabet_green_energy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098077986035-4ccv3grpkqqikh55m7v5n7s6q2vh56aq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC20__1AV6bVnSiqKaZkZRO7yx19IrDMA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098077986035-4ccv3grpkqqikh55m7v5n7s6q2vh56aq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1098077986035-4v68t957erttkm7skggetjvg59v0q6gt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alphabetgreenenergy.alphabetGreenEnergy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

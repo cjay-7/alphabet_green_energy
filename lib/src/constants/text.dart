@@ -4,7 +4,7 @@
 const String aNext = "Next";
 const String aLogin = "Login";
 const String aEmail = "E-Mail";
-const String aPhoneNo = "Phone No";
+const String aPhoneNo = "Phone Number";
 const String aPassword = "Password";
 const String aFullName = "Full Name";
 const String aForgetPassword = "Forget Password";
@@ -44,3 +44,47 @@ const String aDashboard = "Dashboard";
 const String aDashboardSubtitle = "Go Exploring";
 const String aAddBeneficiary = "Add Beneficiary";
 const String aExistingBeneficiary = "Existing Beneficiary";
+
+// -- Beneficiary Form - Text
+
+const String aAddBeneficiaryAppbar = 'Beneficiary Details';
+const String aAddStovePicture = "Insert Stove Image";
+const String aPersonalDetails = 'Personal Details';
+const String aFullNameHint = 'FIRST MIDDLE LAST';
+const String aFullNameValidator = 'Please enter beneficiary name';
+const String aAddress1 = 'Address Line 1';
+const String aAddress1Hint = 'House No/ Street/ Locality';
+const String aAddress1Validator = 'Please enter beneficiary address line 1 ';
+const String aAddress2 = 'Address Line 2';
+const String aAddress2Hint = 'Area/ Town';
+const String aAddress2Validator = 'Please enter beneficiary address line 2';
+const String aZipCode = 'Zip Code';
+const String aZipCodeValidator = 'Please enter valid Zip Code';
+const String aPhoneNoValidator = 'Please enter beneficiary Phone number';
+const String aIdentificationDetails = 'Identification Details';
+const String aIdentificationType = "Identification Type";
+const String aIDNo = 'ID Number';
+const String aIDNoValidator = 'Please enter ID Number';
+const String aIDPhoto = "Add ID Photo";
+const String aSave = 'Save';
+
+// -- Profile Screen - Text
+const String aProfile = "Profile";
+const String aEditProfile = "Edit Profile";
+const String aLogoutDialogHeading = "Logout";
+const String aProfileHeading = "Alphabet Greens";
+const String aProfileSubHeading = "admin@alphabetgreens.com";
+
+//-- Menu - Text
+
+const String aMenu5 = aLogoutDialogHeading;
+const String aMenu1 = "Settings";
+const String aMenu4 = "Information";
+const String aMenu2 = "Billing Details";
+const String aMenu3 = "User Management";
+
+// Update Profile Screen - Text
+
+const String aDelete = "Delete";
+const String aJoined = "Joined";
+const String aJoinedAt = "31 October 2022";

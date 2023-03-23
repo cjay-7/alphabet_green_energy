@@ -22,11 +22,11 @@ class LoginFooterWidget extends StatelessWidget {
           width: double.infinity,
           child: OutlinedButton.icon(
               onPressed: () {},
-              icon: Image(
+              icon: const Image(
                 image: AssetImage(aGoogleLogoImage),
                 width: 20.0,
               ),
-              label: Text(aSignInWithGoogle)),
+              label: const Text(aSignInWithGoogle)),
         ),
         const SizedBox(
           height: aFormHeight - 20,

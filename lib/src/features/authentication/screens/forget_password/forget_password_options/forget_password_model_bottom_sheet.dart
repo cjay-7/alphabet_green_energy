@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../constants/sizes.dart';
 import '../../../../../constants/text.dart';
 import '../forget_password_mail/forget_password_mail.dart';
+import '../forget_password_phone/forget_password_phone.dart';
 import 'forget_password_btn_widget.dart';
 
 class ForgetPasswordScreen {
@@ -37,7 +38,10 @@ class ForgetPasswordScreen {
                     btnIcon: Icons.mobile_friendly_rounded,
                     title: aPhoneNo,
                     subTitle: aResetViaEMail,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context);
+                      Get.to(() => const ForgetPasswordPhoneScreen());
+                    },
                   ),
                 ],
               ),

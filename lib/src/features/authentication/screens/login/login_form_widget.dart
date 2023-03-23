@@ -1,11 +1,10 @@
 import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/forget_password_options/forget_password_model_bottom_sheet.dart';
-import 'package:alphabet_green_energy/src/features/core/screens/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../constants/sizes.dart';
 import '../../../../constants/text.dart';
-import '../forget_password/forget_password_options/forget_password_btn_widget.dart';
+import '../../controllers/signin_controller.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({
@@ -14,13 +13,17 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(SignInController());
+    final _formKey = GlobalKey<FormState>();
     return Form(
+      key: _formKey,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: aFormHeight - 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
+              controller: controller.email,
               decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.person_outline_outlined),
                   labelText: aEmail,
@@ -29,6 +32,7 @@ class LoginForm extends StatelessWidget {
             ),
             const SizedBox(height: aFormHeight - 20),
             TextFormField(
+              controller: controller.password,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.fingerprint),
                 labelText: aPassword,
@@ -53,7 +57,11 @@ class LoginForm extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Get.to(() => const Dashboard());
+                  if (_formKey.currentState!.validate()) {
+                    SignInController.instance.signInUser(
+                        controller.email.text.trim(),
+                        controller.password.text.trim());
+                  }
                 },
                 child: Text(aLogin.toUpperCase()),
               ),
