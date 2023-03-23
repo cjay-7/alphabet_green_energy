@@ -1,5 +1,6 @@
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
+import 'package:alphabet_green_energy/src/features/core/screens/profile/update_profile_screen.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/profile/widgets/profile_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
