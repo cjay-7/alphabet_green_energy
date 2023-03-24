@@ -5,7 +5,6 @@ import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/forget_password_otp/opt_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class ForgetPasswordMailScreen extends StatelessWidget {
   const ForgetPasswordMailScreen({Key? key}) : super(key: key);

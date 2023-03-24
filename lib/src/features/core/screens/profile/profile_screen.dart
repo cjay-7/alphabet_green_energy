@@ -17,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Get.back();
             },
             icon: const Icon(Icons.arrow_back)),
         title: Text(
