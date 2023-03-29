@@ -1,23 +1,32 @@
 import 'dart:io';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../../constants/text.dart';
+import '../../../controllers/beneficiary_add_controller.dart';
 
-class idDetails extends StatefulWidget {
-  const idDetails({Key? key}) : super(key: key);
+class IdDetails extends StatefulWidget {
+  const IdDetails({Key? key}) : super(key: key);
 
   @override
-  State<idDetails> createState() => _idDetailsState();
+  State<IdDetails> createState() => _IdDetailsState();
 }
 
-class _idDetailsState extends State<idDetails> {
+class _IdDetailsState extends State<IdDetails> {
+  _IdDetailsState() {
+    idType = _idList[0];
+  }
+  final controller = Get.put(BeneficiaryAddController());
+
   File? image;
-  late int _IDNumber;
+
   final _idList = ["Aadhar Card", "Voter Card", "Pan Card", "Ration Card"];
-  String? _selectedVal = "";
+  String? idType = "";
 
   Future pickImage() async {
     try {
@@ -26,7 +35,9 @@ class _idDetailsState extends State<idDetails> {
       final imageTemp = File(image.path);
       setState(() => this.image = imageTemp);
     } on PlatformException catch (e) {
-      print("Failed to pick image: $e");
+      SnackBar(
+        content: Text("Failed to pick image: $e"),
+      );
     }
   }
 
@@ -55,25 +66,28 @@ class _idDetailsState extends State<idDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      aIdentificationType,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: DropdownButtonFormField(
-                        items: _idList
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e),
-                              ),
-                            )
-                            .toList(),
+                      child: DropdownSearch(
+                        popupProps: const PopupProps.menu(
+                          showSearchBox: true,
+                        ),
+                        selectedItem: idType,
+                        items: _idList,
+                        dropdownDecoratorProps: const DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            labelText: aIdentificationType,
+                            prefixIcon: Icon(Icons.add_card_rounded),
+                          ),
+                        ),
                         onChanged: (val) {
-                          setState(() {
-                            _selectedVal = val as String;
-                          });
+                          controller.idType = val as String;
+                        },
+                        validator: (item) {
+                          if (item == null) {
+                            return aIDNoValidator;
+                          }
+                          return null;
                         },
                       ),
                     ),
@@ -83,6 +97,7 @@ class _idDetailsState extends State<idDetails> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
+                  controller: controller.idNumber,
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.person_outline_outlined),
                       labelText: aIDNo,
@@ -96,21 +111,31 @@ class _idDetailsState extends State<idDetails> {
                     }
                     return null;
                   },
-                  onSaved: (value) {
-                    _IDNumber = value! as int;
-                  },
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 60.0,
-                  child: ElevatedButton(
-                    onPressed: () => pickImage(),
-                    child: Text(aIDPhoto,
-                        style: Theme.of(context).textTheme.titleSmall),
-                  ),
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * .7,
+                      height: 60,
+                      child: OutlinedButton(
+                        onPressed: () => pickImage(),
+                        child: Text(aIDPhoto,
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * .17,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () => pickImage(),
+                        child: Text("Save",
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),

@@ -3,9 +3,11 @@ import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widget
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widgets/dashboard_heading.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widgets/dashboard_icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../constants/text.dart';
 
+import '../../../beneficiary_form/screens/beneficiary_form/beneficiary_form.dart';
 import '../../../beneficiary_form/screens/beneficiary_form/widgets/beneficiaryDialogBuilder.dart';
 
 class Dashboard extends StatelessWidget {
@@ -28,12 +30,14 @@ class Dashboard extends StatelessWidget {
                   children: [
                     DashboardIconButton(
                         onPressed: () =>
-                            BeneficiaryDialog.beneficiaryDialogBuilder(context),
+                            Get.to(() => const BeneficiaryFormWidget()),
                         dashboardIcon: Icons.person_add_alt_rounded,
                         dashboardIconLabel: aAddBeneficiary),
                     const SizedBox(height: 30.0),
                     DashboardIconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          BeneficiaryDialog.beneficiaryDialogBuilder(context);
+                        },
                         dashboardIcon: Icons.contact_page_rounded,
                         dashboardIconLabel: aExistingBeneficiary)
                   ],

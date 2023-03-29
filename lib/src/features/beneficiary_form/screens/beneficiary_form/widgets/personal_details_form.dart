@@ -1,17 +1,11 @@
-import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../../constants/text.dart';
+import '../../../controllers/beneficiary_add_controller.dart';
 
 Column personalDetailsForm(BuildContext context) {
-  late String _firstName,
-      _middleName,
-      _surname,
-      _address1,
-      _address2,
-      _town,
-      _zip,
-      _phoneNumber;
+  final controller = Get.put(BeneficiaryAddController());
 
   return Column(
     children: [
@@ -33,6 +27,7 @@ Column personalDetailsForm(BuildContext context) {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.fullName,
                 decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.person_outline_outlined),
                     labelText: aFullName,
@@ -45,14 +40,12 @@ Column personalDetailsForm(BuildContext context) {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _firstName = value!;
-                },
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.address1,
                 decoration: InputDecoration(
                     labelText: aAddress1,
                     prefixIcon: const Icon(Icons.home),
@@ -65,14 +58,12 @@ Column personalDetailsForm(BuildContext context) {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _address1 = value!;
-                },
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.address2,
                 decoration: InputDecoration(
                     labelText: aAddress2,
                     prefixIcon: const Icon(Icons.home_outlined),
@@ -85,14 +76,12 @@ Column personalDetailsForm(BuildContext context) {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _address2 = value!;
-                },
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.zip,
                 decoration: InputDecoration(
                     labelText: aZipCode,
                     prefixIcon: const Icon(Icons.numbers_outlined),
@@ -106,14 +95,12 @@ Column personalDetailsForm(BuildContext context) {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _zip = value!;
-                },
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.phoneNumber,
                 decoration: InputDecoration(
                     labelText: aPhoneNo,
                     prefixIcon: const Icon(Icons.phone),
@@ -127,17 +114,11 @@ Column personalDetailsForm(BuildContext context) {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _phoneNumber = value!;
-                },
               ),
             ),
           ],
         ),
       ),
-      const SizedBox(
-        height: 10.0,
-      )
     ],
   );
 }

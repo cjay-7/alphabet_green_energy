@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../../../../constants/text.dart';
-import '../beneficiary_form.dart';
 
 class BeneficiaryDialog {
   static Future<void> beneficiaryDialogBuilder(BuildContext context) {
@@ -30,7 +28,7 @@ class BeneficiaryDialog {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() => const BeneficiaryFormWidget());
+                    // Fetch Beneficiary details
                   },
                   child: Text(
                     aNext.toUpperCase(),
