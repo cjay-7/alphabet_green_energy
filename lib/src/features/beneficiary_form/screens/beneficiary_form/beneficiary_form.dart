@@ -22,6 +22,7 @@ class BeneficiaryFormWidget extends StatefulWidget {
 class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
   final controller = Get.put(BeneficiaryAddController());
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +54,8 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                   height: 60.0,
                   child: OutlinedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate() && controller.stoveImg != '') {
+                      if (_formKey.currentState!.validate() &&
+                          controller.stoveImg != '') {
                         _formKey.currentState!.save();
                         final beneficiary = BeneficiaryModel(
                             stoveID: controller.stoveID.text.trim(),
@@ -64,10 +66,24 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                             zip: controller.zip.text.trim(),
                             phoneNumber: controller.phoneNumber.text.trim(),
                             idNumber: controller.idNumber.text.trim(),
-                            idType: controller.idType, stoveImg: controller.stoveImg);
+                            idType: controller.idType,
+                            stoveImg: controller.stoveImg);
                         BeneficiaryAddController.instance.addData(beneficiary);
-                      } else if (controller.stoveImg == ''){
-                        showModalBottomSheet(context: context, builder:  (context) => Text("Please add Stove Image"));
+                      } else if (controller.stoveImg == '') {
+                        showModalBottomSheet(
+                            context: context,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0)),
+                            builder: (context) => SizedBox(
+                                height: 150,
+                                child: Center(
+                                  child:
+                                      Text("Please add Stove Image",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall),
+
+                                )));
                       }
                     },
                     child: Text(
