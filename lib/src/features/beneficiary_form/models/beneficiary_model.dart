@@ -11,6 +11,7 @@ class BeneficiaryModel {
   // final File? idImage;
   final String fullName,
       stoveID,
+      stoveImg,
       address1,
       address2,
       town,
@@ -22,6 +23,7 @@ class BeneficiaryModel {
   const BeneficiaryModel({
     this.id,
     required this.stoveID,
+    required this.stoveImg,
     // required this.image1,
     // required this.image2,
     // required this.image3,
@@ -35,9 +37,11 @@ class BeneficiaryModel {
     required this.idNumber,
     required this.idType,
   });
+
   toJson() {
     return {
       "StoveId": stoveID,
+      "StoveImg": stoveImg,
       "FullName": fullName,
       "Address1": address1,
       "Address2": address2,
@@ -59,6 +63,7 @@ class BeneficiaryModel {
     return BeneficiaryModel(
       id: document.id,
       stoveID: data["StoveId"],
+      stoveImg: data["StoveImg"],
       fullName: data["FullName"],
       address1: data["Address1"],
       address2: data["Address2"],

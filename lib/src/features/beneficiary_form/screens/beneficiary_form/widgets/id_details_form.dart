@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -9,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../../constants/text.dart';
 import '../../../controllers/beneficiary_add_controller.dart';
+
+import 'package:path/path.dart';
 
 class IdDetails extends StatefulWidget {
   const IdDetails({Key? key}) : super(key: key);
@@ -23,26 +26,40 @@ class _IdDetailsState extends State<IdDetails> {
   }
   final controller = Get.put(BeneficiaryAddController());
 
-  File? image;
+
 
   final _idList = ["Aadhar Card", "Voter Card", "Pan Card", "Ration Card"];
   String? idType = "";
 
+  File? _imageFile;
+  UploadTask? uploadTask;
+  final picker = ImagePicker();
+
+
+
   Future pickImage() async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => this.image = imageTemp);
-    } on PlatformException catch (e) {
-      SnackBar(
-        content: Text("Failed to pick image: $e"),
-      );
-    }
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      _imageFile = File(pickedFile!.path);
+
+    });
+  }
+
+  Future uploadImageToFirebase() async {
+    String fileName = basename(_imageFile!.path);
+    final firebaseStorageRef =
+    FirebaseStorage.instance.ref().child('files/$fileName');
+    uploadTask = firebaseStorageRef.putFile(_imageFile!);
+    TaskSnapshot? taskSnapshot = await uploadTask?.whenComplete(() => uploadTask?.snapshot);
+    taskSnapshot?.ref.getDownloadURL().then(
+          (value) => print("Done: $value"),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final fileName = _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -115,25 +132,35 @@ class _IdDetailsState extends State<IdDetails> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: Row(
+                child: Column(
                   children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * .7,
-                      height: 60,
-                      child: OutlinedButton(
-                        onPressed: () => pickImage(),
-                        child: Text(aIDPhoto,
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * .7,
+                          height: 60,
+                          child: OutlinedButton(
+                            onPressed: () => pickImage(),
+                            child: Text(aIDPhoto,
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * .17,
+                          height: 60,
+                          child: ElevatedButton(
+                            onPressed: () => pickImage(),
+                            child: Text("Upload",
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ),
+                        ),
+
+                      ],
                     ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * .17,
-                      height: 60,
-                      child: ElevatedButton(
-                        onPressed: () => pickImage(),
-                        child: Text("Save",
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ),
+                    Text(
+                      fileName,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),

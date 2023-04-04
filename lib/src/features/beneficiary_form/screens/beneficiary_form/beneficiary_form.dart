@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:alphabet_green_energy/src/features/beneficiary_form/controllers/beneficiary_add_controller.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/models/beneficiary_model.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/final_pictures.dart';
@@ -20,7 +22,6 @@ class BeneficiaryFormWidget extends StatefulWidget {
 class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
   final controller = Get.put(BeneficiaryAddController());
   final _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,12 +44,16 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                 // const Divider(),
                 // const FinalPictures(),
                 // const Divider(),
+                // const FinalPictures(),
+                // const Divider(),
+                // const FinalPictures(),
+                // const Divider(),
                 SizedBox(
                   width: double.infinity,
                   height: 60.0,
                   child: OutlinedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate() && controller.stoveImg != '') {
                         _formKey.currentState!.save();
                         final beneficiary = BeneficiaryModel(
                             stoveID: controller.stoveID.text.trim(),
@@ -59,8 +64,10 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                             zip: controller.zip.text.trim(),
                             phoneNumber: controller.phoneNumber.text.trim(),
                             idNumber: controller.idNumber.text.trim(),
-                            idType: controller.idType);
+                            idType: controller.idType, stoveImg: controller.stoveImg);
                         BeneficiaryAddController.instance.addData(beneficiary);
+                      } else if (controller.stoveImg == ''){
+                        showModalBottomSheet(context: context, builder:  (context) => Text("Please add Stove Image"));
                       }
                     },
                     child: Text(

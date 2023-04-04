@@ -15,6 +15,7 @@ class BeneficiaryAddController extends GetxController {
   final phoneNumber = TextEditingController();
   final idNumber = TextEditingController();
   late var idType = "";
+  late var stoveImg = "";
 
   final beneficiaryAddRepo = Get.put(BeneficiaryAddRepository());
 
