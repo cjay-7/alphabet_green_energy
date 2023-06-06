@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,8 +25,6 @@ class _IdDetailsState extends State<IdDetails> {
   }
   final controller = Get.put(BeneficiaryAddController());
 
-
-
   final _idList = ["Aadhar Card", "Voter Card", "Pan Card", "Ration Card"];
   String? idType = "";
 
@@ -35,31 +32,30 @@ class _IdDetailsState extends State<IdDetails> {
   UploadTask? uploadTask;
   final picker = ImagePicker();
 
-
-
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       _imageFile = File(pickedFile!.path);
-
     });
   }
 
   Future uploadImageToFirebase() async {
     String fileName = basename(_imageFile!.path);
     final firebaseStorageRef =
-    FirebaseStorage.instance.ref().child('files/$fileName');
+        FirebaseStorage.instance.ref().child('files/$fileName');
     uploadTask = firebaseStorageRef.putFile(_imageFile!);
-    TaskSnapshot? taskSnapshot = await uploadTask?.whenComplete(() => uploadTask?.snapshot);
+    TaskSnapshot? taskSnapshot =
+        await uploadTask?.whenComplete(() => uploadTask?.snapshot);
     taskSnapshot?.ref.getDownloadURL().then(
-          (value) => print("Done: $value"),
-    );
+          (value) => controller.idImg = value,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final fileName = _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
+    final fileName =
+        _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -149,12 +145,11 @@ class _IdDetailsState extends State<IdDetails> {
                           width: MediaQuery.of(context).size.width * .17,
                           height: 60,
                           child: ElevatedButton(
-                            onPressed: () => pickImage(),
+                            onPressed: () => uploadImageToFirebase(),
                             child: Text("Upload",
                                 style: Theme.of(context).textTheme.bodySmall),
                           ),
                         ),
-
                       ],
                     ),
                     Text(

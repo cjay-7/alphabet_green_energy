@@ -81,6 +81,24 @@ Column personalDetailsForm(BuildContext context) {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controller.town,
+                decoration: InputDecoration(
+                    labelText: aTown,
+                    prefixIcon: const Icon(Icons.holiday_village),
+                    hintText: aTown,
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    border: const OutlineInputBorder()),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return aTownValidator;
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
                 controller: controller.zip,
                 decoration: InputDecoration(
                     labelText: aZipCode,

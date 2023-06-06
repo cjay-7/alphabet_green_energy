@@ -1,8 +1,7 @@
-
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-
 
 import 'package:get/get.dart';
 
@@ -15,7 +14,7 @@ import '../../../../../constants/text.dart';
 import '../../../controllers/beneficiary_add_controller.dart';
 
 class StoveDetails extends StatefulWidget {
-  const StoveDetails( {Key? key}) : super(key: key);
+  const StoveDetails({Key? key}) : super(key: key);
 
   @override
   State<StoveDetails> createState() => _StoveDetailsState();
@@ -28,31 +27,29 @@ class _StoveDetailsState extends State<StoveDetails> {
   UploadTask? uploadTask;
   final picker = ImagePicker();
 
-
-
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
     setState(() {
       _imageFile = File(pickedFile!.path);
-
     });
   }
 
   Future uploadImageToFirebase() async {
     String fileName = basename(_imageFile!.path);
     final firebaseStorageRef =
-    FirebaseStorage.instance.ref().child('files/$fileName');
+        FirebaseStorage.instance.ref().child('files/$fileName');
     uploadTask = firebaseStorageRef.putFile(_imageFile!);
-    TaskSnapshot? taskSnapshot = await uploadTask?.whenComplete(() => uploadTask?.snapshot);
+    TaskSnapshot? taskSnapshot =
+        await uploadTask?.whenComplete(() => uploadTask?.snapshot);
     taskSnapshot?.ref.getDownloadURL().then(
-          (value) => controller.stoveImg=value,
-    );
+          (value) => controller.stoveImg = value,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final fileName = _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
+    final fileName =
+        _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -105,7 +102,12 @@ class _StoveDetailsState extends State<StoveDetails> {
                       width: MediaQuery.of(context).size.width * .17,
                       height: 60,
                       child: ElevatedButton(
-                        onPressed: () => uploadImageToFirebase(),
+                        onPressed: () async {
+                          var result = await Connectivity().checkConnectivity();
+                          if (result != ConnectivityResult.none) {
+                            uploadImageToFirebase();
+                          } else if (result == ConnectivityResult.none) {}
+                        },
                         child: Text("Upload",
                             style: Theme.of(context).textTheme.bodySmall),
                       ),
@@ -117,7 +119,6 @@ class _StoveDetailsState extends State<StoveDetails> {
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w500),
                 ),
-
               ],
             ),
           ),

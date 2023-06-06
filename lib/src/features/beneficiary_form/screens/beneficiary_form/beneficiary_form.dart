@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:alphabet_green_energy/src/features/beneficiary_form/controllers/beneficiary_add_controller.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/models/beneficiary_model.dart';
@@ -7,8 +7,11 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/bene
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/personal_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/stoveDetails.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constants/text.dart';
 
@@ -38,52 +41,73 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const StoveDetails(),
-                // const Divider(),
-                // personalDetailsForm(context),
-                // const Divider(),
-                // const IdDetails(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
+                const Divider(),
+                personalDetailsForm(context),
+                const Divider(),
+                const IdDetails(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
                 SizedBox(
                   width: double.infinity,
                   height: 60.0,
                   child: OutlinedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      var result = await Connectivity().checkConnectivity();
+
                       if (_formKey.currentState!.validate() &&
-                          controller.stoveImg != '') {
+                          controller.stoveImg != '' &&
+                          controller.image1 != '' &&
+                          controller.image2 != '' &&
+                          controller.image3 != '' &&
+                          controller.idImg != '' &&
+                          result != ConnectivityResult.none) {
                         _formKey.currentState!.save();
                         final beneficiary = BeneficiaryModel(
-                            stoveID: controller.stoveID.text.trim(),
-                            fullName: controller.fullName.text.trim(),
-                            address1: controller.address1.text.trim(),
-                            address2: controller.address2.text.trim(),
-                            town: controller.town.text.trim(),
-                            zip: controller.zip.text.trim(),
-                            phoneNumber: controller.phoneNumber.text.trim(),
-                            idNumber: controller.idNumber.text.trim(),
-                            idType: controller.idType,
-                            stoveImg: controller.stoveImg);
+                          stoveID: controller.stoveID.text.trim(),
+                          fullName: controller.fullName.text.trim(),
+                          address1: controller.address1.text.trim(),
+                          address2: controller.address2.text.trim(),
+                          town: controller.town.text.trim(),
+                          zip: controller.zip.text.trim(),
+                          phoneNumber: controller.phoneNumber.text.trim(),
+                          idNumber: controller.idNumber.text.trim(),
+                          idType: controller.idType,
+                          stoveImg: controller.stoveImg,
+                          image1: controller.image1,
+                          image2: controller.image2,
+                          image3: controller.image3,
+                          idImage: controller.idImg,
+                        );
                         BeneficiaryAddController.instance.addData(beneficiary);
-                      } else if (controller.stoveImg == '') {
-                        showModalBottomSheet(
-                            context: context,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0)),
-                            builder: (context) => SizedBox(
-                                height: 150,
-                                child: Center(
-                                  child:
-                                      Text("Please add Stove Image",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall),
+                      } else if (result == ConnectivityResult.none) {
+                        final beneficiary = BeneficiaryModel(
+                          stoveID: controller.stoveID.text.trim(),
+                          fullName: controller.fullName.text.trim(),
+                          address1: controller.address1.text.trim(),
+                          address2: controller.address2.text.trim(),
+                          town: controller.town.text.trim(),
+                          zip: controller.zip.text.trim(),
+                          phoneNumber: controller.phoneNumber.text.trim(),
+                          idNumber: controller.idNumber.text.trim(),
+                          idType: controller.idType,
+                          stoveImg: controller.stoveImg,
+                          image1: controller.image1,
+                          image2: controller.image2,
+                          image3: controller.image3,
+                          idImage: controller.idImg,
+                        );
+                        await _saveFormDataToLocalStorage(beneficiary.toJson());
 
-                                )));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Form data saved locally.'),
+                          ),
+                        );
                       }
                     },
                     child: Text(
@@ -99,4 +123,11 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
       ),
     );
   }
+}
+
+Future<void> _saveFormDataToLocalStorage(Map<String, dynamic> data) async {
+  final prefs = await SharedPreferences.getInstance();
+  final formData = prefs.getStringList('formData') ?? [];
+  formData.add(jsonEncode(data));
+  await prefs.setStringList('formData', formData);
 }
