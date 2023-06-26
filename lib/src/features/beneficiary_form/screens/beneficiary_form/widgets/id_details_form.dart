@@ -1,15 +1,13 @@
 import 'dart:io';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../../../../constants/text.dart';
 import '../../../controllers/beneficiary_add_controller.dart';
-
 import 'package:path/path.dart';
 
 class IdDetails extends StatefulWidget {
@@ -20,17 +18,19 @@ class IdDetails extends StatefulWidget {
 }
 
 class _IdDetailsState extends State<IdDetails> {
+  final controller = Get.put(BeneficiaryAddController());
   _IdDetailsState() {
     idType = _idList[0];
   }
-  final controller = Get.put(BeneficiaryAddController());
-
   final _idList = ["Aadhar Card", "Voter Card", "Pan Card", "Ration Card"];
   String? idType = "";
 
   File? _imageFile;
   UploadTask? uploadTask;
   final picker = ImagePicker();
+
+  bool isImageUploaded = false; // Flag to track image upload
+  bool isUploading = false; // Flag to track the upload process
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
@@ -40,16 +40,45 @@ class _IdDetailsState extends State<IdDetails> {
     });
   }
 
-  Future uploadImageToFirebase() async {
+  Future<void> uploadImageToLocalStorage() async {
+    setState(() {
+      isUploading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
+
+    setState(() {
+      controller.stoveImg = _imageFile!.path;
+      isImageUploaded = true;
+      isUploading = false;
+    });
+  }
+
+  Future<void> uploadImageToFirebase() async {
+    setState(() {
+      isUploading = true; // Set the loading flag to true
+    });
+
     String fileName = basename(_imageFile!.path);
     final firebaseStorageRef =
         FirebaseStorage.instance.ref().child('files/$fileName');
     uploadTask = firebaseStorageRef.putFile(_imageFile!);
-    TaskSnapshot? taskSnapshot =
-        await uploadTask?.whenComplete(() => uploadTask?.snapshot);
-    taskSnapshot?.ref.getDownloadURL().then(
-          (value) => controller.idImg = value,
-        );
+
+    try {
+      await uploadTask?.whenComplete(() {});
+      final imageUrl = await firebaseStorageRef.getDownloadURL();
+      setState(() {
+        controller.idImg = imageUrl;
+        isImageUploaded = true;
+      });
+    } catch (e) {
+      print('Error uploading image: $e');
+      // Handle any errors that occurred during the upload process
+    } finally {
+      setState(() {
+        isUploading = false; // Set the loading flag back to false
+      });
+    }
   }
 
   @override
@@ -67,12 +96,14 @@ class _IdDetailsState extends State<IdDetails> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(aIdentificationDetails,
-                    style: Theme.of(context).textTheme.headlineMedium),
+                child: Text(
+                  aIdentificationDetails,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -112,11 +143,12 @@ class _IdDetailsState extends State<IdDetails> {
                 child: TextFormField(
                   controller: controller.idNumber,
                   decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.person_outline_outlined),
-                      labelText: aIDNo,
-                      hintText: aIDNo,
-                      hintStyle: Theme.of(context).textTheme.bodySmall,
-                      border: const OutlineInputBorder()),
+                    prefixIcon: const Icon(Icons.person_outline_outlined),
+                    labelText: aIDNo,
+                    hintText: aIDNo,
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    border: const OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -128,36 +160,71 @@ class _IdDetailsState extends State<IdDetails> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: Column(
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * .7,
-                          height: 60,
-                          child: OutlinedButton(
-                            onPressed: () => pickImage(),
-                            child: Text(aIDPhoto,
-                                style: Theme.of(context).textTheme.bodySmall),
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: OutlinedButton(
+                          onPressed: () => pickImage(),
+                          child: Text(
+                            aIDPhoto,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * .17,
-                          height: 60,
-                          child: ElevatedButton(
-                            onPressed: () => uploadImageToFirebase(),
-                            child: Text("Upload",
-                                style: Theme.of(context).textTheme.bodySmall),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                    Text(
-                      fileName,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w500),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: ElevatedButton.icon(
+                          onPressed: (_imageFile == null || isUploading)
+                              ? null
+                              : () async {
+                                  var result =
+                                      await Connectivity().checkConnectivity();
+                                  if (result != ConnectivityResult.none) {
+                                    uploadImageToFirebase();
+                                  } else if (result ==
+                                      ConnectivityResult.none) {
+                                    uploadImageToLocalStorage();
+                                  }
+                                },
+                          icon: isUploading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : isImageUploaded
+                                  ? const Icon(Icons.check)
+                                  : const Icon(Icons.upload),
+                          label: Text(
+                            isImageUploaded ? 'Uploaded' : 'Upload',
+                            style: GoogleFonts.montserrat(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                fileName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 10),

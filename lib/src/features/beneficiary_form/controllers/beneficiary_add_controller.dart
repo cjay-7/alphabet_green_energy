@@ -26,5 +26,10 @@ class BeneficiaryAddController extends GetxController {
 
   Future<void> addData(BeneficiaryModel beneficiary) async {
     await beneficiaryAddRepo.addData(beneficiary);
+    ScaffoldMessenger.of(BuildContext as BuildContext).showSnackBar(
+      const SnackBar(
+        content: Text('Form data saved in firebase.'),
+      ),
+    );
   }
 }

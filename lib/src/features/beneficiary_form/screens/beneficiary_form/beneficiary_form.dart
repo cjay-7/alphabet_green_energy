@@ -58,14 +58,42 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                   child: OutlinedButton(
                     onPressed: () async {
                       var result = await Connectivity().checkConnectivity();
-
-                      if (_formKey.currentState!.validate() &&
+                      if (result != ConnectivityResult.none) {
+                        if (_formKey.currentState!.validate() &&
+                            controller.stoveImg != '' &&
+                            controller.image1 != '' &&
+                            controller.image2 != '' &&
+                            controller.image3 != '' &&
+                            controller.idImg != '') {
+                          _formKey.currentState!.save();
+                          final beneficiary = BeneficiaryModel(
+                            stoveID: controller.stoveID.text.trim(),
+                            fullName: controller.fullName.text.trim(),
+                            address1: controller.address1.text.trim(),
+                            address2: controller.address2.text.trim(),
+                            town: controller.town.text.trim(),
+                            zip: controller.zip.text.trim(),
+                            phoneNumber: controller.phoneNumber.text.trim(),
+                            idNumber: controller.idNumber.text.trim(),
+                            idType: controller.idType,
+                            stoveImg: controller.stoveImg,
+                            image1: controller.image1,
+                            image2: controller.image2,
+                            image3: controller.image3,
+                            idImage: controller.idImg,
+                          );
+                          BeneficiaryAddController.instance
+                              .addData(beneficiary);
+                          _resetForm();
+                          Get.back();
+                        }
+                      } else if (result == ConnectivityResult.none &&
+                          _formKey.currentState!.validate() &&
                           controller.stoveImg != '' &&
                           controller.image1 != '' &&
                           controller.image2 != '' &&
                           controller.image3 != '' &&
-                          controller.idImg != '' &&
-                          result != ConnectivityResult.none) {
+                          controller.idImg != '') {
                         _formKey.currentState!.save();
                         final beneficiary = BeneficiaryModel(
                           stoveID: controller.stoveID.text.trim(),
@@ -83,31 +111,10 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                           image3: controller.image3,
                           idImage: controller.idImg,
                         );
-                        BeneficiaryAddController.instance.addData(beneficiary);
-                      } else if (result == ConnectivityResult.none) {
-                        final beneficiary = BeneficiaryModel(
-                          stoveID: controller.stoveID.text.trim(),
-                          fullName: controller.fullName.text.trim(),
-                          address1: controller.address1.text.trim(),
-                          address2: controller.address2.text.trim(),
-                          town: controller.town.text.trim(),
-                          zip: controller.zip.text.trim(),
-                          phoneNumber: controller.phoneNumber.text.trim(),
-                          idNumber: controller.idNumber.text.trim(),
-                          idType: controller.idType,
-                          stoveImg: controller.stoveImg,
-                          image1: controller.image1,
-                          image2: controller.image2,
-                          image3: controller.image3,
-                          idImage: controller.idImg,
-                        );
-                        await _saveFormDataToLocalStorage(beneficiary.toJson());
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Form data saved locally.'),
-                          ),
-                        );
+                        await _saveFormDataToLocalStorage(
+                            context, beneficiary.toJson());
+                        _resetForm();
+                        Get.back();
                       }
                     },
                     child: Text(
@@ -123,11 +130,25 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
       ),
     );
   }
-}
 
-Future<void> _saveFormDataToLocalStorage(Map<String, dynamic> data) async {
-  final prefs = await SharedPreferences.getInstance();
-  final formData = prefs.getStringList('formData') ?? [];
-  formData.add(jsonEncode(data));
-  await prefs.setStringList('formData', formData);
+  Future<void> _saveFormDataToLocalStorage(
+      BuildContext context, Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    final formDataList = prefs.getStringList('formData') ?? [];
+
+    formDataList.add(jsonEncode(data));
+
+    await prefs.setStringList('formData', formDataList);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Form data saved locally.'),
+      ),
+    );
+  }
+
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    // Reset any additional values or state variables if needed
+  }
 }

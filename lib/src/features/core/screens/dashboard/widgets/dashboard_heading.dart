@@ -11,7 +11,6 @@ class DashboardHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Text(aDashboard, style: Theme.of(context).textTheme.headlineLarge),
-      Text(aDashboardSubtitle, style: Theme.of(context).textTheme.titleLarge),
     ]);
   }
 }

@@ -40,10 +40,10 @@ const String aAppName = "Alphabet Greens";
 
 // -- Dashboard - Text
 
-const String aDashboard = "Dashboard";
-const String aDashboardSubtitle = "Go Exploring";
+const String aDashboard = "Agent Dashboard";
 const String aAddBeneficiary = "Add Beneficiary";
 const String aExistingBeneficiary = "Existing Beneficiary";
+const String aLocalBeneficiary = "Beneficiary Local Storage";
 
 // -- Beneficiary Form - Text
 

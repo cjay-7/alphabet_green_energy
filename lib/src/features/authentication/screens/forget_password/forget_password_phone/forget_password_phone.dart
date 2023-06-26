@@ -48,8 +48,8 @@ class ForgetPasswordPhoneScreen extends StatelessWidget {
                           child: ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-                                  SignInController.instance.phoneAuthentication(
-                                      controller.phoneNo.text.trim());
+                                  // SignInController.instance.phoneAuthentication(
+                                  //     controller.phoneNo.text.trim());
                                   Get.to(() => const OTPScreen());
                                 }
                               },

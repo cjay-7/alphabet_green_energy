@@ -1,4 +1,5 @@
 import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/forget_password_options/forget_password_model_bottom_sheet.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +17,7 @@ class LoginForm extends StatelessWidget {
     final controller = Get.put(SignInController());
     final _formKey = GlobalKey<FormState>();
     return Form(
+      autovalidateMode: AutovalidateMode.always,
       key: _formKey,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: aFormHeight - 10),
@@ -29,10 +31,14 @@ class LoginForm extends StatelessWidget {
                   labelText: aEmail,
                   hintText: aEmail,
                   border: OutlineInputBorder()),
+              validator: (value) => EmailValidator.validate(value!)
+                  ? null
+                  : "Please enter a valid email",
             ),
             const SizedBox(height: aFormHeight - 20),
             TextFormField(
               controller: controller.password,
+              obscureText: true,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.fingerprint),
                 labelText: aPassword,
@@ -43,6 +49,12 @@ class LoginForm extends StatelessWidget {
                   icon: Icon(Icons.remove_red_eye_sharp),
                 ),
               ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Please enter Password";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: aFormHeight - 20),
             Align(

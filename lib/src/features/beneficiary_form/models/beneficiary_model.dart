@@ -1,5 +1,3 @@
-// import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BeneficiaryModel {
@@ -40,7 +38,7 @@ class BeneficiaryModel {
 
   toJson() {
     return {
-      "StoveId": stoveID,
+      "StoveID": stoveID,
       "StoveImg": stoveImg,
       "FullName": fullName,
       "Address1": address1,
@@ -61,20 +59,40 @@ class BeneficiaryModel {
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
     return BeneficiaryModel(
-        id: document.id,
-        stoveID: data["StoveId"],
-        stoveImg: data["StoveImg"],
-        fullName: data["FullName"],
-        address1: data["Address1"],
-        address2: data["Address2"],
-        town: data["Town"],
-        zip: data["Zip"],
-        phoneNumber: data["PhoneNumber"],
-        idNumber: data["IdNumber"],
-        idType: data["IdType"],
-        image1: data["Image1"],
-        image2: data["Image1"],
-        image3: data["Image1"],
-        idImage: data["IdImage"]);
+      id: data["IdNumber"],
+      stoveID: data["StoveID"],
+      stoveImg: data["StoveImg"],
+      fullName: data["FullName"],
+      address1: data["Address1"],
+      address2: data["Address2"],
+      town: data["Town"],
+      zip: data["Zip"],
+      phoneNumber: data["PhoneNumber"],
+      idNumber: data["IdNumber"],
+      idType: data["IdType"],
+      image1: data["Image1"],
+      image2: data["Image2"],
+      image3: data["Image3"],
+      idImage: data["IdImage"],
+    );
+  }
+
+  factory BeneficiaryModel.fromJson(Map<String, dynamic> json) {
+    return BeneficiaryModel(
+      stoveID: json['StoveID'],
+      stoveImg: json['StoveImg'],
+      fullName: json['FullName'],
+      address1: json['Address1'],
+      address2: json['Address2'],
+      town: json['Town'],
+      zip: json['Zip'],
+      phoneNumber: json['PhoneNumber'],
+      idNumber: json['IdNumber'],
+      idType: json['IdType'],
+      image1: json['Image1'],
+      image2: json['Image2'],
+      image3: json['Image3'],
+      idImage: json['IdImage'],
+    );
   }
 }

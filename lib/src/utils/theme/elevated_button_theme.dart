@@ -10,7 +10,7 @@ class AElevatedButtonTheme {
   static final lightElevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       elevation: 0,
-      foregroundColor: aWhiteColor,
+      foregroundColor: aDarkColor,
       backgroundColor: aAccentColor,
       side: const BorderSide(color: aAccentColor),
       padding: const EdgeInsets.symmetric(vertical: aButtonHeight),

@@ -109,9 +109,12 @@ Column personalDetailsForm(BuildContext context) {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return;
+                    return "Please enter Zip Code";
+                  } else if (int.tryParse(value) == null) {
+                    return 'Only numbers are allowed';
+                  } else if (value.length != 6) {
+                    return "Please enter valid Zip";
                   }
-                  return null;
                 },
               ),
             ),
@@ -128,9 +131,12 @@ Column personalDetailsForm(BuildContext context) {
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return;
+                    return "Please enter Phone Number";
+                  } else if (int.tryParse(value) == null) {
+                    return 'Only numbers are allowed';
+                  } else if (value.length != 10) {
+                    return "Please enter valid Number";
                   }
-                  return null;
                 },
               ),
             ),
