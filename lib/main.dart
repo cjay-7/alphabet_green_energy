@@ -7,10 +7,10 @@ import 'package:get/get.dart';
 
 import 'src/features/authentication/screens/login/login_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
-      .then((value) => Get.put(AuthenticationRepository()));
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  Get.put(AuthenticationRepository());
   runApp(const App());
 }
 

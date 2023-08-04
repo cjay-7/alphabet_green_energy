@@ -70,7 +70,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1098077986035',
     projectId: 'alphabetgreens',
     storageBucket: 'alphabetgreens.appspot.com',
-    iosClientId: '1098077986035-4v68t957erttkm7skggetjvg59v0q6gt.apps.googleusercontent.com',
+    iosClientId:
+        '1098077986035-4v68t957erttkm7skggetjvg59v0q6gt.apps.googleusercontent.com',
     iosBundleId: 'com.alphabetgreenenergy.alphabetGreenEnergy',
   );
 }

@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,19 @@ class ExistingBeneficiary extends StatefulWidget {
 class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
   final _beneficiaryController = Get.put(BeneficiaryController());
   final _formKey = GlobalKey<FormState>();
+  late ConnectivityResult connectivityResult =
+      ConnectivityResult.none; // Initialize with a default value
+
+  @override
+  void initState() {
+    super.initState();
+    checkConnectivity();
+  }
+
+  Future<void> checkConnectivity() async {
+    connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {}); // Refresh the UI after getting connectivity status
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,20 +43,29 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Enter CookStove Serial Number:',
+                Text(
+                    connectivityResult != ConnectivityResult.none
+                        ? 'Enter CookStove Serial Number:'
+                        : 'Enter Beneficiary ID Number:',
                     style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 50.0),
                 TextFormField(
-                  controller: _beneficiaryController.stoveID,
+                  controller: connectivityResult != ConnectivityResult.none
+                      ? _beneficiaryController.stoveID
+                      : _beneficiaryController.idNumber,
                   autofocus: true,
                   textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter Stove ID',
+                  decoration: InputDecoration(
+                    labelText: connectivityResult != ConnectivityResult.none
+                        ? 'Enter Stove ID'
+                        : 'Enter ID Number',
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return "Please enter Stove ID";
+                      return connectivityResult != ConnectivityResult.none
+                          ? "Please enter Stove ID"
+                          : "Please enter ID Number";
                     }
                     return null;
                   },
@@ -54,14 +77,19 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _beneficiaryController.getBeneficiaryData(
-                          _beneficiaryController.stoveID.text,
+                          connectivityResult != ConnectivityResult.none
+                              ? _beneficiaryController.stoveID.text
+                              : _beneficiaryController.idNumber.text,
                           _beneficiaryController,
                         );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  const BeneficiaryListScreen()),
+                            builder: (context) => const BeneficiaryListScreen(),
+                            settings: RouteSettings(
+                                arguments:
+                                    _beneficiaryController.idNumber.text),
+                          ),
                         );
                       }
                     },

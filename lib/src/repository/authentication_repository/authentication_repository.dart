@@ -58,7 +58,9 @@ class AuthenticationRepository extends GetxController {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       firebaseUser.value != null
-          ? Get.offAll(() => const Dashboard())
+          ? Get.offAll(() async {
+              const Dashboard();
+            })
           : Get.to(() => const LoginScreen());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {

@@ -29,13 +29,12 @@ class AddBeneficiaryVisitModel {
       idNumber: data["idNumber"],
     );
   }
-
   factory AddBeneficiaryVisitModel.fromJson(Map<String, dynamic> json) {
     return AddBeneficiaryVisitModel(
-      stoveImgVisit: json["stoveImgVisit"] ?? '',
-      usedRegularly: json["usedRegularly"] ?? '',
-      worksProperly: json["worksProperly"] ?? '',
-      idNumber: json["idNumber"] ?? '',
+      stoveImgVisit: json["StoveImgVisit"],
+      usedRegularly: json["usedRegularly"],
+      worksProperly: json["worksProperly"],
+      idNumber: json["idNumber"],
     );
   }
 }

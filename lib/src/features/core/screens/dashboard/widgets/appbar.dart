@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../../../constants/colors.dart';
 import '../../../../../constants/image_strings.dart';
 import '../../../../../constants/text.dart';
+import '../../profile/profile_screen.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   const DashboardAppBar({
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return AppBar(
+      backgroundColor: isDark ? aSecondaryColor : aAccentColor,
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -26,14 +31,14 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       elevation: 0,
-      //actions: const [
-      // IconButton(
-      //   onPressed: () {
-      //     Get.to(() => const ProfileScreen());
-      //   },
-      //   icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
-      //)
-      //],
+      actions: [
+        IconButton(
+          onPressed: () {
+            Get.to(() => const ProfileScreen());
+          },
+          icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
+        )
+      ],
     );
   }
 

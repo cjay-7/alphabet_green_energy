@@ -43,7 +43,8 @@ const String aAppName = "Alphabet Greens";
 const String aDashboard = "Agent Dashboard";
 const String aAddBeneficiary = "Add Beneficiary";
 const String aExistingBeneficiary = "Existing Beneficiary";
-const String aLocalBeneficiary = "Beneficiary Local Storage";
+const String aLocalBeneficiary = "Local Storage Data";
+const String aSurvey = "Survey Form";
 
 // -- Beneficiary Form - Text
 
@@ -90,3 +91,9 @@ const String aMenu3 = "User Management";
 const String aDelete = "Delete";
 const String aJoined = "Joined";
 const String aJoinedAt = "31 October 2022";
+
+// LocalStorage View
+
+const String aFormData = 'Form Data';
+const String aVisitData = 'Visit Data';
+const String aSurveyData = 'Survey Data';

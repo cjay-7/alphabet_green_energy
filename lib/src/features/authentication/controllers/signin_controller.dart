@@ -9,11 +9,13 @@ class SignInController extends GetxController {
   final password = TextEditingController();
   final phoneNo = TextEditingController();
 
-  void signInUser(String email, String password) {
-    String? error = AuthenticationRepository.instance
+  Future<void> signInUser(String email, String password) async {
+    String? error = await AuthenticationRepository.instance
         .loginWithEmailAndPassword(email, password) as String;
     if (error != null) {
       Get.showSnackbar(GetSnackBar(message: error.toString()));
+    } else {
+      // User successfully signed in, save user details in local storage
     }
   }
 

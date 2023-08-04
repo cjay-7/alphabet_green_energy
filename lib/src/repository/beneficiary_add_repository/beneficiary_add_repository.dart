@@ -100,18 +100,32 @@ class BeneficiaryAddRepository extends GetxController {
     }
   }
 
-  Future<BeneficiaryModel> getBeneficiaryDetails(String stoveID) async {
-    final snapshot = await _db
+  Future<BeneficiaryModel> getBeneficiaryDetails(String serialNumber) async {
+    final stoveIDSnapshot = await _db
         .collection("BeneficiaryData")
-        .where("StoveID", isEqualTo: stoveID)
+        .where("StoveID", isEqualTo: serialNumber)
         .get();
 
-    if (snapshot.docs.isNotEmpty) {
-      final beneficiaryData =
-          snapshot.docs.map((e) => BeneficiaryModel.fromSnapshot(e)).single;
+    if (stoveIDSnapshot.docs.isNotEmpty) {
+      final beneficiaryData = stoveIDSnapshot.docs
+          .map((e) => BeneficiaryModel.fromSnapshot(e))
+          .single;
       return beneficiaryData;
     } else {
-      throw Exception("No beneficiary data found for the provided stoveID");
+      final idNumberSnapshot = await _db
+          .collection("BeneficiaryData")
+          .where("idNumber", isEqualTo: serialNumber)
+          .get();
+
+      if (idNumberSnapshot.docs.isNotEmpty) {
+        final beneficiaryData = idNumberSnapshot.docs
+            .map((e) => BeneficiaryModel.fromSnapshot(e))
+            .single;
+        return beneficiaryData;
+      } else {
+        throw Exception(
+            "No beneficiary data found for the provided serial number");
+      }
     }
   }
 }

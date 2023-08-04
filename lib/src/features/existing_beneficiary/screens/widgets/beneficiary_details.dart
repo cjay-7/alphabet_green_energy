@@ -75,21 +75,11 @@ class BeneficiaryDetails extends StatelessWidget {
                     children: [
                       TableRow(
                         children: [
-                          const TableCell(
-                            child: Text("ID Type: "),
-                          ),
                           TableCell(
                             child: Text(
-                              beneficiary.idType,
+                              "${beneficiary.idType}:",
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          const TableCell(
-                            child: Text("ID Number: "),
                           ),
                           TableCell(
                             child: Text(
@@ -105,15 +95,15 @@ class BeneficiaryDetails extends StatelessWidget {
                             child: Text("ID Photo: "),
                           ),
                           TableCell(
-                            child: InkWell(
+                            child: GestureDetector(
                               child: const Text(
                                 "View ID Photo",
                                 style: TextStyle(
-                                    color: Colors.blueAccent,
-                                    decoration: TextDecoration.underline),
+                                  color: Colors.blueAccent,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
-                              onTap: () =>
-                                  launchUrl(Uri.parse(beneficiary.idImage)),
+                              onTap: () => launch(beneficiary.idImage),
                             ),
                           ),
                         ],

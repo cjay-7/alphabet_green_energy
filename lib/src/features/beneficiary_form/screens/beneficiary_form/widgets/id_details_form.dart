@@ -48,10 +48,12 @@ class _IdDetailsState extends State<IdDetails> {
     await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
 
     setState(() {
-      controller.stoveImg = _imageFile!.path;
+      controller.idImg = _imageFile!.path;
       isImageUploaded = true;
       isUploading = false;
     });
+    print('Image uploaded to local storage:');
+    print('Stove Image Path: ${controller.stoveImg}');
   }
 
   Future<void> uploadImageToFirebase() async {
@@ -105,39 +107,39 @@ class _IdDetailsState extends State<IdDetails> {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: DropdownSearch(
-                        popupProps: const PopupProps.menu(
-                          showSearchBox: true,
-                        ),
-                        selectedItem: idType,
-                        items: _idList,
-                        dropdownDecoratorProps: const DropDownDecoratorProps(
-                          dropdownSearchDecoration: InputDecoration(
-                            labelText: aIdentificationType,
-                            prefixIcon: Icon(Icons.add_card_rounded),
-                          ),
-                        ),
-                        onChanged: (val) {
-                          controller.idType = val as String;
-                        },
-                        validator: (item) {
-                          if (item == null) {
-                            return aIDNoValidator;
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Padding(
+              //         padding: const EdgeInsets.only(top: 8.0),
+              //         child: DropdownSearch(
+              //           popupProps: const PopupProps.menu(
+              //             showSearchBox: true,
+              //           ),
+              //           selectedItem: idType,
+              //           items: _idList,
+              //           dropdownDecoratorProps: const DropDownDecoratorProps(
+              //             dropdownSearchDecoration: InputDecoration(
+              //               labelText: aIdentificationType,
+              //               prefixIcon: Icon(Icons.add_card_rounded),
+              //             ),
+              //           ),
+              //           onChanged: (val) {
+              //             controller.idType = val as String;
+              //           },
+              //           validator: (item) {
+              //             if (item == null) {
+              //               return aIDNoValidator;
+              //             }
+              //             return null;
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -158,76 +160,76 @@ class _IdDetailsState extends State<IdDetails> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: OutlinedButton(
-                          onPressed: () => pickImage(),
-                          child: Text(
-                            aIDPhoto,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: ElevatedButton.icon(
-                          onPressed: (_imageFile == null || isUploading)
-                              ? null
-                              : () async {
-                                  var result =
-                                      await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
-                                    uploadImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
-                                    uploadImageToLocalStorage();
-                                  }
-                                },
-                          icon: isUploading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : isImageUploaded
-                                  ? const Icon(Icons.check)
-                                  : const Icon(Icons.upload),
-                          label: Text(
-                            isImageUploaded ? 'Uploaded' : 'Upload',
-                            style: GoogleFonts.montserrat(
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                fileName,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 10),
+              // Padding(
+              //   padding: const EdgeInsets.all(8),
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: SizedBox(
+              //           height: 60,
+              //           child: OutlinedButton(
+              //             onPressed: () => pickImage(),
+              //             child: Text(
+              //               aIDPhoto,
+              //               style: Theme.of(context).textTheme.bodySmall,
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //       const SizedBox(width: 8),
+              //       Expanded(
+              //         child: SizedBox(
+              //           height: 60,
+              //           child: ElevatedButton.icon(
+              //             onPressed: (_imageFile == null || isUploading)
+              //                 ? null
+              //                 : () async {
+              //                     var result =
+              //                         await Connectivity().checkConnectivity();
+              //                     if (result != ConnectivityResult.none) {
+              //                       uploadImageToFirebase();
+              //                     } else if (result ==
+              //                         ConnectivityResult.none) {
+              //                       uploadImageToLocalStorage();
+              //                     }
+              //                   },
+              //             icon: isUploading
+              //                 ? const SizedBox(
+              //                     width: 16,
+              //                     height: 16,
+              //                     child: CircularProgressIndicator(
+              //                       strokeWidth: 2,
+              //                       valueColor: AlwaysStoppedAnimation<Color>(
+              //                         Colors.white,
+              //                       ),
+              //                     ),
+              //                   )
+              //                 : isImageUploaded
+              //                     ? const Icon(Icons.check)
+              //                     : const Icon(Icons.upload),
+              //             label: Text(
+              //               isImageUploaded ? 'Uploaded' : 'Upload',
+              //               style: GoogleFonts.montserrat(
+              //                 color: Colors.black54,
+              //                 fontWeight: FontWeight.w400,
+              //                 fontSize: 12,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // const SizedBox(height: 5),
+              // Text(
+              //   fileName,
+              //   style: const TextStyle(
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.w500,
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
             ],
           ),
         ),

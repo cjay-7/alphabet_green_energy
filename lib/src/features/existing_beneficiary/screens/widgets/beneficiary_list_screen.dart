@@ -16,7 +16,6 @@ import '../../../../constants/text.dart';
 import '../../controllers/add_beneficiary_visit_controller.dart';
 import '../../controllers/get_beneficiary_details_controller.dart';
 import '../../models/add_beneficiary_visit_model.dart';
-
 import 'beneficiary_details.dart';
 
 class BeneficiaryListScreen extends StatefulWidget {
@@ -95,6 +94,15 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
     final fileName =
         _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
     final size = MediaQuery.of(context).size;
+
+    Future<ConnectivityResult> checkConnectivity() async {
+      final ConnectivityResult result =
+          await Connectivity().checkConnectivity();
+      return result;
+    }
+
+    String? idNumber = "";
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Beneficiary Details'),
@@ -102,264 +110,246 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
       body: Obx(
         () {
           if (_beneficiaryController.beneficiaryList.isEmpty) {
-            return const Center(
-              child: Text('No beneficiaries found.'),
-            );
+            idNumber = ModalRoute.of(context)?.settings.arguments as String?;
+            return revisitForm(context, fileName, idNumber!);
           } else {
-            var idNumber = _beneficiaryController.beneficiaryList[0].idNumber;
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  BeneficiaryDetails(
-                    size: size,
-                    beneficiaryController: _beneficiaryController,
-                  ),
-                  Form(
-                    key: _formKey,
+            return FutureBuilder<ConnectivityResult>(
+              future: checkConnectivity(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // Show loading indicator while checking connectivity
+                }
+                if (snapshot.hasData &&
+                    snapshot.data != ConnectivityResult.none) {
+                  idNumber = _beneficiaryController.beneficiaryList[0].idNumber;
+                  return SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 0,
-                                horizontal: 20.0,
-                              ),
-                              child: Text(
-                                "Revisit Form",
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: DropdownSearch(
-                                      popupProps: const PopupProps.menu(
-                                        showSearchBox: true,
-                                      ),
-                                      selectedItem: usedRegularly,
-                                      items: _usedRegularlyList,
-                                      dropdownDecoratorProps:
-                                          const DropDownDecoratorProps(
-                                        dropdownSearchDecoration:
-                                            InputDecoration(
-                                          labelText: "Is it used regularly",
-                                          prefixIcon: Icon(Icons.timer),
-                                        ),
-                                      ),
-                                      onChanged: (val) {
-                                        addBeneficiaryVisitController
-                                            .usedRegularly = val as String;
-                                      },
-                                      validator: (item) {
-                                        if (item == null) {
-                                          return "Select an Option";
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 20),
-                              child: DropdownSearch(
-                                popupProps: const PopupProps.menu(
-                                  showSearchBox: true,
-                                ),
-                                selectedItem: worksProperly,
-                                items: _worksProperlyList,
-                                dropdownDecoratorProps:
-                                    const DropDownDecoratorProps(
-                                  dropdownSearchDecoration: InputDecoration(
-                                    labelText: "Is it working properly",
-                                    prefixIcon: Icon(Icons.work_history),
-                                  ),
-                                ),
-                                onChanged: (val) {
-                                  addBeneficiaryVisitController.worksProperly =
-                                      val as String;
-                                },
-                                validator: (item) {
-                                  if (item == null) {
-                                    return "Select an Option";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 20),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 60,
-                                          child: OutlinedButton(
-                                            onPressed: () => pickImage(),
-                                            child: Text(
-                                              aAddStovePicture,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 60,
-                                          child: ElevatedButton.icon(
-                                            onPressed: (_imageFile == null ||
-                                                    isUploading)
-                                                ? null
-                                                : () async {
-                                                    var result =
-                                                        await Connectivity()
-                                                            .checkConnectivity();
-                                                    if (result !=
-                                                        ConnectivityResult
-                                                            .none) {
-                                                      setState(() {
-                                                        isUploading = true;
-                                                      });
-                                                      uploadImageToFirebase();
-                                                    } else if (result ==
-                                                        ConnectivityResult
-                                                            .none) {
-                                                      uploadImageToLocalStorage();
-                                                    }
-                                                  },
-                                            icon: isImageUploaded
-                                                ? const Icon(Icons
-                                                    .check) // Show check mark icon
-                                                : const Icon(Icons.upload),
-                                            label: Text(
-                                              isImageUploaded
-                                                  ? "Uploaded"
-                                                  : isUploading
-                                                      ? "Uploading..."
-                                                      : "Upload",
-                                              style: GoogleFonts.montserrat(
-                                                color: Colors.black54,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    fileName,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 20),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 60.0,
-                                child: OutlinedButton(
-                                  onPressed: () async {
-                                    var result = await Connectivity()
-                                        .checkConnectivity();
-                                    if (result != ConnectivityResult.none) {
-                                      if (_formKey.currentState!.validate() &&
-                                          addBeneficiaryVisitController
-                                                  .stoveImgVisit !=
-                                              '') {
-                                        _formKey.currentState!.save();
-
-                                        final addVisit =
-                                            AddBeneficiaryVisitModel(
-                                          stoveImgVisit:
-                                              addBeneficiaryVisitController
-                                                  .stoveImgVisit,
-                                          usedRegularly:
-                                              addBeneficiaryVisitController
-                                                  .usedRegularly,
-                                          worksProperly:
-                                              addBeneficiaryVisitController
-                                                  .worksProperly,
-                                          idNumber: idNumber,
-                                        );
-                                        AddBeneficiaryVisitController.instance
-                                            .addVisitData(addVisit, idNumber);
-                                        _resetForm();
-                                        Get.back();
-                                      }
-                                    } else if (result ==
-                                            ConnectivityResult.none &&
-                                        _formKey.currentState!.validate() &&
-                                        addBeneficiaryVisitController
-                                                .stoveImgVisit !=
-                                            "") {
-                                      _formKey.currentState!.save();
-                                      final addVisit = AddBeneficiaryVisitModel(
-                                        stoveImgVisit:
-                                            addBeneficiaryVisitController
-                                                .stoveImgVisit,
-                                        usedRegularly:
-                                            addBeneficiaryVisitController
-                                                .usedRegularly,
-                                        worksProperly:
-                                            addBeneficiaryVisitController
-                                                .worksProperly,
-                                        idNumber: idNumber,
-                                      );
-                                      await _saveVisitDataToLocalStorage(
-                                          context, addVisit.toJson());
-
-                                      if (kDebugMode) {
-                                        print(addVisit.stoveImgVisit);
-                                      }
-
-                                      _resetForm();
-                                      Get.back();
-                                    }
-                                  },
-                                  child: Text(
-                                    aSave,
-                                    style:
-                                        Theme.of(context).textTheme.titleSmall,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        BeneficiaryDetails(
+                          size: size,
+                          beneficiaryController: _beneficiaryController,
                         ),
+                        revisitForm(context, fileName, idNumber!),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                  );
+                } else {
+                  idNumber =
+                      ModalRoute.of(context)?.settings.arguments as String?;
+                  return revisitForm(context, fileName, idNumber!);
+                }
+              },
             );
           }
         },
+      ),
+    );
+  }
+
+  Form revisitForm(BuildContext context, String fileName, String idNumber) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 0,
+              horizontal: 20.0,
+            ),
+            child: Text(
+              "Revisit Form",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: DropdownSearch(
+                    popupProps: const PopupProps.menu(
+                      showSearchBox: true,
+                    ),
+                    selectedItem: usedRegularly,
+                    items: _usedRegularlyList,
+                    dropdownDecoratorProps: const DropDownDecoratorProps(
+                      dropdownSearchDecoration: InputDecoration(
+                        labelText: "Is it used regularly",
+                        prefixIcon: Icon(Icons.timer),
+                      ),
+                    ),
+                    onChanged: (val) {
+                      addBeneficiaryVisitController.usedRegularly =
+                          val as String;
+                    },
+                    validator: (item) {
+                      if (item == null) {
+                        return "Select an Option";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+            child: DropdownSearch(
+              popupProps: const PopupProps.menu(
+                showSearchBox: true,
+              ),
+              selectedItem: worksProperly,
+              items: _worksProperlyList,
+              dropdownDecoratorProps: const DropDownDecoratorProps(
+                dropdownSearchDecoration: InputDecoration(
+                  labelText: "Is it working properly",
+                  prefixIcon: Icon(Icons.work_history),
+                ),
+              ),
+              onChanged: (val) {
+                addBeneficiaryVisitController.worksProperly = val as String;
+              },
+              validator: (item) {
+                if (item == null) {
+                  return "Select an Option";
+                }
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: OutlinedButton(
+                          onPressed: () => pickImage(),
+                          child: Text(
+                            aAddStovePicture,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: ElevatedButton.icon(
+                          onPressed: (_imageFile == null || isUploading)
+                              ? null
+                              : () async {
+                                  var result =
+                                      await Connectivity().checkConnectivity();
+                                  if (result != ConnectivityResult.none) {
+                                    setState(() {
+                                      isUploading = true;
+                                    });
+                                    uploadImageToFirebase();
+                                  } else if (result ==
+                                      ConnectivityResult.none) {
+                                    uploadImageToLocalStorage();
+                                  }
+                                },
+                          icon: isImageUploaded
+                              ? const Icon(Icons.check) // Show check mark icon
+                              : const Icon(Icons.upload),
+                          label: Text(
+                            isImageUploaded
+                                ? "Uploaded"
+                                : isUploading
+                                    ? "Uploading..."
+                                    : "Upload",
+                            style: GoogleFonts.montserrat(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  fileName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+            child: SizedBox(
+              width: double.infinity,
+              height: 60.0,
+              child: OutlinedButton(
+                onPressed: () async {
+                  var result = await Connectivity().checkConnectivity();
+                  if (result != ConnectivityResult.none) {
+                    if (_formKey.currentState!.validate() &&
+                        addBeneficiaryVisitController.stoveImgVisit != '') {
+                      _formKey.currentState!.save();
+
+                      final addVisit = AddBeneficiaryVisitModel(
+                        stoveImgVisit:
+                            addBeneficiaryVisitController.stoveImgVisit,
+                        usedRegularly:
+                            addBeneficiaryVisitController.usedRegularly,
+                        worksProperly:
+                            addBeneficiaryVisitController.worksProperly,
+                        idNumber: idNumber,
+                      );
+                      AddBeneficiaryVisitController.instance
+                          .addVisitData(addVisit, idNumber);
+                      _resetForm();
+                      Get.back();
+                    }
+                  } else if (result == ConnectivityResult.none &&
+                      _formKey.currentState!.validate() &&
+                      addBeneficiaryVisitController.stoveImgVisit != "") {
+                    _formKey.currentState!.save();
+                    final addVisit = AddBeneficiaryVisitModel(
+                      stoveImgVisit:
+                          addBeneficiaryVisitController.stoveImgVisit,
+                      usedRegularly:
+                          addBeneficiaryVisitController.usedRegularly,
+                      worksProperly:
+                          addBeneficiaryVisitController.worksProperly,
+                      idNumber: idNumber,
+                    );
+                    await _saveVisitDataToLocalStorage(
+                        context, addVisit.toJson());
+
+                    if (kDebugMode) {
+                      print(addVisit.stoveImgVisit);
+                    }
+
+                    _resetForm();
+                    Get.back();
+                  }
+                },
+                child: Text(
+                  aSave,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

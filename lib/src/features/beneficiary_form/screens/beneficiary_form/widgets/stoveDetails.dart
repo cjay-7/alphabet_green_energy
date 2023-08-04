@@ -106,77 +106,77 @@ class _StoveDetailsState extends State<StoveDetails> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: OutlinedButton(
-                          onPressed: () => pickImage(),
-                          child: Text(
-                            aAddStovePicture,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: ElevatedButton.icon(
-                          onPressed: (_imageFile == null || isUploading)
-                              ? null
-                              : () async {
-                                  var result =
-                                      await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
-                                    uploadImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
-                                    uploadImageToLocalStorage();
-                                  }
-                                },
-                          icon: isImageUploaded
-                              ? const Icon(Icons.check)
-                              : (isUploading
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Icon(Icons.upload)),
-                          label: Text(
-                            isImageUploaded ? "Uploaded" : "Upload",
-                            style: GoogleFonts.montserrat(
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  fileName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8),
+          //   child: Column(
+          //     children: [
+          //       Row(
+          //         children: [
+          //           Expanded(
+          //             child: SizedBox(
+          //               height: 60,
+          //               child: OutlinedButton(
+          //                 onPressed: () => pickImage(),
+          //                 child: Text(
+          //                   aAddStovePicture,
+          //                   style: Theme.of(context).textTheme.bodySmall,
+          //                 ),
+          //               ),
+          //             ),
+          //           ),
+          //           const SizedBox(width: 8),
+          //           Expanded(
+          //             child: SizedBox(
+          //               height: 60,
+          //               child: ElevatedButton.icon(
+          //                 onPressed: (_imageFile == null || isUploading)
+          //                     ? null
+          //                     : () async {
+          //                         var result =
+          //                             await Connectivity().checkConnectivity();
+          //                         if (result != ConnectivityResult.none) {
+          //                           uploadImageToFirebase();
+          //                         } else if (result ==
+          //                             ConnectivityResult.none) {
+          //                           uploadImageToLocalStorage();
+          //                         }
+          //                       },
+          //                 icon: isImageUploaded
+          //                     ? const Icon(Icons.check)
+          //                     : (isUploading
+          //                         ? const SizedBox(
+          //                             width: 16,
+          //                             height: 16,
+          //                             child: CircularProgressIndicator(
+          //                               strokeWidth: 2,
+          //                               color: Colors.white,
+          //                             ),
+          //                           )
+          //                         : const Icon(Icons.upload)),
+          //                 label: Text(
+          //                   isImageUploaded ? "Uploaded" : "Upload",
+          //                   style: GoogleFonts.montserrat(
+          //                     color: Colors.black54,
+          //                     fontWeight: FontWeight.w400,
+          //                     fontSize: 12,
+          //                   ),
+          //                 ),
+          //               ),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       const SizedBox(height: 10),
+          //       Text(
+          //         fileName,
+          //         style: const TextStyle(
+          //           fontSize: 16,
+          //           fontWeight: FontWeight.w500,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

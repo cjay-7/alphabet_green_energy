@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
@@ -21,6 +23,28 @@ class UserModel {
       "Phone": phoneNo,
       "Password": password,
     };
+  }
+
+  // Method to convert UserModel to JSON string
+  String toJsonString() {
+    return jsonEncode({
+      "id": id,
+      "email": email,
+      "password": password,
+      "phoneNo": phoneNo,
+      "fullName": fullName,
+    });
+  }
+
+  // Factory method to create UserModel instance from JSON data
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json["id"],
+      email: json["email"],
+      password: json["password"],
+      phoneNo: json["phoneNo"],
+      fullName: json["fullName"],
+    );
   }
 
   factory UserModel.fromSnapshot(

@@ -11,15 +11,15 @@ class BeneficiaryController extends GetxController {
       Get.put(BeneficiaryAddRepository());
 
   final TextEditingController stoveID = TextEditingController();
-
+  final TextEditingController idNumber = TextEditingController();
   final RxList<BeneficiaryModel> beneficiaryList = <BeneficiaryModel>[].obs;
 
   Future<void> getBeneficiaryData(
       String serialNumber, BeneficiaryController beneficiaryController) async {
-    if (stoveID.text.isNotEmpty) {
+    if (serialNumber.isNotEmpty) {
       try {
         BeneficiaryModel beneficiary =
-            await _beneficiaryRepo.getBeneficiaryDetails(stoveID.text);
+            await _beneficiaryRepo.getBeneficiaryDetails(serialNumber);
         if (beneficiary != null) {
           beneficiaryList.clear();
           beneficiaryList.add(beneficiary);

@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../../constants/text.dart';
-import '../../../controllers/beneficiary_add_controller.dart';
+
 import 'package:path/path.dart';
+
+import '../../../../constants/text.dart';
+import '../../controllers/survey_add_controller.dart';
 
 class FinalPictures extends StatefulWidget {
   const FinalPictures({Key? key}) : super(key: key);
@@ -18,7 +20,7 @@ class FinalPictures extends StatefulWidget {
 }
 
 class _FinalPicturesState extends State<FinalPictures> {
-  final controller = Get.put(BeneficiaryAddController());
+  final controller = Get.put(SurveyAddController());
   File? _imageFile;
   UploadTask? uploadTask;
   final picker = ImagePicker();
@@ -41,9 +43,7 @@ class _FinalPicturesState extends State<FinalPictures> {
 
     await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
     setState(() {
-      if (controller.image1 == "") controller.image1 = _imageFile!.path;
-      if (controller.image2 == "") controller.image2 = _imageFile!.path;
-      if (controller.image3 == "") controller.image3 = _imageFile!.path;
+      controller.image1 = _imageFile!.path;
     });
 
     // Simulating upload completion delay
@@ -68,9 +68,7 @@ class _FinalPicturesState extends State<FinalPictures> {
     try {
       await uploadTask?.whenComplete(() {});
       final imageUrl = await firebaseStorageRef.getDownloadURL();
-      if (controller.image1 == "") controller.image1 = imageUrl;
-      if (controller.image2 == "") controller.image2 = imageUrl;
-      if (controller.image3 == "") controller.image3 = imageUrl;
+      controller.image1 = imageUrl;
     } catch (e) {
       print('Error uploading image: $e');
       // Handle any errors that occurred during the upload process
@@ -99,7 +97,7 @@ class _FinalPicturesState extends State<FinalPictures> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Add pictures of stove handed to the beneficiary",
+              "Add picture of Surveyee",
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),

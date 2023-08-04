@@ -6,6 +6,7 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/bene
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/id_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/personal_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/stoveDetails.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
@@ -41,17 +42,17 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const StoveDetails(),
-                const Divider(),
+                // const Divider(),
                 personalDetailsForm(context),
-                const Divider(),
+                // const Divider(),
                 const IdDetails(),
-                const Divider(),
-                const FinalPictures(),
-                const Divider(),
-                const FinalPictures(),
-                const Divider(),
-                const FinalPictures(),
-                const Divider(),
+                // const Divider(),
+                // const FinalPictures(),
+                // const Divider(),
+                // const FinalPictures(),
+                // const Divider(),
+                // const FinalPictures(),
+                // const Divider(),
                 SizedBox(
                   width: double.infinity,
                   height: 60.0,
@@ -59,12 +60,14 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                     onPressed: () async {
                       var result = await Connectivity().checkConnectivity();
                       if (result != ConnectivityResult.none) {
-                        if (_formKey.currentState!.validate() &&
-                            controller.stoveImg != '' &&
-                            controller.image1 != '' &&
-                            controller.image2 != '' &&
-                            controller.image3 != '' &&
-                            controller.idImg != '') {
+                        if (_formKey.currentState!.validate()
+                            // &&
+                            // controller.stoveImg.isNotEmpty &&
+                            // controller.image1.isNotEmpty &&
+                            // controller.image2.isNotEmpty &&
+                            // controller.image3.isNotEmpty &&
+                            // controller.idImg.isNotEmpty
+                            ) {
                           _formKey.currentState!.save();
                           final beneficiary = BeneficiaryModel(
                             stoveID: controller.stoveID.text.trim(),
@@ -83,17 +86,19 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                             idImage: controller.idImg,
                           );
                           BeneficiaryAddController.instance
-                              .addData(beneficiary);
+                              .addData(context, beneficiary);
                           _resetForm();
                           Get.back();
                         }
                       } else if (result == ConnectivityResult.none &&
-                          _formKey.currentState!.validate() &&
-                          controller.stoveImg != '' &&
-                          controller.image1 != '' &&
-                          controller.image2 != '' &&
-                          controller.image3 != '' &&
-                          controller.idImg != '') {
+                              _formKey.currentState!.validate()
+                          // &&
+                          // controller.stoveImg.isNotEmpty &&
+                          // controller.image1.isNotEmpty &&
+                          // controller.image2.isNotEmpty &&
+                          // controller.image3.isNotEmpty &&
+                          // controller.idImg.isNotEmpty
+                          ) {
                         _formKey.currentState!.save();
                         final beneficiary = BeneficiaryModel(
                           stoveID: controller.stoveID.text.trim(),
@@ -115,6 +120,24 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                             context, beneficiary.toJson());
                         _resetForm();
                         Get.back();
+                      } else {
+                        if (kDebugMode) {
+                          if (controller.stoveImg.isEmpty) {
+                            print("stoveImg is empty.");
+                          }
+                          if (controller.image1.isEmpty) {
+                            print("image1 is empty.");
+                          }
+                          if (controller.image2.isEmpty) {
+                            print("image2 is empty.");
+                          }
+                          if (controller.image3.isEmpty) {
+                            print("image3 is empty.");
+                          }
+                          if (controller.idImg.isEmpty) {
+                            print("idImg is empty.");
+                          }
+                        }
                       }
                     },
                     child: Text(
