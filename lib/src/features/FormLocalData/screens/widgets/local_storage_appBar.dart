@@ -23,13 +23,14 @@ class LocalFormAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: const Text('Local Storage Data'),
       bottom: TabBar(
         controller: _tabController,
+        isScrollable: true,
         tabs: [
           Tab(
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Form Data'),
+                  const Text('Beneficiary Data'),
                   const SizedBox(width: 2.8),
                   Badge(
                     label: Obx(() {

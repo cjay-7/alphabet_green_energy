@@ -9,6 +9,7 @@ class BeneficiaryModel {
       address1,
       address2,
       town,
+      state,
       zip,
       phoneNumber,
       idNumber,
@@ -16,7 +17,10 @@ class BeneficiaryModel {
       image1,
       image2,
       image3,
-      idImage;
+      idImageFront,
+      idImageBack,
+      surveyorName,
+      currentDate;
 
   const BeneficiaryModel({
     this.id,
@@ -25,15 +29,19 @@ class BeneficiaryModel {
     required this.image1,
     required this.image2,
     required this.image3,
-    required this.idImage,
+    required this.idImageFront,
+    required this.idImageBack,
     required this.fullName,
     required this.address1,
     required this.address2,
     required this.town,
+    required this.state,
     required this.zip,
     required this.phoneNumber,
     required this.idNumber,
     required this.idType,
+    required this.currentDate,
+    required this.surveyorName,
   });
 
   toJson() {
@@ -45,13 +53,17 @@ class BeneficiaryModel {
       "Address2": address2,
       "Town": town,
       "Zip": zip,
+      "State": state,
       "PhoneNumber": phoneNumber,
       "IdNumber": idNumber,
       "IdType": idType,
       "Image1": image1,
       "Image2": image2,
       "Image3": image3,
-      "IdImage": idImage,
+      "IdImageFront": idImageFront,
+      "IdImageBack": idImageBack,
+      "currentDate": currentDate,
+      "surveyorName": surveyorName,
     };
   }
 
@@ -66,6 +78,7 @@ class BeneficiaryModel {
       address1: data["Address1"],
       address2: data["Address2"],
       town: data["Town"],
+      state: data["State"],
       zip: data["Zip"],
       phoneNumber: data["PhoneNumber"],
       idNumber: data["IdNumber"],
@@ -73,7 +86,10 @@ class BeneficiaryModel {
       image1: data["Image1"],
       image2: data["Image2"],
       image3: data["Image3"],
-      idImage: data["IdImage"],
+      idImageFront: data["IdImageFront"],
+      idImageBack: data["IdImageBack"],
+      currentDate: data["currentDate"],
+      surveyorName: data["surveyorName"],
     );
   }
 
@@ -85,6 +101,7 @@ class BeneficiaryModel {
       address1: json['Address1'],
       address2: json['Address2'],
       town: json['Town'],
+      state: json['State'],
       zip: json['Zip'],
       phoneNumber: json['PhoneNumber'],
       idNumber: json['IdNumber'],
@@ -92,7 +109,10 @@ class BeneficiaryModel {
       image1: json['Image1'],
       image2: json['Image2'],
       image3: json['Image3'],
-      idImage: json['IdImage'],
+      idImageFront: json['IdImageFront'],
+      idImageBack: json['IdImageBack'],
+      currentDate: json["currentDate"],
+      surveyorName: json["surveyorName"],
     );
   }
 }

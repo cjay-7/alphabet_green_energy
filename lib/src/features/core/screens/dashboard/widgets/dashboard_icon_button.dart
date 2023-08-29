@@ -26,7 +26,7 @@ class DashboardIconButton extends StatelessWidget {
       shape: const StadiumBorder(),
       tileColor: isDark
           ? Colors.blueGrey.withOpacity(0.1)
-          : Colors.brown.withOpacity(0.1),
+          : aAccentColor.withOpacity(.4),
       onTap: onPressed,
       leading: Container(
         width: 40,

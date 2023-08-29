@@ -3,12 +3,17 @@
 // -- GLOBAL Texts
 const String aNext = "Next";
 const String aLogin = "Login";
+const String aSignUp = "Sign Up";
 const String aEmail = "E-Mail";
 const String aPhoneNo = "Phone Number";
 const String aPassword = "Password";
 const String aFullName = "Full Name";
 const String aForgetPassword = "Forget Password";
 const String aSignInWithGoogle = "Sign-In with Google";
+
+// -- Sign up
+const String aSignUpTitle = "Get On Board";
+const String aSignUpSubTitle = "Create Your Account For Greener India";
 
 // -- Login Screen Text
 const String aLoginTitle = "Welcome Back,";
@@ -68,7 +73,8 @@ const String aIdentificationDetails = 'Identification Details';
 const String aIdentificationType = "Identification Type";
 const String aIDNo = 'ID Number';
 const String aIDNoValidator = 'Please enter ID Number';
-const String aIDPhoto = "Add ID Photo";
+const String aIDPhotoFront = "Add ID Front Photo";
+const String aIDPhotoBack = "Add ID Back Photo";
 const String aSave = 'Save';
 
 // -- Profile Screen - Text

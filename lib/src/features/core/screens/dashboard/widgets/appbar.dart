@@ -14,7 +14,8 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return AppBar(
-      backgroundColor: isDark ? aSecondaryColor : aAccentColor,
+      backgroundColor:
+          isDark ? aSecondaryColor : aAccentColor.withBlue(9).withOpacity(.5),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -31,18 +32,18 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       elevation: 0,
-      actions: [
-        IconButton(
-          onPressed: () {
-            Get.to(() => const ProfileScreen());
-          },
-          icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
-        )
-      ],
+      // actions: [
+      //   IconButton(
+      //     onPressed: () {
+      //       Get.to(() => const ProfileScreen());
+      //     },
+      //     icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
+      //   )
+      // ],
     );
   }
 
   @override
   // TODO: implement preferredSize
-  Size get preferredSize => const Size.fromHeight(55);
+  Size get preferredSize => const Size.fromHeight(65);
 }

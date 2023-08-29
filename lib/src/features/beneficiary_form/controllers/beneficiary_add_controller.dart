@@ -12,25 +12,21 @@ class BeneficiaryAddController extends GetxController {
   final address1 = TextEditingController();
   final address2 = TextEditingController();
   final town = TextEditingController();
+  final state = TextEditingController();
   final zip = TextEditingController();
   final phoneNumber = TextEditingController();
   final idNumber = TextEditingController();
   late var idType = "Aadhar Card";
   late var stoveImg = "";
-  late var idImg = "";
+  late var idImgFront = "";
+  late var idImgBack = "";
   late var image1 = "";
   late var image2 = "";
   late var image3 = "";
 
   final beneficiaryAddRepo = Get.put(BeneficiaryAddRepository());
 
-  Future<void> addData(
-      BuildContext context, BeneficiaryModel beneficiary) async {
+  Future<void> addData(BeneficiaryModel beneficiary) async {
     await beneficiaryAddRepo.addData(beneficiary);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Form data saved in firebase.'),
-      ),
-    );
   }
 }

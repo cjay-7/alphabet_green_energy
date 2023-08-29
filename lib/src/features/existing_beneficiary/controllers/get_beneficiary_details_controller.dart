@@ -18,6 +18,8 @@ class BeneficiaryController extends GetxController {
       String serialNumber, BeneficiaryController beneficiaryController) async {
     if (serialNumber.isNotEmpty) {
       try {
+        print(
+            "Fetching beneficiary details for serialNumber: $serialNumber"); // Add this line
         BeneficiaryModel beneficiary =
             await _beneficiaryRepo.getBeneficiaryDetails(serialNumber);
         if (beneficiary != null) {
@@ -27,6 +29,7 @@ class BeneficiaryController extends GetxController {
           Get.snackbar("Error", "No Such Records");
         }
       } catch (error) {
+        print("Error fetching beneficiary data: $error"); // Add this line
         Get.snackbar("Error", "An error occurred");
       }
     } else {

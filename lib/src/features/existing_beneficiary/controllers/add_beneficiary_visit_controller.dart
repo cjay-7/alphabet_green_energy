@@ -18,10 +18,5 @@ class AddBeneficiaryVisitController extends GetxController {
   Future<void> addVisitData(
       AddBeneficiaryVisitModel visitModel, String idNumber) async {
     await beneficiaryAddRepo.checkAndSetVisitData(idNumber, visitModel);
-    ScaffoldMessenger.of(BuildContext as BuildContext).showSnackBar(
-      const SnackBar(
-        content: Text('Form data saved in firebase.'),
-      ),
-    );
   }
 }

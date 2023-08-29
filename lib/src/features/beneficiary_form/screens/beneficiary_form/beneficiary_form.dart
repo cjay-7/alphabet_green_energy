@@ -27,6 +27,19 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
   final controller = Get.put(BeneficiaryAddController());
   final _formKey = GlobalKey<FormState>();
 
+  Future<String> getFullNameFromLocalStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userDataJsonString = prefs.getString('user_data');
+    if (userDataJsonString != null) {
+      final userDataMap =
+          jsonDecode(userDataJsonString) as Map<String, dynamic>;
+      final fullName = userDataMap['fullName'] as String?;
+      return fullName!;
+    } else {
+      return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,109 +55,121 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const StoveDetails(),
-                // const Divider(),
+                const Divider(),
                 personalDetailsForm(context),
-                // const Divider(),
+                const Divider(),
                 const IdDetails(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
-                // const FinalPictures(),
-                // const Divider(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
+                const FinalPictures(),
+                const Divider(),
                 SizedBox(
                   width: double.infinity,
                   height: 60.0,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      var result = await Connectivity().checkConnectivity();
-                      if (result != ConnectivityResult.none) {
-                        if (_formKey.currentState!.validate()
-                            // &&
-                            // controller.stoveImg.isNotEmpty &&
-                            // controller.image1.isNotEmpty &&
-                            // controller.image2.isNotEmpty &&
-                            // controller.image3.isNotEmpty &&
-                            // controller.idImg.isNotEmpty
-                            ) {
-                          _formKey.currentState!.save();
-                          final beneficiary = BeneficiaryModel(
-                            stoveID: controller.stoveID.text.trim(),
-                            fullName: controller.fullName.text.trim(),
-                            address1: controller.address1.text.trim(),
-                            address2: controller.address2.text.trim(),
-                            town: controller.town.text.trim(),
-                            zip: controller.zip.text.trim(),
-                            phoneNumber: controller.phoneNumber.text.trim(),
-                            idNumber: controller.idNumber.text.trim(),
-                            idType: controller.idType,
-                            stoveImg: controller.stoveImg,
-                            image1: controller.image1,
-                            image2: controller.image2,
-                            image3: controller.image3,
-                            idImage: controller.idImg,
+                  child: FutureBuilder<String>(
+                      future: getFullNameFromLocalStorage(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // Show a loading indicator while fetching the fullName from local storage
+                          return const CircularProgressIndicator();
+                        } else {
+                          // Get the fullName from the snapshot data
+                          final fullName = snapshot.data ?? '';
+                          // Update the surveyorName with the fullName
+                          final surveyorName = fullName;
+
+                          return OutlinedButton(
+                            onPressed: () async {
+                              var result =
+                                  await Connectivity().checkConnectivity();
+                              if (result != ConnectivityResult.none) {
+                                if (_formKey.currentState!.validate() &&
+                                    controller.stoveImg.isNotEmpty &&
+                                    controller.image1.isNotEmpty &&
+                                    controller.image2.isNotEmpty &&
+                                    controller.image3.isNotEmpty &&
+                                    controller.idImgFront.isNotEmpty &&
+                                    controller.idImgBack.isNotEmpty) {
+                                  _formKey.currentState!.save();
+
+                                  // Get the current date
+                                  String currentDate =
+                                      DateTime.now().toString();
+                                  final beneficiary = BeneficiaryModel(
+                                    stoveID: controller.stoveID.text.trim(),
+                                    fullName: controller.fullName.text.trim(),
+                                    address1: controller.address1.text.trim(),
+                                    address2: controller.address2.text.trim(),
+                                    town: controller.town.text.trim(),
+                                    state: controller.state.text.trim(),
+                                    zip: controller.zip.text.trim(),
+                                    phoneNumber:
+                                        controller.phoneNumber.text.trim(),
+                                    idNumber: controller.idNumber.text.trim(),
+                                    idType: controller.idType,
+                                    stoveImg: controller.stoveImg,
+                                    image1: controller.image1,
+                                    image2: controller.image2,
+                                    image3: controller.image3,
+                                    idImageFront: controller.idImgFront,
+                                    idImageBack: controller.idImgBack,
+                                    currentDate: currentDate,
+                                    surveyorName: surveyorName,
+                                  );
+                                  BeneficiaryAddController.instance
+                                      .addData(beneficiary);
+                                  _resetForm();
+                                  Get.back();
+                                }
+                              } else if (result == ConnectivityResult.none &&
+                                  _formKey.currentState!.validate() &&
+                                  controller.stoveImg.isNotEmpty &&
+                                  controller.image1.isNotEmpty &&
+                                  controller.image2.isNotEmpty &&
+                                  controller.image3.isNotEmpty &&
+                                  controller.idImgFront.isNotEmpty &&
+                                  controller.idImgBack.isNotEmpty) {
+                                _formKey.currentState!.save();
+                                // Get the current date
+                                String currentDate = DateTime.now().toString();
+                                final beneficiary = BeneficiaryModel(
+                                  stoveID: controller.stoveID.text.trim(),
+                                  fullName: controller.fullName.text.trim(),
+                                  address1: controller.address1.text.trim(),
+                                  address2: controller.address2.text.trim(),
+                                  town: controller.town.text.trim(),
+                                  state: controller.state.text.trim(),
+                                  zip: controller.zip.text.trim(),
+                                  phoneNumber:
+                                      controller.phoneNumber.text.trim(),
+                                  idNumber: controller.idNumber.text.trim(),
+                                  idType: controller.idType,
+                                  stoveImg: controller.stoveImg,
+                                  image1: controller.image1,
+                                  image2: controller.image2,
+                                  image3: controller.image3,
+                                  idImageBack: controller.idImgFront,
+                                  idImageFront: controller.idImgBack,
+                                  currentDate: currentDate,
+                                  surveyorName: surveyorName,
+                                );
+                                await _saveFormDataToLocalStorage(
+                                    beneficiary.toJson());
+                                _resetForm();
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: Text(
+                              aSave,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
                           );
-                          BeneficiaryAddController.instance
-                              .addData(context, beneficiary);
-                          _resetForm();
-                          Get.back();
                         }
-                      } else if (result == ConnectivityResult.none &&
-                              _formKey.currentState!.validate()
-                          // &&
-                          // controller.stoveImg.isNotEmpty &&
-                          // controller.image1.isNotEmpty &&
-                          // controller.image2.isNotEmpty &&
-                          // controller.image3.isNotEmpty &&
-                          // controller.idImg.isNotEmpty
-                          ) {
-                        _formKey.currentState!.save();
-                        final beneficiary = BeneficiaryModel(
-                          stoveID: controller.stoveID.text.trim(),
-                          fullName: controller.fullName.text.trim(),
-                          address1: controller.address1.text.trim(),
-                          address2: controller.address2.text.trim(),
-                          town: controller.town.text.trim(),
-                          zip: controller.zip.text.trim(),
-                          phoneNumber: controller.phoneNumber.text.trim(),
-                          idNumber: controller.idNumber.text.trim(),
-                          idType: controller.idType,
-                          stoveImg: controller.stoveImg,
-                          image1: controller.image1,
-                          image2: controller.image2,
-                          image3: controller.image3,
-                          idImage: controller.idImg,
-                        );
-                        await _saveFormDataToLocalStorage(
-                            context, beneficiary.toJson());
-                        _resetForm();
-                        Get.back();
-                      } else {
-                        if (kDebugMode) {
-                          if (controller.stoveImg.isEmpty) {
-                            print("stoveImg is empty.");
-                          }
-                          if (controller.image1.isEmpty) {
-                            print("image1 is empty.");
-                          }
-                          if (controller.image2.isEmpty) {
-                            print("image2 is empty.");
-                          }
-                          if (controller.image3.isEmpty) {
-                            print("image3 is empty.");
-                          }
-                          if (controller.idImg.isEmpty) {
-                            print("idImg is empty.");
-                          }
-                        }
-                      }
-                    },
-                    child: Text(
-                      aSave,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
+                      }),
                 ),
               ],
             ),
@@ -154,20 +179,17 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
     );
   }
 
-  Future<void> _saveFormDataToLocalStorage(
-      BuildContext context, Map<String, dynamic> data) async {
+  Future<void> _saveFormDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
     final formDataList = prefs.getStringList('formData') ?? [];
 
     formDataList.add(jsonEncode(data));
 
     await prefs.setStringList('formData', formDataList);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Form data saved locally.'),
-      ),
-    );
+    Get.snackbar("Success", ' Beneficiary data saved locally.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green);
   }
 
   void _resetForm() {

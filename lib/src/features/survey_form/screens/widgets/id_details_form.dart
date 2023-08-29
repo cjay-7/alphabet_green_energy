@@ -50,7 +50,8 @@ class _IdDetailsState extends State<IdDetails> {
     await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
 
     setState(() {
-      controller.idImg = _imageFile!.path;
+      if (controller.idImgFront == "") controller.idImgFront = _imageFile!.path;
+      if (controller.idImgBack == "") controller.idImgBack = _imageFile!.path;
       isImageUploaded = true;
       isUploading = false;
     });
@@ -70,7 +71,8 @@ class _IdDetailsState extends State<IdDetails> {
       await uploadTask?.whenComplete(() {});
       final imageUrl = await firebaseStorageRef.getDownloadURL();
       setState(() {
-        controller.idImg = imageUrl;
+        if (controller.idImgFront == "") controller.idImgFront = imageUrl;
+        if (controller.idImgBack == "") controller.idImgBack = imageUrl;
         isImageUploaded = true;
       });
     } catch (e) {
@@ -170,7 +172,77 @@ class _IdDetailsState extends State<IdDetails> {
                         child: OutlinedButton(
                           onPressed: () => pickImage(),
                           child: Text(
-                            aIDPhoto,
+                            aIDPhotoFront,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: ElevatedButton.icon(
+                          onPressed: (_imageFile == null || isUploading)
+                              ? null
+                              : () async {
+                                  var result =
+                                      await Connectivity().checkConnectivity();
+                                  if (result != ConnectivityResult.none) {
+                                    uploadImageToFirebase();
+                                  } else if (result ==
+                                      ConnectivityResult.none) {
+                                    uploadImageToLocalStorage();
+                                  }
+                                },
+                          icon: isUploading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : isImageUploaded
+                                  ? const Icon(Icons.check)
+                                  : const Icon(Icons.upload),
+                          label: Text(
+                            isImageUploaded ? 'Uploaded' : 'Upload',
+                            style: GoogleFonts.montserrat(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                fileName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: OutlinedButton(
+                          onPressed: () => pickImage(),
+                          child: Text(
+                            aIDPhotoBack,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),

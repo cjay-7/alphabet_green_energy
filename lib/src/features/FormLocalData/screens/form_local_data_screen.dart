@@ -12,10 +12,10 @@ class FormLocalDataScreen extends StatefulWidget {
   const FormLocalDataScreen({Key? key}) : super(key: key);
 
   @override
-  _FormLocalDataScreenState createState() => _FormLocalDataScreenState();
+  FormLocalDataScreenState createState() => FormLocalDataScreenState();
 }
 
-class _FormLocalDataScreenState extends State<FormLocalDataScreen>
+class FormLocalDataScreenState extends State<FormLocalDataScreen>
     with SingleTickerProviderStateMixin {
   final localStorageController = Get.put(LocalStorageController());
   late TabController _tabController;

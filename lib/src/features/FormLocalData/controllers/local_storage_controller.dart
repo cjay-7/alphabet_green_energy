@@ -27,6 +27,7 @@ class LocalStorageController extends GetxController {
   RxInt formDataCount = 0.obs;
   RxInt visitDataCount = 0.obs;
   RxInt surveyDataCount = 0.obs;
+  RxBool isUploading = false.obs;
 
   @override
   void onInit() {
@@ -38,7 +39,9 @@ class LocalStorageController extends GetxController {
     ever(visitDataList, (_) {
       updateCounts();
     });
-
+    ever(surveyDataList, (_) {
+      updateCounts();
+    });
     super.onInit();
   }
 
@@ -66,6 +69,7 @@ class LocalStorageController extends GetxController {
   Future<void> syncFormDataToFirebase() async {
     for (var formData in formDataList) {
       try {
+        isUploading.value = true;
         // Upload images to Firebase Storage and get download URLs
         List<String> imageUrls = await uploadImagesToStorage(formData);
 
@@ -77,22 +81,28 @@ class LocalStorageController extends GetxController {
           image1: imageUrls[1],
           image2: imageUrls[2],
           image3: imageUrls[3],
-          idImage: imageUrls[4],
+          idImageFront: imageUrls[4],
+          idImageBack: imageUrls[5],
           fullName: formData.fullName,
           address1: formData.address1,
           address2: formData.address2,
           town: formData.town,
+          state: formData.state,
           zip: formData.zip,
           phoneNumber: formData.phoneNumber,
           idNumber: formData.idNumber,
           idType: formData.idType,
+          currentDate: formData.currentDate,
+          surveyorName: formData.surveyorName,
         );
 
         // Save the updated formData to Firestore
+
         await beneficiaryAddRepo.addData(updatedFormData);
 
         // Remove synced form data from local storage
         await removeFormDataFromLocalStorage(formData);
+        isUploading.value = false;
       } catch (e) {}
     }
     updateCounts();
@@ -120,8 +130,11 @@ class LocalStorageController extends GetxController {
     downloadUrls.add(image3Url);
 
     // Upload IdImage to Firebase Storage
-    String idImageUrl = await uploadImage(formData.idImage);
-    downloadUrls.add(idImageUrl);
+    String idImageUrl1 = await uploadImage(formData.idImageFront);
+    downloadUrls.add(idImageUrl1);
+    // Upload IdImage to Firebase Storage
+    String idImageUrl2 = await uploadImage(formData.idImageBack);
+    downloadUrls.add(idImageUrl2);
 
     return downloadUrls;
   }
@@ -194,6 +207,7 @@ class LocalStorageController extends GetxController {
   Future<void> syncVisitDataToFirebase() async {
     for (var visitData in visitDataList) {
       try {
+        isUploading.value = true;
         final idNumber = visitData.idNumber;
         if (idNumber.isNotEmpty) {
           final imageUrl =
@@ -203,6 +217,7 @@ class LocalStorageController extends GetxController {
 
           // Remove synced visit data from local storage
           await removeVisitDataFromLocalStorage(visitData);
+          isUploading.value = false;
         }
       } catch (e) {}
     }
@@ -232,6 +247,7 @@ class LocalStorageController extends GetxController {
   Future<void> syncSurveyDataToFirebase() async {
     for (var surveyData in surveyDataList) {
       try {
+        isUploading.value = true;
         // Upload images to Firebase Storage and get download URLs
         List<String> imageUrls = await uploadSurveyImagesToStorage(surveyData);
 
@@ -239,11 +255,13 @@ class LocalStorageController extends GetxController {
         SurveyModel updatedSurveyData = SurveyModel(
           id: surveyData.id,
           image: imageUrls[0],
-          idImage: imageUrls[1],
+          idImageFront: imageUrls[1],
+          idImageBack: imageUrls[2],
           fullName: surveyData.fullName,
           address1: surveyData.address1,
           address2: surveyData.address2,
           town: surveyData.town,
+          state: surveyData.state,
           zip: surveyData.zip,
           phoneNumber: surveyData.phoneNumber,
           totalPersons: surveyData.totalPersons,
@@ -263,6 +281,7 @@ class LocalStorageController extends GetxController {
 
         // Remove synced survey data from local storage
         await removeSurveyDataFromLocalStorage(surveyData);
+        isUploading.value = false;
       } catch (e) {}
     }
     updateCounts();
@@ -287,10 +306,13 @@ class LocalStorageController extends GetxController {
     String imageUrl = await uploadImage(surveyData.image);
     downloadUrls.add(imageUrl);
 
-    // Upload IdImage to Firebase Storage
-    String idImageUrl = await uploadImage(surveyData.idImage);
-    downloadUrls.add(idImageUrl);
+    // Upload IdImage1 to Firebase Storage
+    String idImageUrl1 = await uploadImage(surveyData.idImageFront);
+    downloadUrls.add(idImageUrl1);
 
+    // Upload IdImage2 to Firebase Storage
+    String idImageUrl2 = await uploadImage(surveyData.idImageBack);
+    downloadUrls.add(idImageUrl2);
     return downloadUrls;
   }
 }

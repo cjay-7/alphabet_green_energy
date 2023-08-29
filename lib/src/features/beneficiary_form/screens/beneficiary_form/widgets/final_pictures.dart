@@ -115,7 +115,7 @@ class _FinalPicturesState extends State<FinalPictures> {
                         child: OutlinedButton(
                           onPressed: () => pickImage(),
                           child: Text(
-                            aIDPhoto,
+                            "Add picture",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),

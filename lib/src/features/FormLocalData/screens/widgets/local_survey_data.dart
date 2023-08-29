@@ -21,7 +21,7 @@ SingleChildScrollView localSurveyData(BuildContext context) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Visit Data",
+                      "Survey Data",
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     ListTile(

@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Alphabet Green Energy App
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+6
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -14,7 +14,7 @@ dependencies:
   flutter_native_splash: ^2.2.19
   get: ^4.6.5
   flutter_otp_text_field: ^1.1.1
-  image_picker: ^0.8.7
+  image_picker: ^1.0.2
   path_provider: ^2.0.14
   firebase_core: ^2.8.0
   firebase_auth: ^4.3.0
@@ -23,10 +23,29 @@ dependencies:
   file_picker: ^5.2.6
   firebase_storage: ^11.0.16
   shared_preferences: ^2.1.0
-  connectivity_plus: ^3.0.4
+  connectivity_plus: ^4.0.2
   email_validator:
   url_launcher:
+  flutter_launcher_icons: ^0.13.1
+  firebase_app_check: ^0.1.5+2
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/ag-logo.png"
+  min_sdk_android: 22 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/logo/ag-logo.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/logo/ag-logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/logo/ag-logo.png"
 
 dev_dependencies:
   flutter_test:
@@ -37,13 +56,13 @@ dev_dependencies:
 flutter_native_splash:
   color: "#f7f6f1"
   color_dark: "#272727"
-  image: assets/images/ag-logo.svg
-  image_dark: assets/images/ag-logo.svg
+  image: assets/images/splash.svg
+  image_dark: assets/images/splash.svg
 
   android_12:
-    image: assets/images/ag-logo.png
+    image: assets/images/splash.svg
     icon_background_color: "#f7f6f1"
-    image_dark: assets/images/ag-logo.png
+    image_dark: assets/images/splash.svg
     icon_background_color_dark: "#272727"
 
 flutter:

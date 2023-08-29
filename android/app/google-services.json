@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1098077986035:android:70f4ef1b7c68ac29e7ab86",
+        "mobilesdk_app_id": "1:1098077986035:android:13582026ccedd49be7ab86",
         "android_client_info": {
-          "package_name": "com.alphabetgreenenergy.alphabet_green_energy"
+          "package_name": "com.alphabetgreens.alphabet_greens"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1098077986035-4npofqdreaskij7u4tikfql1mgpn50h9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alphabetgreens.alphabet_greens",
+            "certificate_hash": "9cccf253e3cb26846c772017a259ddad1958eeae"
+          }
+        },
         {
           "client_id": "1098077986035-4ccv3grpkqqikh55m7v5n7s6q2vh56aq.apps.googleusercontent.com",
           "client_type": 3

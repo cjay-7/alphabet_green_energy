@@ -12,6 +12,7 @@ class SurveyAddController extends GetxController {
   final address1 = TextEditingController();
   final address2 = TextEditingController();
   final town = TextEditingController();
+  final state = TextEditingController();
   final zip = TextEditingController();
   final phoneNumber = TextEditingController();
   final totalPersons = TextEditingController();
@@ -22,19 +23,15 @@ class SurveyAddController extends GetxController {
   late var gender = "Male";
   late var fuelType1 = "Wood";
   late var fuelType2 = "";
-  late var idImg = "";
+  late var idImgFront = "";
+  late var idImgBack = "";
   late var image1 = "";
   late var surveyorName = "";
   late var currentDate = "";
 
   final surveyAddRepo = Get.put(SurveyAddRepository());
 
-  Future<void> addSurveyData(BuildContext context, SurveyModel survey) async {
+  Future<void> addSurveyData(SurveyModel survey) async {
     await surveyAddRepo.addSurveyData(survey);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Survey data saved in firebase.'),
-      ),
-    );
   }
 }

@@ -23,7 +23,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -48,30 +51,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyAES3UFzJueXEmjnBCBWWLvT4wZAeZUEbQ',
-    appId: '1:1098077986035:web:6c4ed793308b2b7ae7ab86',
+    appId: '1:1098077986035:web:bb6c5a07a6de71b7e7ab86',
     messagingSenderId: '1098077986035',
     projectId: 'alphabetgreens',
     authDomain: 'alphabetgreens.firebaseapp.com',
     storageBucket: 'alphabetgreens.appspot.com',
-    measurementId: 'G-C1R3N2CN4S',
+    measurementId: 'G-4LSGBEBJVL',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC20__1AV6bVnSiqKaZkZRO7yx19IrDMA0',
-    appId: '1:1098077986035:android:70f4ef1b7c68ac29e7ab86',
+    appId: '1:1098077986035:android:13582026ccedd49be7ab86',
     messagingSenderId: '1098077986035',
     projectId: 'alphabetgreens',
     storageBucket: 'alphabetgreens.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC4iJKQ7yCRH9aIaSaAE3LfKD7yJb11ybs',
-    appId: '1:1098077986035:ios:7d10d6730d52c788e7ab86',
-    messagingSenderId: '1098077986035',
-    projectId: 'alphabetgreens',
-    storageBucket: 'alphabetgreens.appspot.com',
-    iosClientId:
-        '1098077986035-4v68t957erttkm7skggetjvg59v0q6gt.apps.googleusercontent.com',
-    iosBundleId: 'com.alphabetgreenenergy.alphabetGreenEnergy',
   );
 }

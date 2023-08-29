@@ -20,8 +20,10 @@ class _PersonalDetailsState extends State<PersonalDetails> {
 
   final _genderList = ["Male", "Female", "Prefer not to answer"];
   String? gender = "";
+
   @override
   Widget build(BuildContext context) {
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Column(
       children: [
         Container(
@@ -101,6 +103,24 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                       labelText: aTown,
                       prefixIcon: const Icon(Icons.holiday_village),
                       hintText: aTown,
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      border: const OutlineInputBorder()),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return aTownValidator;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: controller.state,
+                  decoration: InputDecoration(
+                      labelText: "State",
+                      prefixIcon: const Icon(Icons.terrain),
+                      hintText: "State",
                       hintStyle: Theme.of(context).textTheme.bodySmall,
                       border: const OutlineInputBorder()),
                   validator: (value) {
@@ -199,9 +219,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                       hintStyle: Theme.of(context).textTheme.bodySmall,
                       border: const OutlineInputBorder()),
                   keyboardType: TextInputType.phone,
-                  style: DefaultTextStyle.of(context)
-                      .style
-                      .apply(fontSizeFactor: .9, color: Colors.white70),
+                  style: DefaultTextStyle.of(context).style.apply(
+                      fontSizeFactor: .9,
+                      color: isDark ? Colors.white70 : Colors.black54),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Please enter Phone Number";

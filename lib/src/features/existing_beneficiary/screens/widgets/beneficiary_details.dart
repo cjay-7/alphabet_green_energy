@@ -15,6 +15,28 @@ class BeneficiaryDetails extends StatelessWidget {
   final Size size;
   final BeneficiaryController _beneficiaryController;
 
+  void _showImageDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(imageUrl), // Replace this with your image widget
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -103,7 +125,10 @@ class BeneficiaryDetails extends StatelessWidget {
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
-                              onTap: () => launch(beneficiary.idImage),
+                              onTap: () {
+                                _showImageDialog(
+                                    context, beneficiary.idImageFront);
+                              },
                             ),
                           ),
                         ],

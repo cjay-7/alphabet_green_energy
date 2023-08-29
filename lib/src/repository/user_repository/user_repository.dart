@@ -9,6 +9,7 @@ class UserRepository extends GetxController {
   final _db = FirebaseFirestore.instance;
 
   createUser(UserModel user) async {
+    print("Adding user data to Firestore: ${user.toJson()}");
     await _db.collection("Users").add(user.toJson()).whenComplete(() {
       Get.snackbar("Success", "Your account has been created.",
           snackPosition: SnackPosition.BOTTOM,
@@ -19,7 +20,6 @@ class UserRepository extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent.withOpacity(0.1),
           colorText: Colors.red);
-      print("ERROR - $error");
     });
   }
 

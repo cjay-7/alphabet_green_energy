@@ -15,6 +15,11 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SignInController());
+    var obscurePassword = true.obs; // Using RxBool for GetX state management
+    void togglePasswordVisibility() {
+      obscurePassword.value = !obscurePassword.value;
+    }
+
     final _formKey = GlobalKey<FormState>();
     return Form(
       autovalidateMode: AutovalidateMode.always,
@@ -36,25 +41,29 @@ class LoginForm extends StatelessWidget {
                   : "Please enter a valid email",
             ),
             const SizedBox(height: aFormHeight - 20),
-            TextFormField(
-              controller: controller.password,
-              obscureText: true,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.fingerprint),
-                labelText: aPassword,
-                hintText: aPassword,
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.remove_red_eye_sharp),
+            Obx(
+              () => TextFormField(
+                controller: controller.password,
+                obscureText: obscurePassword.value,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.fingerprint),
+                  labelText: aPassword,
+                  hintText: aPassword,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () => togglePasswordVisibility(),
+                    icon: Icon(obscurePassword.value
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                  ),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter Password";
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter Password";
-                }
-                return null;
-              },
             ),
             const SizedBox(height: aFormHeight - 20),
             Align(

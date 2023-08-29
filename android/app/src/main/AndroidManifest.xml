@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />z
     <application
-        android:label="alphabet_green_energy"
+        android:label="Alphabet Greens"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,7 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../common_widgets/customInputFormatter.dart';
 import 'widgets/beneficiary_list_screen.dart';
 import '../controllers/get_beneficiary_details_controller.dart';
 
@@ -53,14 +55,16 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
                   controller: connectivityResult != ConnectivityResult.none
                       ? _beneficiaryController.stoveID
                       : _beneficiaryController.idNumber,
-                  autofocus: true,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     labelText: connectivityResult != ConnectivityResult.none
                         ? 'Enter Stove ID'
                         : 'Enter ID Number',
                   ),
-                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.singleLineFormatter,
+                    CustomInputFormatter()
+                  ],
                   validator: (value) {
                     if (value!.isEmpty) {
                       return connectivityResult != ConnectivityResult.none

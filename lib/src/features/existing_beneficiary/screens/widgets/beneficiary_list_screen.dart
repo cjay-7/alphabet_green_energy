@@ -70,7 +70,6 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
       });
     } else {
       // Handle the case where no image file is selected
-      print('No image file selected');
     }
   }
 
@@ -331,12 +330,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
                           addBeneficiaryVisitController.worksProperly,
                       idNumber: idNumber,
                     );
-                    await _saveVisitDataToLocalStorage(
-                        context, addVisit.toJson());
-
-                    if (kDebugMode) {
-                      print(addVisit.stoveImgVisit);
-                    }
+                    await _saveVisitDataToLocalStorage(addVisit.toJson());
 
                     _resetForm();
                     Get.back();
@@ -354,8 +348,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
     );
   }
 
-  Future<void> _saveVisitDataToLocalStorage(
-      BuildContext context, Map<String, dynamic> data) async {
+  Future<void> _saveVisitDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
     final visitDataList = prefs.getStringList('visitData') ?? [];
 
@@ -363,11 +356,10 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
 
     await prefs.setStringList('visitData', visitDataList);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Visit data saved locally.'),
-      ),
-    );
+    Get.snackbar("Success", 'Visit data saved locally.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green);
   }
 
   void _resetForm() {

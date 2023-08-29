@@ -18,7 +18,7 @@ class BeneficiaryAddRepository extends GetxController {
         .doc(beneficiary.idNumber)
         .set(beneficiary.toJson())
         .whenComplete(() {
-      Get.snackbar("Success", "Beneficiary details have been added",
+      Get.snackbar("Success", "Beneficiary details have been added to cloud",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.green);
@@ -55,7 +55,7 @@ class BeneficiaryAddRepository extends GetxController {
               .then((value) {
             Get.snackbar(
               "Success",
-              "Visit details have been added",
+              "Visit details have been added to cloud",
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.green.withOpacity(0.1),
               colorText: Colors.green,
@@ -82,7 +82,7 @@ class BeneficiaryAddRepository extends GetxController {
           .then((value) {
         Get.snackbar(
           "Success",
-          "Visit details have been added",
+          "Visit details have been added to cloud",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.green,
@@ -110,6 +110,8 @@ class BeneficiaryAddRepository extends GetxController {
       final beneficiaryData = stoveIDSnapshot.docs
           .map((e) => BeneficiaryModel.fromSnapshot(e))
           .single;
+      print(
+          "Beneficiary found with ID Number: ${beneficiaryData.idNumber}"); // Add this line
       return beneficiaryData;
     } else {
       final idNumberSnapshot = await _db
@@ -121,8 +123,12 @@ class BeneficiaryAddRepository extends GetxController {
         final beneficiaryData = idNumberSnapshot.docs
             .map((e) => BeneficiaryModel.fromSnapshot(e))
             .single;
+        print(
+            "Beneficiary found with ID Number: ${beneficiaryData.idNumber}"); // Add this line
         return beneficiaryData;
       } else {
+        print(
+            "No beneficiary data found for serial number: $serialNumber"); // Add this line
         throw Exception(
             "No beneficiary data found for the provided serial number");
       }

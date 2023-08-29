@@ -42,20 +42,17 @@ class _SurveyFormState extends State<SurveyForm> {
     }
   }
 
-  Future<void> _saveSurveyDataToLocalStorage(
-      BuildContext context, Map<String, dynamic> data) async {
+  Future<void> _saveSurveyDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
-    final surveyDataList = prefs.getStringList('formData') ?? [];
+    final surveyDataList = prefs.getStringList('surveyData') ?? [];
 
     surveyDataList.add(jsonEncode(data));
 
-    await prefs.setStringList('formData', surveyDataList);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Form data saved locally.'),
-      ),
-    );
+    await prefs.setStringList('surveyData', surveyDataList);
+    Get.snackbar("Success", 'Survey data saved locally.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green);
   }
 
   void _resetForm() {
@@ -107,11 +104,12 @@ class _SurveyFormState extends State<SurveyForm> {
                                       if (result != ConnectivityResult.none) {
                                         if (_formKey.currentState!.validate() &&
                                             controller.image1.isNotEmpty &&
-                                            controller.idImg.isNotEmpty) {
+                                            controller.idImgFront.isNotEmpty) {
                                           _formKey.currentState!.save();
 
                                           // Get the current date
-                                          DateTime currentDate = DateTime.now();
+                                          String currentDate =
+                                              DateTime.now().toString();
 
                                           final survey = SurveyModel(
                                             fullName:
@@ -121,6 +119,7 @@ class _SurveyFormState extends State<SurveyForm> {
                                             address2:
                                                 controller.address2.text.trim(),
                                             town: controller.town.text.trim(),
+                                            state: controller.state.text.trim(),
                                             zip: controller.zip.text.trim(),
                                             phoneNumber: controller
                                                 .phoneNumber.text
@@ -130,7 +129,8 @@ class _SurveyFormState extends State<SurveyForm> {
                                                 controller.idNumber.text.trim(),
                                             idType: controller.idType,
                                             image: controller.image1,
-                                            idImage: controller.idImg,
+                                            idImageFront: controller.idImgFront,
+                                            idImageBack: controller.idImgBack,
                                             fuelType1: controller.fuelType1,
                                             fuelType2: controller.fuelType2,
                                             fuelType1amount: controller
@@ -146,7 +146,7 @@ class _SurveyFormState extends State<SurveyForm> {
                                             surveyorName: surveyorName,
                                           );
                                           SurveyAddController.instance
-                                              .addSurveyData(context, survey);
+                                              .addSurveyData(survey);
                                           _resetForm();
                                           Get.back();
                                         }
@@ -154,11 +154,12 @@ class _SurveyFormState extends State<SurveyForm> {
                                               ConnectivityResult.none &&
                                           _formKey.currentState!.validate() &&
                                           controller.image1.isNotEmpty &&
-                                          controller.idImg.isNotEmpty) {
+                                          controller.idImgFront.isNotEmpty) {
                                         _formKey.currentState!.save();
 
                                         // Get the current date
-                                        DateTime currentDate = DateTime.now();
+                                        String currentDate =
+                                            DateTime.now().toString();
 
                                         final survey = SurveyModel(
                                           fullName:
@@ -168,6 +169,7 @@ class _SurveyFormState extends State<SurveyForm> {
                                           address2:
                                               controller.address2.text.trim(),
                                           town: controller.town.text.trim(),
+                                          state: controller.state.text.trim(),
                                           zip: controller.zip.text.trim(),
                                           phoneNumber: controller
                                               .phoneNumber.text
@@ -177,7 +179,8 @@ class _SurveyFormState extends State<SurveyForm> {
                                               controller.idNumber.text.trim(),
                                           idType: controller.idType,
                                           image: controller.image1,
-                                          idImage: controller.idImg,
+                                          idImageFront: controller.idImgFront,
+                                          idImageBack: controller.idImgBack,
                                           fuelType1: controller.fuelType1,
                                           fuelType2: controller.fuelType2,
                                           fuelType1amount: controller
@@ -193,9 +196,9 @@ class _SurveyFormState extends State<SurveyForm> {
                                           surveyorName: surveyorName,
                                         );
                                         await _saveSurveyDataToLocalStorage(
-                                            context, survey.toJson());
+                                            survey.toJson());
                                         _resetForm();
-                                        Get.back();
+                                        Navigator.of(context).pop();
                                       }
                                     },
                                     child: Text(

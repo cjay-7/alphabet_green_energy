@@ -17,7 +17,7 @@ class SurveyAddRepository extends GetxController {
         .doc(survey.idNumber)
         .set(survey.toJson())
         .whenComplete(() {
-      Get.snackbar("Success", "Beneficiary details have been added",
+      Get.snackbar("Success", "Survey details have been added to cloud",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.green);
