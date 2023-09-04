@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 import 'package:path/path.dart';
 
 import '../../../../../common_widgets/customInputFormatter.dart';
@@ -55,17 +56,34 @@ class _StoveDetailsState extends State<StoveDetails> {
     String fileName = basename(_imageFile!.path);
     final firebaseStorageRef =
         FirebaseStorage.instance.ref().child('files/$fileName');
-    uploadTask = firebaseStorageRef.putFile(_imageFile!);
-    TaskSnapshot? taskSnapshot =
-        await uploadTask?.whenComplete(() => uploadTask?.snapshot);
-    taskSnapshot?.ref.getDownloadURL().then(
-      (value) {
-        controller.stoveImg = value;
-        setState(() {
-          isImageUploaded = true;
-        });
+
+    // Get the current location
+    LocationData locationData = await Location().getLocation();
+    double latitude = locationData.latitude ?? 0.0;
+    double longitude = locationData.longitude ?? 0.0;
+
+    // Create custom metadata
+    final newMetadata = SettableMetadata(
+      customMetadata: {
+        "latitude": latitude.toString(),
+        "longitude": longitude.toString(),
       },
     );
+
+    // Upload the image
+    await firebaseStorageRef.putFile(_imageFile!);
+
+    // Set custom metadata for the uploaded file
+    final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
+
+    // Print the metadata to verify
+    print(await firebaseStorageRef.getMetadata());
+
+    controller.stoveImg = await firebaseStorageRef.getDownloadURL();
+
+    setState(() {
+      isImageUploaded = true;
+    });
   }
 
   @override

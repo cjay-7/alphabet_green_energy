@@ -89,9 +89,9 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                               if (result != ConnectivityResult.none) {
                                 if (_formKey.currentState!.validate() &&
                                     controller.stoveImg.isNotEmpty &&
-                                    controller.image1.isNotEmpty &&
-                                    controller.image2.isNotEmpty &&
-                                    controller.image3.isNotEmpty &&
+                                    // controller.image1.isNotEmpty &&
+                                    // controller.image2.isNotEmpty &&
+                                    // controller.image3.isNotEmpty &&
                                     controller.idImgFront.isNotEmpty &&
                                     controller.idImgBack.isNotEmpty) {
                                   _formKey.currentState!.save();

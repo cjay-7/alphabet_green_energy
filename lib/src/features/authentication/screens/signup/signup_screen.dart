@@ -3,6 +3,7 @@ import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +24,13 @@ class SignUpScreen extends StatelessWidget {
     }
 
     final formKey = GlobalKey<FormState>();
+    var screenSize = MediaQuery.of(context).size.width *
+        MediaQuery.of(context).devicePixelRatio;
+    print(screenSize);
+    double horizontalPadding = 0;
+    if (screenSize > 1000) {
+      horizontalPadding = 200;
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -34,8 +42,8 @@ class SignUpScreen extends StatelessWidget {
                   title: aSignUpTitle,
                   subTitle: aSignUpSubTitle),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    vertical: aFormHeight - 10, horizontal: 200),
+                padding: EdgeInsets.symmetric(
+                    vertical: aFormHeight - 10, horizontal: horizontalPadding),
                 child: Form(
                   key: formKey,
                   child: Column(
