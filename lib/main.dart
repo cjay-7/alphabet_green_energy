@@ -16,7 +16,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
     webRecaptchaSiteKey: "6LdQE_snAAAAAEcGORUzcbHyFKfHPw5-39wqZTNS",
-    androidProvider: AndroidProvider.debug,
+    androidProvider: AndroidProvider.playIntegrity,
   );
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());
