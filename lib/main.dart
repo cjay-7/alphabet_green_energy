@@ -15,7 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
+    webRecaptchaSiteKey: "6LdQE_snAAAAAEcGORUzcbHyFKfHPw5-39wqZTNS",
+    androidProvider: AndroidProvider.debug,
   );
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());

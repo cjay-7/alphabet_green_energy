@@ -30,6 +30,37 @@ class LocalFormAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Text('PrimaryB Data'),
+                  const SizedBox(width: 2.8),
+                  Badge(
+                    label: Obx(() {
+                      if (localStorageController
+                              .primaryBeneficiaryDataCount.value >
+                          0) {
+                        return Text(
+                          localStorageController
+                              .primaryBeneficiaryDataCount.value
+                              .toString(),
+                          style: const TextStyle(color: Colors.white),
+                        );
+                      } else {
+                        return const Text(
+                          "0",
+                          style: TextStyle(color: Colors.white),
+                        );
+                      }
+                    }),
+                    backgroundColor: Colors.red,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Tab(
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   const Text('Beneficiary Data'),
                   const SizedBox(width: 2.8),
                   Badge(

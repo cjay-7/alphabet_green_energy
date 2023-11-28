@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Alphabet Green Energy App
 publish_to: 'none'
-version: 1.0.0+8
+version: 1.0.0+9
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -33,7 +33,7 @@ dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo/ag-logo.png"
+  image_path: "assets/logo/ag-logo.svg"
   min_sdk_android: 22 # android min sdk min:16, default 21
   web:
     generate: true

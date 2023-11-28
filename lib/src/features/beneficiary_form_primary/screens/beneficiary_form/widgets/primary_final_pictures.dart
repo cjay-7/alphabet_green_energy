@@ -1,38 +1,34 @@
 import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:location/location.dart';
+import '../../../../../constants/text.dart';
+import '../../../controllers/primary_beneficiary_add_controller.dart';
 import 'package:path/path.dart';
 
-import '../../../../../common_widgets/customInputFormatter.dart';
-import '../../../../../constants/text.dart';
-import '../../../../beneficiary_form/controllers/beneficiary_add_controller.dart';
-
-class StoveDetails extends StatefulWidget {
-  const StoveDetails({Key? key}) : super(key: key);
+class PrimaryFinalPictures extends StatefulWidget {
+  const PrimaryFinalPictures({Key? key}) : super(key: key);
 
   @override
-  State<StoveDetails> createState() => _StoveDetailsState();
+  State<PrimaryFinalPictures> createState() => _FinalPicturesState();
 }
 
-class _StoveDetailsState extends State<StoveDetails> {
-  final controller = Get.put(BeneficiaryAddController());
-
+class _FinalPicturesState extends State<PrimaryFinalPictures> {
+  final controller = Get.put(PrimaryBeneficiaryAddController());
   File? _imageFile;
   UploadTask? uploadTask;
   final picker = ImagePicker();
 
-  bool isImageUploaded = false;
-  bool isUploading = false;
+  bool isImageUploaded = false; // New flag to track image upload
+  bool isUploading = false; // Flag to track the upload process
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
     setState(() {
       _imageFile = File(pickedFile!.path);
     });
@@ -43,47 +39,43 @@ class _StoveDetailsState extends State<StoveDetails> {
       isUploading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
+    await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
+    setState(() {
+      controller.image1 = _imageFile!.path;
+    });
+
+    // Simulating upload completion delay
+    await Future.delayed(const Duration(seconds: 2));
 
     setState(() {
-      controller.stoveImg = _imageFile!.path;
       isImageUploaded = true;
       isUploading = false;
     });
   }
 
   Future<void> uploadImageToFirebase() async {
+    setState(() {
+      isUploading = true;
+    });
+
     String fileName = basename(_imageFile!.path);
     final firebaseStorageRef =
         FirebaseStorage.instance.ref().child('files/$fileName');
+    uploadTask = firebaseStorageRef.putFile(_imageFile!);
 
-    // Get the current location
-    LocationData locationData = await Location().getLocation();
-    double latitude = locationData.latitude ?? 0.0;
-    double longitude = locationData.longitude ?? 0.0;
-
-    // Create custom metadata
-    final newMetadata = SettableMetadata(
-      customMetadata: {
-        "latitude": latitude.toString(),
-        "longitude": longitude.toString(),
-      },
-    );
-
-    // Upload the image
-    await firebaseStorageRef.putFile(_imageFile!);
-
-    // Set custom metadata for the uploaded file
-    final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
-
-    // Print the metadata to verify
-    print(await firebaseStorageRef.getMetadata());
-
-    controller.stoveImg = await firebaseStorageRef.getDownloadURL();
-
-    setState(() {
-      isImageUploaded = true;
-    });
+    try {
+      await uploadTask?.whenComplete(() {});
+      final imageUrl = await firebaseStorageRef.getDownloadURL();
+      if (controller.image1 == "") controller.image1 = imageUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      // Handle any errors that occurred during the upload process
+    } finally {
+      setState(() {
+        isImageUploaded = true; // Set the flag to true after successful upload
+        isUploading = false; // Set the loading flag back to false
+      });
+    }
   }
 
   @override
@@ -103,31 +95,8 @@ class _StoveDetailsState extends State<StoveDetails> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Stove Details",
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: controller.stoveID,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.fireplace),
-                labelText: "Enter Stove ID",
-                hintText: "Stove ID",
-                hintStyle: Theme.of(context).textTheme.bodySmall,
-                border: const OutlineInputBorder(),
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.singleLineFormatter,
-                CustomInputFormatter()
-              ],
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter Stove ID";
-                }
-                return null;
-              },
+              "Add pictures of stove handed to the beneficiary",
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           Padding(
@@ -142,7 +111,7 @@ class _StoveDetailsState extends State<StoveDetails> {
                         child: OutlinedButton(
                           onPressed: () => pickImage(),
                           child: Text(
-                            "Stove Picture with ID",
+                            "Add picture",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),

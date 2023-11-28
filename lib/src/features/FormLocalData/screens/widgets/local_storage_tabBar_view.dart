@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'local_beneficiary_data.dart';
+import 'local_primary_beneficiary_data.dart';
 import 'local_survey_data.dart';
 import 'local_visit_data.dart';
 
@@ -15,6 +16,9 @@ class LocalStorageTabBarView extends StatelessWidget {
     return TabBarView(
       controller: tabController,
       children: [
+        Obx(() {
+          return localPrimaryBeneficiaryData(context);
+        }),
         Obx(() {
           return localBeneficiaryData(context);
         }),

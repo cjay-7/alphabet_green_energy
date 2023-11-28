@@ -24,14 +24,17 @@ class SignUpScreen extends StatelessWidget {
     }
 
     final formKey = GlobalKey<FormState>();
-    var screenSize = MediaQuery.of(context).size.width *
-        MediaQuery.of(context).devicePixelRatio;
+    var screenSize = MediaQuery.of(context).size.width;
+
     print(screenSize);
     double horizontalPadding = 0;
-    if (screenSize > 1000) {
+    if (screenSize > 399) {
+      horizontalPadding = 100;
+    } else if (screenSize > 599) {
       horizontalPadding = 200;
     }
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(aDefaultSize),

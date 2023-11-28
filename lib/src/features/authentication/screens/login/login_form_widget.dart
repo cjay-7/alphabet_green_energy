@@ -15,15 +15,18 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SignInController());
-    var obscurePassword = true.obs; // Using RxBool for GetX state management
+    var obscurePassword = true.obs;
+    var isLoading = false.obs;
+
     void togglePasswordVisibility() {
       obscurePassword.value = !obscurePassword.value;
     }
 
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
+
     return Form(
       autovalidateMode: AutovalidateMode.always,
-      key: _formKey,
+      key: formKey,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: aFormHeight - 10),
         child: Column(
@@ -66,25 +69,35 @@ class LoginForm extends StatelessWidget {
               ),
             ),
             const SizedBox(height: aFormHeight - 20),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                  onPressed: () {
-                    ForgetPasswordScreen.buildShowModalBottomSheet(context);
-                  },
-                  child: const Text(aForgetPassword)),
-            ),
+            // Align(
+            //   alignment: Alignment.centerRight,
+            //   child: TextButton(
+            //       onPressed: () {
+            //         ForgetPasswordScreen.buildShowModalBottomSheet(context);
+            //       },
+            //       child: const Text(aForgetPassword)),
+            // ),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    SignInController.instance.signInUser(
+                onPressed: () async {
+                  if (formKey.currentState!.validate()) {
+                    try {
+                      isLoading.value = true;
+                      await SignInController.instance.signInUser(
                         controller.email.text.trim(),
-                        controller.password.text.trim());
+                        controller.password.text.trim(),
+                      );
+                    } finally {
+                      isLoading.value = false;
+                    }
                   }
                 },
-                child: Text(aLogin.toUpperCase()),
+                child: Obx(() {
+                  return isLoading.value
+                      ? const CircularProgressIndicator()
+                      : Text(aLogin.toUpperCase());
+                }),
               ),
             ),
           ],

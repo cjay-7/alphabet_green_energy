@@ -12,17 +12,17 @@ import 'package:path/path.dart';
 
 import '../../../../../common_widgets/customInputFormatter.dart';
 import '../../../../../constants/text.dart';
-import '../../../../beneficiary_form/controllers/beneficiary_add_controller.dart';
+import '../../../controllers/primary_beneficiary_add_controller.dart';
 
-class StoveDetails extends StatefulWidget {
-  const StoveDetails({Key? key}) : super(key: key);
+class PrimaryStoveDetails extends StatefulWidget {
+  const PrimaryStoveDetails({Key? key}) : super(key: key);
 
   @override
-  State<StoveDetails> createState() => _StoveDetailsState();
+  State<PrimaryStoveDetails> createState() => _StoveDetailsState();
 }
 
-class _StoveDetailsState extends State<StoveDetails> {
-  final controller = Get.put(BeneficiaryAddController());
+class _StoveDetailsState extends State<PrimaryStoveDetails> {
+  final controller = Get.put(PrimaryBeneficiaryAddController());
 
   File? _imageFile;
   UploadTask? uploadTask;
@@ -142,7 +142,7 @@ class _StoveDetailsState extends State<StoveDetails> {
                         child: OutlinedButton(
                           onPressed: () => pickImage(),
                           child: Text(
-                            "Stove Picture with ID",
+                            aAddStovePicture,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),

@@ -16,9 +16,9 @@ class LoginScreen extends StatelessWidget {
         body: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(aDefaultSize),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 SizedBox(height: 70),
                 /*------- Section 1 -------*/
                 FormHeaderWidget(

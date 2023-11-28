@@ -11,6 +11,7 @@ import '../../../../constants/text.dart';
 
 import '../../../FormLocalData/screens/form_local_data_screen.dart';
 import '../../../beneficiary_form/screens/beneficiary_form/beneficiary_form.dart';
+import '../../../beneficiary_form_primary/screens/beneficiary_form/primary_beneficiary_form.dart';
 import '../../controllers/profile_controller.dart';
 
 class Dashboard extends StatelessWidget {
@@ -56,6 +57,12 @@ class Dashboard extends StatelessWidget {
                 Column(
                   children: [
                     const SizedBox(height: 300.0),
+                    DashboardIconButton(
+                        onPressed: () =>
+                            Get.to(() => const PrimaryBeneficiaryFormWidget()),
+                        dashboardIcon: Icons.person_add_rounded,
+                        dashboardIconLabel: "Primary Form"),
+                    const SizedBox(height: 10),
                     DashboardIconButton(
                         onPressed: () =>
                             Get.to(() => const BeneficiaryFormWidget()),

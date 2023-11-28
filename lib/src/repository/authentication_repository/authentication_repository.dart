@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../user_repository/user_repository.dart';
 import 'exceptions/signup_exceptions.dart';
 
 class AuthenticationRepository extends GetxController {
@@ -36,18 +37,21 @@ class AuthenticationRepository extends GetxController {
   }
 
   Future<void> createUserWithEmailAndPassword(
-      String email, String password) async {
+      String email, String password, UserModel agent) async {
     try {
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       firebaseUser.value != null
-          ? Get.offAll(() => const Center(
+          ? Get.offAll(() async {
+              await UserRepository.instance.createUser(agent);
+              const Center(
                 child: Text(
                   "Account Successfully created.",
                   style: TextStyle(
                       color: Colors.white70, decoration: TextDecoration.none),
                 ),
-              ))
+              );
+            })
           : Get.to(() => const SignUpScreen());
     } on FirebaseAuthException catch (e) {
       final ex = SignUpWithEmailAndPasswordFailure.code(e.code);
@@ -71,9 +75,9 @@ class AuthenticationRepository extends GetxController {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
         var snackBar = SnackBar(
-          content: Row(
+          content: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.error),
               SizedBox(width: 16),
               Expanded(
@@ -91,9 +95,9 @@ class AuthenticationRepository extends GetxController {
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackBar);
       } else if (e.code == "user-not-found") {
         var snackBar = SnackBar(
-          content: Row(
+          content: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.error),
               SizedBox(width: 16),
               Expanded(
@@ -111,9 +115,9 @@ class AuthenticationRepository extends GetxController {
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackBar);
       } else if (e.code == "network-request-failed") {
         var snackBar = SnackBar(
-          content: Row(
+          content: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.error),
               SizedBox(width: 16),
               Expanded(
@@ -130,7 +134,9 @@ class AuthenticationRepository extends GetxController {
         );
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackBar);
       }
-    } catch (e) {}
+    } catch (e) {
+      print("Error in loginWithEmailAndPassword: $e");
+    }
   }
 
   Future<void> logout() async => await _auth.signOut();
