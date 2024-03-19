@@ -32,7 +32,7 @@ class ForgetPasswordMailScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             label: Text(aEmail),
                             hintText: aEmail,
                             prefixIcon: Icon(Icons.mail_outline_rounded)),

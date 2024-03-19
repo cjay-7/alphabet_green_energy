@@ -4,10 +4,8 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/scre
 import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/screens/beneficiary_form/widgets/primary_id_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/screens/beneficiary_form/widgets/primary_personal_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/screens/beneficiary_form/widgets/primary_stoveDetails.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';

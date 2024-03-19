@@ -32,14 +32,14 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       elevation: 0,
-      // actions: [
-      //   IconButton(
-      //     onPressed: () {
-      //       Get.to(() => const ProfileScreen());
-      //     },
-      //     icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
-      //   )
-      // ],
+      actions: [
+        IconButton(
+          onPressed: () {
+            Get.to(() => const ProfileScreen());
+          },
+          icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
+        )
+      ],
     );
   }
 

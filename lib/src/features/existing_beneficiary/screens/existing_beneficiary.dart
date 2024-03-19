@@ -63,7 +63,7 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.singleLineFormatter,
-                    CustomInputFormatter()
+                    CustomInputFormatter('AL-V2-24-')
                   ],
                   validator: (value) {
                     if (value!.isEmpty) {

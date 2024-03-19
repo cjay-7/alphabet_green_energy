@@ -1,6 +1,5 @@
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widgets/appbar.dart';
-import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widgets/dashboard_heading.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/widgets/dashboard_icon_button.dart';
 import 'package:alphabet_green_energy/src/features/existing_beneficiary/screens/existing_beneficiary.dart';
 import 'package:alphabet_green_energy/src/features/survey_form/screens/survey_form.dart';
@@ -56,7 +55,7 @@ class Dashboard extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    const SizedBox(height: 300.0),
+                    SizedBox(height: MediaQuery.of(context).size.height * .3),
                     DashboardIconButton(
                         onPressed: () =>
                             Get.to(() => const PrimaryBeneficiaryFormWidget()),

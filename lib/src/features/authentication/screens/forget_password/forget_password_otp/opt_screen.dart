@@ -11,7 +11,7 @@ class OTPScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var otpController = Get.put(OTPController());
-    var otp;
+    String otp;
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(aDefaultSize),
@@ -37,7 +37,7 @@ class OTPScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                   onPressed: () {
-                    OTPController.instance.verifyOTP(otp);
+                    // OTPController.instance.verifyOTP(otp);
                   },
                   child: const Text(aNext)),
             ),

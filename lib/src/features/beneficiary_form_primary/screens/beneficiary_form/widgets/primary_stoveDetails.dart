@@ -111,6 +111,10 @@ class _StoveDetailsState extends State<PrimaryStoveDetails> {
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
               controller: controller.stoveID,
+              inputFormatters: [
+                FilteringTextInputFormatter.singleLineFormatter,
+                CustomInputFormatter('AL-V2-24-')
+              ],
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.fireplace),
                 labelText: "Enter Stove ID",
@@ -118,13 +122,13 @@ class _StoveDetailsState extends State<PrimaryStoveDetails> {
                 hintStyle: Theme.of(context).textTheme.bodySmall,
                 border: const OutlineInputBorder(),
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.singleLineFormatter,
-                CustomInputFormatter()
-              ],
+              keyboardType: TextInputType.number,
               validator: (value) {
                 if (value!.isEmpty) {
-                  return "Please enter Stove ID";
+                  return "Please enter Phone Number";
+                } else if (value.length != 20 ||
+                    !value.startsWith("AL-V2-24-")) {
+                  return "Please enter valid Number";
                 }
                 return null;
               },

@@ -150,6 +150,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                     } else if (value.length != 6) {
                       return "Please enter valid Zip";
                     }
+                    return null;
                   },
                 ),
               ),
@@ -172,6 +173,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                     } else if (value.length != 10) {
                       return "Please enter valid Number";
                     }
+                    return null;
                   },
                 ),
               ),
@@ -230,6 +232,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                     } else if (int.tryParse(value)! < 0) {
                       return "Please enter valid Number";
                     }
+                    return null;
                   },
                 ),
               ),

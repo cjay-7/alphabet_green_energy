@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../repository/survey_add_repository/survey_add_repository.dart';
 import '../models/survey_model.dart';

@@ -2,17 +2,16 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form/models/benef
 import 'package:alphabet_green_energy/src/repository/beneficiary_add_repository/beneficiary_add_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class BeneficiaryAddController extends GetxController {
   static BeneficiaryAddController get instance => Get.find();
 
   final fullName = TextEditingController();
-  final stoveID = TextEditingController();
+  final stoveID = TextEditingController(text: 'AL-V2-24-');
   final address1 = TextEditingController();
   final address2 = TextEditingController();
   final town = TextEditingController();
-  final state = TextEditingController();
+  final state = "";
   final zip = TextEditingController();
   final phoneNumber = TextEditingController();
   final idNumber = TextEditingController();

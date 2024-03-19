@@ -9,7 +9,7 @@ import 'local_visit_data.dart';
 class LocalStorageTabBarView extends StatelessWidget {
   final TabController tabController;
 
-  const LocalStorageTabBarView({required this.tabController});
+  const LocalStorageTabBarView({super.key, required this.tabController});
 
   @override
   Widget build(BuildContext context) {

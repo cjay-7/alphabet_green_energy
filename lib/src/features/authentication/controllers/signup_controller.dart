@@ -3,7 +3,6 @@ import 'package:alphabet_green_energy/src/repository/authentication_repository/a
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../repository/user_repository/user_repository.dart';
 
 class SignUpController extends GetxController {
   static SignUpController get instance => Get.find();

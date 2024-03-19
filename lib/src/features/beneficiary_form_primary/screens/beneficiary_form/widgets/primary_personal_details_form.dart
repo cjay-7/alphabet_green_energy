@@ -61,6 +61,7 @@ Column primaryPersonalDetailsForm(BuildContext context) {
                   } else if (value.length != 10) {
                     return "Please enter valid Number";
                   }
+                  return null;
                 },
               ),
             ),

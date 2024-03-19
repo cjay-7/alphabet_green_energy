@@ -13,7 +13,7 @@ class ForgetPasswordPhoneScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SignInController());
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -32,7 +32,7 @@ class ForgetPasswordPhoneScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: aFormHeight),
                 Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     children: [
                       TextFormField(
@@ -47,7 +47,7 @@ class ForgetPasswordPhoneScreen extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
+                                if (formKey.currentState!.validate()) {
                                   // SignInController.instance.phoneAuthentication(
                                   //     controller.phoneNo.text.trim());
                                   Get.to(() => const OTPScreen());

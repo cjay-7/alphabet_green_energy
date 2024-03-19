@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../repository/primary_beneficiary_add_repository/primary_beneficiary_add_repository.dart';
 import '../models/primary_beneficiary_model.dart';
@@ -9,7 +8,7 @@ class PrimaryBeneficiaryAddController extends GetxController {
   static PrimaryBeneficiaryAddController get instance => Get.find();
 
   final fullName = TextEditingController();
-  final stoveID = TextEditingController();
+  final stoveID = TextEditingController(text: 'AL-V2-24-');
   final phoneNumber = TextEditingController();
   final idNumber = TextEditingController();
   late var stoveImg = "";

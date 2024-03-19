@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Alphabet Green Energy App
 publish_to: 'none'
-version: 1.0.0+9
+version: 18.0.0+18
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  google_fonts: ^4.0.3
+  google_fonts: ^6.1.0
   flutter_native_splash: ^2.2.19
   get: ^4.6.5
   flutter_otp_text_field: ^1.1.1
@@ -20,15 +20,17 @@ dependencies:
   firebase_auth: ^4.3.0
   cloud_firestore: ^4.9.0
   dropdown_search: ^5.0.6
-  file_picker: ^5.2.6
+  file_picker: ^6.1.1
   firebase_storage: ^11.0.16
   shared_preferences: ^2.1.0
-  connectivity_plus: ^4.0.2
+  connectivity_plus: ^5.0.2
   email_validator:
   url_launcher:
   flutter_launcher_icons: ^0.13.1
-  firebase_app_check: ^0.1.5+2
+  firebase_app_check: ^0.2.1+8
   location: ^5.0.3
+  share_plus: ^7.2.1
+  archive: ^3.4.10
 
 flutter_launcher_icons:
   android: true
@@ -51,7 +53,7 @@ flutter_launcher_icons:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 
 flutter_native_splash:

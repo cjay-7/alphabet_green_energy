@@ -43,14 +43,14 @@ class ProfileScreen extends StatelessWidget {
                         size: 100,
                       ))),
               const SizedBox(height: 10),
-              Text(
-                aProfileHeading,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Text(
-                aProfileSubHeading,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              // Text(
+              //   aProfileHeading,
+              //   style: Theme.of(context).textTheme.headlineSmall,
+              // ),
+              // Text(
+              //   aProfileSubHeading,
+              //   style: Theme.of(context).textTheme.bodyMedium,
+              // ),
               const SizedBox(height: 20),
               SizedBox(
                 width: 200,
@@ -70,17 +70,17 @@ class ProfileScreen extends StatelessWidget {
 
               //Menu
 
-              ProfileMenuWidget(
-                  title: aMenu1, icon: Icons.settings, onPress: () {}),
-              ProfileMenuWidget(
-                  title: aMenu2,
-                  icon: Icons.account_balance_wallet,
-                  onPress: () {}),
-              ProfileMenuWidget(
-                  title: aMenu3, icon: Icons.verified_user, onPress: () {}),
-              const Divider(),
-              ProfileMenuWidget(
-                  title: aMenu4, icon: Icons.info, onPress: () {}),
+              // ProfileMenuWidget(
+              //     title: aMenu1, icon: Icons.settings, onPress: () {}),
+              // ProfileMenuWidget(
+              //     title: aMenu2,
+              //     icon: Icons.account_balance_wallet,
+              //     onPress: () {}),
+              // ProfileMenuWidget(
+              //     title: aMenu3, icon: Icons.verified_user, onPress: () {}),
+              // const Divider(),
+              // ProfileMenuWidget(
+              //     title: aMenu4, icon: Icons.info, onPress: () {}),
               ProfileMenuWidget(
                   title: aMenu5,
                   icon: Icons.logout,

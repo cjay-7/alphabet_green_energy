@@ -94,6 +94,7 @@ class _FuelTypeState extends State<FuelType> {
                     } else if (int.tryParse(value)! < 0) {
                       return "Please enter valid Number";
                     }
+                    return null;
                   },
                 ),
               ),

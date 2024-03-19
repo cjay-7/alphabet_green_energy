@@ -6,10 +6,8 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/bene
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/id_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/personal_details_form.dart';
 import 'package:alphabet_green_energy/src/features/beneficiary_form/screens/beneficiary_form/widgets/stoveDetails.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,16 +54,10 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
               children: [
                 const StoveDetails(),
                 const Divider(),
-                personalDetailsForm(context),
+                PersonalDetailsForm(),
                 const Divider(),
                 const IdDetails(),
-                const Divider(),
                 const FinalPictures(),
-                const Divider(),
-                const FinalPictures(),
-                const Divider(),
-                const FinalPictures(),
-                const Divider(),
                 SizedBox(
                   width: double.infinity,
                   height: 60.0,
@@ -89,9 +81,9 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                               if (result != ConnectivityResult.none) {
                                 if (_formKey.currentState!.validate() &&
                                     controller.stoveImg.isNotEmpty &&
-                                    // controller.image1.isNotEmpty &&
-                                    // controller.image2.isNotEmpty &&
-                                    // controller.image3.isNotEmpty &&
+                                    controller.image1.isNotEmpty &&
+                                    controller.image2.isNotEmpty &&
+                                    controller.image3.isNotEmpty &&
                                     controller.idImgFront.isNotEmpty &&
                                     controller.idImgBack.isNotEmpty) {
                                   _formKey.currentState!.save();
@@ -105,7 +97,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                     address1: controller.address1.text.trim(),
                                     address2: controller.address2.text.trim(),
                                     town: controller.town.text.trim(),
-                                    state: controller.state.text.trim(),
+                                    state: controller.state,
                                     zip: controller.zip.text.trim(),
                                     phoneNumber:
                                         controller.phoneNumber.text.trim(),
@@ -142,7 +134,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                   address1: controller.address1.text.trim(),
                                   address2: controller.address2.text.trim(),
                                   town: controller.town.text.trim(),
-                                  state: controller.state.text.trim(),
+                                  state: controller.state,
                                   zip: controller.zip.text.trim(),
                                   phoneNumber:
                                       controller.phoneNumber.text.trim(),

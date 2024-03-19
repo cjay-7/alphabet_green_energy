@@ -5,7 +5,6 @@ import 'package:alphabet_green_energy/src/features/survey_form/screens/widgets/f
 import 'package:alphabet_green_energy/src/features/survey_form/screens/widgets/id_details_form.dart';
 import 'package:alphabet_green_energy/src/features/survey_form/screens/widgets/personal_details_form.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 

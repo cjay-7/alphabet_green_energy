@@ -3,14 +3,11 @@ import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../constants/image_strings.dart';
-import '../../controllers/signin_controller.dart';
 import '../../controllers/signup_controller.dart';
-import '../forget_password/forget_password_options/forget_password_model_bottom_sheet.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -123,6 +120,7 @@ class SignUpScreen extends StatelessWidget {
                             } else if (value.length != 10) {
                               return "Please enter valid Number";
                             }
+                            return null;
                           },
                         ),
                       ),

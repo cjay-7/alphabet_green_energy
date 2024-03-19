@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../constants/colors.dart';
 import '../../../beneficiary_form/models/beneficiary_model.dart';

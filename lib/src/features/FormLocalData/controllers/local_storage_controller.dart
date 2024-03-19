@@ -5,6 +5,8 @@ import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/cont
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../repository/beneficiary_add_repository/beneficiary_add_repository.dart';
@@ -192,48 +194,70 @@ class LocalStorageController extends GetxController {
   }
 
   Future<void> syncFormDataToFirebase() async {
-    for (var formData in formDataList) {
-      try {
-        isUploading.value = true;
-        // Upload images to Firebase Storage and get download URLs
-        List<String> imageUrls = await uploadImagesToStorage(formData);
+    try {
+      for (var formData in formDataList) {
+        try {
+          isUploading.value = true;
+          // Upload images to Firebase Storage and get download URLs
+          List<String> imageUrls = await uploadImagesToStorage(formData);
 
-        // Create a new instance of BeneficiaryModel with updated image URLs
-        BeneficiaryModel updatedFormData = BeneficiaryModel(
-          id: formData.id,
-          stoveID: formData.stoveID,
-          stoveImg: imageUrls[0],
-          image1: imageUrls[1],
-          image2: imageUrls[2],
-          image3: imageUrls[3],
-          idImageFront: imageUrls[4],
-          idImageBack: imageUrls[5],
-          fullName: formData.fullName,
-          address1: formData.address1,
-          address2: formData.address2,
-          town: formData.town,
-          state: formData.state,
-          zip: formData.zip,
-          phoneNumber: formData.phoneNumber,
-          idNumber: formData.idNumber,
-          idType: formData.idType,
-          currentDate: formData.currentDate,
-          surveyorName: formData.surveyorName,
-        );
+          // Create a new instance of BeneficiaryModel with updated image URLs
+          BeneficiaryModel updatedFormData = BeneficiaryModel(
+            id: formData.id,
+            stoveID: formData.stoveID,
+            stoveImg: imageUrls[0],
+            image1: imageUrls[1],
+            image2: imageUrls[2],
+            image3: imageUrls[3],
+            idImageFront: imageUrls[4],
+            idImageBack: imageUrls[5],
+            fullName: formData.fullName,
+            address1: formData.address1,
+            address2: formData.address2,
+            town: formData.town,
+            state: formData.state,
+            zip: formData.zip,
+            phoneNumber: formData.phoneNumber,
+            idNumber: formData.idNumber,
+            idType: formData.idType,
+            currentDate: formData.currentDate,
+            surveyorName: formData.surveyorName,
+          );
 
-        // Save the updated formData to Firestore
+          // Save the updated formData to Firestore
 
-        await beneficiaryAddRepo.addData(updatedFormData);
+          await beneficiaryAddRepo.addData(updatedFormData);
 
-        // Remove synced form data from local storage
-        await removeFormDataFromLocalStorage(formData);
-        isUploading.value = false;
-      } catch (e) {}
+          // Remove synced form data from local storage
+          await removeFormDataFromLocalStorage(formData);
+          isUploading.value = false;
+        } catch (e) {
+          print('Error during syncFormDataToFirebase: $e');
+          // Log the error for debugging purposes
+          await writeErrorToFirestore(e.toString());
+        }
+      }
+      updateCounts();
+      // Refresh the screen to reflect the updated form data
+      retrieveFormDataFromLocalStorage();
+    } catch (e) {
+      print('Top-level error during syncFormDataToFirebase: $e');
+      // Log the top-level error for debugging purposes
+      await writeErrorToFirestore(e.toString());
     }
-    updateCounts();
-    // Refresh the screen to reflect the updated form data
-    retrieveFormDataFromLocalStorage();
   }
+
+  Future<void> writeErrorToFirestore(String error) async {
+    try {
+      // Create a new document in the 'error_logs' collection
+      await FirebaseFirestore.instance.collection('error_logs').add({
+        'timestamp': FieldValue.serverTimestamp(),
+        'error_message': error,
+      });
+    } catch (e) {
+      print('Error writing error log to Firestore: $e');
+    }
+  } // Helper function to upload the error log to Firebase Storage
 
   Future<List<String>> uploadImagesToStorage(BeneficiaryModel formData) async {
     List<String> downloadUrls = [];
@@ -413,6 +437,88 @@ class LocalStorageController extends GetxController {
     if (savedSurveyData != null) {
       savedSurveyData.remove(jsonEncode(surveyData.toJson()));
       await prefs.setStringList('surveyData', savedSurveyData);
+    }
+  }
+
+  // Function to share FormDataList as a JSON file
+
+  Future<void> shareFormData() async {
+    try {
+      final jsonData = formDataList.map((formData) {
+        Map<String, dynamic> formDataMap = formData.toJson();
+
+        // Convert images to base64 strings and include them in the map
+
+        return formDataMap;
+      }).toList();
+
+      final jsonString = jsonEncode(jsonData);
+
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/form_data.json');
+      await tempFile.writeAsString(jsonString);
+
+      await Share.shareFiles([tempFile.path],
+          text: 'Sharing FormData as JSON with Images');
+
+      await tempFile.delete();
+    } catch (e) {
+      print('Error during shareFormData: $e');
+    }
+  }
+
+  Future<void> sharePrimaryBeneficiaryData() async {
+    try {
+      final jsonData =
+          primaryBeneficiaryDataList.map((data) => data.toJson()).toList();
+      final jsonString = jsonEncode(jsonData);
+
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/primary_beneficiary_data.json');
+      await tempFile.writeAsString(jsonString);
+
+      await Share.shareFiles([tempFile.path],
+          text: 'Sharing Primary Beneficiary Data as JSON');
+
+      await tempFile.delete();
+    } catch (e) {
+      print('Error during sharePrimaryBeneficiaryData: $e');
+    }
+  }
+
+  Future<void> shareSurveyData() async {
+    try {
+      final jsonData = surveyDataList.map((data) => data.toJson()).toList();
+      final jsonString = jsonEncode(jsonData);
+
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/survey_data.json');
+      await tempFile.writeAsString(jsonString);
+
+      await Share.shareFiles([tempFile.path],
+          text: 'Sharing Survey Data as JSON');
+
+      await tempFile.delete();
+    } catch (e) {
+      print('Error during shareSurveyData: $e');
+    }
+  }
+
+  Future<void> shareVisitData() async {
+    try {
+      final jsonData = visitDataList.map((data) => data.toJson()).toList();
+      final jsonString = jsonEncode(jsonData);
+
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/visit_data.json');
+      await tempFile.writeAsString(jsonString);
+
+      await Share.shareFiles([tempFile.path],
+          text: 'Sharing Visit Data as JSON');
+
+      await tempFile.delete();
+    } catch (e) {
+      print('Error during shareVisitData: $e');
     }
   }
 }

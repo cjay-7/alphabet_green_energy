@@ -11,7 +11,6 @@ import 'package:location/location.dart';
 import 'package:path/path.dart';
 
 import '../../../../../common_widgets/customInputFormatter.dart';
-import '../../../../../constants/text.dart';
 import '../../../../beneficiary_form/controllers/beneficiary_add_controller.dart';
 
 class StoveDetails extends StatefulWidget {
@@ -120,11 +119,15 @@ class _StoveDetailsState extends State<StoveDetails> {
               ),
               inputFormatters: [
                 FilteringTextInputFormatter.singleLineFormatter,
-                CustomInputFormatter()
+                CustomInputFormatter('AL-V2-24-')
               ],
+              keyboardType: TextInputType.number,
               validator: (value) {
                 if (value!.isEmpty) {
-                  return "Please enter Stove ID";
+                  return "Please enter Phone Number";
+                } else if (value.length != 19 ||
+                    !value.startsWith("AL-V2-24-")) {
+                  return "Please enter valid Number";
                 }
                 return null;
               },

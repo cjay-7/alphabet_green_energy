@@ -51,7 +51,7 @@ class UserModel {
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
     return UserModel(
-        id: data["Email"],
+        id: data["id"],
         email: data["Email"],
         password: data["Password"],
         phoneNo: data["Phone"],
