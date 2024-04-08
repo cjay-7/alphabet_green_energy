@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Alphabet Green Energy App
 publish_to: 'none'
-version: 18.0.0+18
+version: 20.0.0+20
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -20,22 +20,24 @@ dependencies:
   firebase_auth: ^4.3.0
   cloud_firestore: ^4.9.0
   dropdown_search: ^5.0.6
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0+1
   firebase_storage: ^11.0.16
   shared_preferences: ^2.1.0
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^6.0.1
   email_validator:
   url_launcher:
   flutter_launcher_icons: ^0.13.1
   firebase_app_check: ^0.2.1+8
   location: ^5.0.3
-  share_plus: ^7.2.1
+  share_plus: ^8.0.2
   archive: ^3.4.10
+  http: ^1.2.1
+  csv:
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo/ag-logo.svg"
+  image_path: "assets/logo/ag-logo.png"
   min_sdk_android: 22 # android min sdk min:16, default 21
   web:
     generate: true
@@ -59,18 +61,24 @@ dev_dependencies:
 flutter_native_splash:
   color: "#f7f6f1"
   color_dark: "#272727"
-  image: assets/images/splash.svg
-  image_dark: assets/images/splash.svg
+  image: assets/logo/splash.png
+  image_dark: assets/logo/splash.png
 
   android_12:
-    image: assets/images/splash.svg
+    image: assets/logo/splash.png
     icon_background_color: "#f7f6f1"
-    image_dark: assets/images/splash.svg
+    image_dark: assets/logo/splash.png
+    icon_background_color_dark: "#272727"
+
+  web:
+    image: assets/logo/splash.png
+    icon_background_color: "#f7f6f1"
+    image_dark: assets/logo/splash.png
     icon_background_color_dark: "#272727"
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
-    - assets/images/forgot_password/
     - assets/logo/
+    - assets/images/forgot_password/
+    - assets/zipData.json

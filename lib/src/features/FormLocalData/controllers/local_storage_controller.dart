@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/controllers/primary_beneficiary_add_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -143,10 +144,14 @@ class LocalStorageController extends GetxController {
         // Remove synced form data from local storage
         await removePrimaryBeneficiaryDataFromLocalStorage(
             primaryBeneficiaryData);
-        print('Removed data from local storage');
+        if (kDebugMode) {
+          print('Removed data from local storage');
+        }
         isUploading.value = false;
       } catch (e) {
-        print('Error during syncPrimaryBeneficiaryDataToFirebase: $e');
+        if (kDebugMode) {
+          print('Error during syncPrimaryBeneficiaryDataToFirebase: $e');
+        }
       }
     }
     updateCounts();
@@ -181,8 +186,12 @@ class LocalStorageController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     List<String> savedPrimaryBeneficiaryData =
         prefs.getStringList('primaryBeneficiaryData') ?? [];
-    print('Before removal: $savedPrimaryBeneficiaryData');
-    print('Before removal: $primaryBeneficiaryData');
+    if (kDebugMode) {
+      print('Before removal: $savedPrimaryBeneficiaryData');
+    }
+    if (kDebugMode) {
+      print('Before removal: $primaryBeneficiaryData');
+    }
 
     savedPrimaryBeneficiaryData.removeWhere(
         (data) => data == jsonEncode(primaryBeneficiaryData.toJson()));
@@ -190,7 +199,9 @@ class LocalStorageController extends GetxController {
     await prefs.setStringList(
         'primaryBeneficiaryData', savedPrimaryBeneficiaryData);
 
-    print('After removal: $primaryBeneficiaryData');
+    if (kDebugMode) {
+      print('After removal: $primaryBeneficiaryData');
+    }
   }
 
   Future<void> syncFormDataToFirebase() async {
@@ -214,9 +225,10 @@ class LocalStorageController extends GetxController {
             fullName: formData.fullName,
             address1: formData.address1,
             address2: formData.address2,
-            town: formData.town,
-            state: formData.state,
             zip: formData.zip,
+            state: formData.state,
+            district: formData.district,
+            town: formData.town,
             phoneNumber: formData.phoneNumber,
             idNumber: formData.idNumber,
             idType: formData.idType,
@@ -232,7 +244,9 @@ class LocalStorageController extends GetxController {
           await removeFormDataFromLocalStorage(formData);
           isUploading.value = false;
         } catch (e) {
-          print('Error during syncFormDataToFirebase: $e');
+          if (kDebugMode) {
+            print('Error during syncFormDataToFirebase: $e');
+          }
           // Log the error for debugging purposes
           await writeErrorToFirestore(e.toString());
         }
@@ -241,7 +255,9 @@ class LocalStorageController extends GetxController {
       // Refresh the screen to reflect the updated form data
       retrieveFormDataFromLocalStorage();
     } catch (e) {
-      print('Top-level error during syncFormDataToFirebase: $e');
+      if (kDebugMode) {
+        print('Top-level error during syncFormDataToFirebase: $e');
+      }
       // Log the top-level error for debugging purposes
       await writeErrorToFirestore(e.toString());
     }
@@ -255,7 +271,9 @@ class LocalStorageController extends GetxController {
         'error_message': error,
       });
     } catch (e) {
-      print('Error writing error log to Firestore: $e');
+      if (kDebugMode) {
+        print('Error writing error log to Firestore: $e');
+      }
     }
   } // Helper function to upload the error log to Firebase Storage
 
@@ -352,7 +370,11 @@ class LocalStorageController extends GetxController {
           await removeVisitDataFromLocalStorage(visitData);
           isUploading.value = false;
         }
-      } catch (e) {}
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
     }
     updateCounts();
     retrieveVisitDataFromLocalStorage();
@@ -406,7 +428,11 @@ class LocalStorageController extends GetxController {
         // Remove synced survey data from local storage
         await removeSurveyDataFromLocalStorage(surveyData);
         isUploading.value = false;
-      } catch (e) {}
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
     }
     updateCounts();
     // Refresh the screen to reflect the updated survey data
@@ -463,7 +489,9 @@ class LocalStorageController extends GetxController {
 
       await tempFile.delete();
     } catch (e) {
-      print('Error during shareFormData: $e');
+      if (kDebugMode) {
+        print('Error during shareFormData: $e');
+      }
     }
   }
 
@@ -482,7 +510,9 @@ class LocalStorageController extends GetxController {
 
       await tempFile.delete();
     } catch (e) {
-      print('Error during sharePrimaryBeneficiaryData: $e');
+      if (kDebugMode) {
+        print('Error during sharePrimaryBeneficiaryData: $e');
+      }
     }
   }
 
@@ -500,7 +530,9 @@ class LocalStorageController extends GetxController {
 
       await tempFile.delete();
     } catch (e) {
-      print('Error during shareSurveyData: $e');
+      if (kDebugMode) {
+        print('Error during shareSurveyData: $e');
+      }
     }
   }
 
@@ -518,7 +550,9 @@ class LocalStorageController extends GetxController {
 
       await tempFile.delete();
     } catch (e) {
-      print('Error during shareVisitData: $e');
+      if (kDebugMode) {
+        print('Error during shareVisitData: $e');
+      }
     }
   }
 }

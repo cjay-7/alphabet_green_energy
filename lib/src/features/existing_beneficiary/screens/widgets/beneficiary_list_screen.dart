@@ -18,7 +18,7 @@ import '../../models/add_beneficiary_visit_model.dart';
 import 'beneficiary_details.dart';
 
 class BeneficiaryListScreen extends StatefulWidget {
-  const BeneficiaryListScreen({Key? key}) : super(key: key);
+  const BeneficiaryListScreen({super.key});
 
   @override
   BeneficiaryListScreenState createState() => BeneficiaryListScreenState();
@@ -94,9 +94,9 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
     final size = MediaQuery.of(context).size;
 
     Future<ConnectivityResult> checkConnectivity() async {
-      final ConnectivityResult result =
+      final List<ConnectivityResult> result =
           await Connectivity().checkConnectivity();
-      return result;
+      return result.isNotEmpty ? result.first : ConnectivityResult.none;
     }
 
     String? idNumber = "";
@@ -247,13 +247,16 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result
+                                          .contains(ConnectivityResult.wifi) ||
+                                      result.contains(
+                                          ConnectivityResult.mobile)) {
                                     setState(() {
                                       isUploading = true;
                                     });
                                     uploadImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     uploadImageToLocalStorage();
                                   }
                                 },
@@ -297,7 +300,8 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
               child: OutlinedButton(
                 onPressed: () async {
                   var result = await Connectivity().checkConnectivity();
-                  if (result != ConnectivityResult.none) {
+                  if (result.contains(ConnectivityResult.wifi) ||
+                      result.contains(ConnectivityResult.mobile)) {
                     if (_formKey.currentState!.validate() &&
                         addBeneficiaryVisitController.stoveImgVisit != '') {
                       _formKey.currentState!.save();
@@ -316,7 +320,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
                       _resetForm();
                       Get.back();
                     }
-                  } else if (result == ConnectivityResult.none &&
+                  } else if (result.contains(ConnectivityResult.none) &&
                       _formKey.currentState!.validate() &&
                       addBeneficiaryVisitController.stoveImgVisit != "") {
                     _formKey.currentState!.save();

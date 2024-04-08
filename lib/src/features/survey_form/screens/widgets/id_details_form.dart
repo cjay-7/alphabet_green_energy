@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +15,7 @@ import '../../../../constants/text.dart';
 import '../../controllers/survey_add_controller.dart';
 
 class IdDetails extends StatefulWidget {
-  const IdDetails({Key? key}) : super(key: key);
+  const IdDetails({super.key});
 
   @override
   State<IdDetails> createState() => _IdDetailsState();
@@ -117,14 +118,18 @@ class _IdDetailsState extends State<IdDetails> {
     final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
 
     // Print the metadata to verify
-    print(await firebaseStorageRef.getMetadata());
+    if (kDebugMode) {
+      print(await firebaseStorageRef.getMetadata());
+    }
     try {
       await uploadTask?.whenComplete(() {});
       final imageUrl = await firebaseStorageRef.getDownloadURL();
 
       controller.idImgFront = imageUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      if (kDebugMode) {
+        print('Error uploading image: $e');
+      }
       // Handle any errors that occurred during the upload process
     } finally {
       setState(() {
@@ -163,7 +168,9 @@ class _IdDetailsState extends State<IdDetails> {
     final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
 
     // Print the metadata to verify
-    print(await firebaseStorageRef.getMetadata());
+    if (kDebugMode) {
+      print(await firebaseStorageRef.getMetadata());
+    }
 
     try {
       await uploadTask?.whenComplete(() {});
@@ -171,7 +178,9 @@ class _IdDetailsState extends State<IdDetails> {
 
       controller.idImgBack = imageUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      if (kDebugMode) {
+        print('Error uploading image: $e');
+      }
       // Handle any errors that occurred during the upload process
     } finally {
       setState(() {
@@ -286,10 +295,13 @@ class _IdDetailsState extends State<IdDetails> {
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result.contains(
+                                          ConnectivityResult.mobile) ||
+                                      result
+                                          .contains(ConnectivityResult.wifi)) {
                                     uploadFrontImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     uploadFrontImageToLocalStorage();
                                   }
                                 },
@@ -356,10 +368,13 @@ class _IdDetailsState extends State<IdDetails> {
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result.contains(
+                                          ConnectivityResult.mobile) ||
+                                      result
+                                          .contains(ConnectivityResult.wifi)) {
                                     uploadBackImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     uploadBackImageToLocalStorage();
                                   }
                                 },

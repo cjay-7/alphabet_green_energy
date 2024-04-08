@@ -17,8 +17,7 @@ class ExistingBeneficiary extends StatefulWidget {
 class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
   final _beneficiaryController = Get.put(BeneficiaryController());
   final _formKey = GlobalKey<FormState>();
-  late ConnectivityResult connectivityResult =
-      ConnectivityResult.none; // Initialize with a default value
+  List<ConnectivityResult>? connectivityResult; // Initialize with null
 
   @override
   void initState() {
@@ -46,60 +45,68 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                    connectivityResult != ConnectivityResult.none
-                        ? 'Enter CookStove Serial Number:'
-                        : 'Enter Beneficiary ID Number:',
-                    style: Theme.of(context).textTheme.headlineMedium),
+                  connectivityResult == null
+                      ? 'Checking connectivity...'
+                      : (connectivityResult!.contains(ConnectivityResult.none)
+                          ? 'Enter CookStove Serial Number:'
+                          : 'Enter Beneficiary ID Number:'),
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: 50.0),
-                TextFormField(
-                  controller: connectivityResult != ConnectivityResult.none
-                      ? _beneficiaryController.stoveID
-                      : _beneficiaryController.idNumber,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    labelText: connectivityResult != ConnectivityResult.none
-                        ? 'Enter Stove ID'
-                        : 'Enter ID Number',
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.singleLineFormatter,
-                    CustomInputFormatter('AL-V2-24-')
-                  ],
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return connectivityResult != ConnectivityResult.none
-                          ? "Please enter Stove ID"
-                          : "Please enter ID Number";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 30.0),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _beneficiaryController.getBeneficiaryData(
-                          connectivityResult != ConnectivityResult.none
-                              ? _beneficiaryController.stoveID.text
-                              : _beneficiaryController.idNumber.text,
-                          _beneficiaryController,
-                        );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BeneficiaryListScreen(),
-                            settings: RouteSettings(
-                                arguments:
-                                    _beneficiaryController.idNumber.text),
-                          ),
-                        );
+                if (connectivityResult !=
+                    null) // Check if connectivityResult is not null
+                  TextFormField(
+                    controller:
+                        connectivityResult!.contains(ConnectivityResult.none)
+                            ? _beneficiaryController.stoveID
+                            : _beneficiaryController.idNumber,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      labelText:
+                          connectivityResult!.contains(ConnectivityResult.none)
+                              ? 'Enter Stove ID'
+                              : 'Enter ID Number',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return connectivityResult!
+                                .contains(ConnectivityResult.none)
+                            ? "Please enter Stove ID"
+                            : "Please enter ID Number";
                       }
+                      return null;
                     },
-                    child: const Text('Get Beneficiary Details'),
                   ),
-                ),
+                const SizedBox(height: 30.0),
+                if (connectivityResult !=
+                    null) // Check if connectivityResult is not null
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _beneficiaryController.getBeneficiaryData(
+                            connectivityResult!
+                                    .contains(ConnectivityResult.none)
+                                ? _beneficiaryController.stoveID.text
+                                : _beneficiaryController.idNumber.text,
+                            _beneficiaryController,
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const BeneficiaryListScreen(),
+                              settings: RouteSettings(
+                                  arguments:
+                                      _beneficiaryController.idNumber.text),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text('Get Beneficiary Details'),
+                    ),
+                  ),
               ],
             ),
           ),

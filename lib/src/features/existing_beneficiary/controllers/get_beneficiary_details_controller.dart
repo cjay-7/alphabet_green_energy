@@ -1,4 +1,5 @@
 import 'package:alphabet_green_energy/src/repository/beneficiary_add_repository/beneficiary_add_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,19 +19,21 @@ class BeneficiaryController extends GetxController {
       String serialNumber, BeneficiaryController beneficiaryController) async {
     if (serialNumber.isNotEmpty) {
       try {
-        print(
-            "Fetching beneficiary details for serialNumber: $serialNumber"); // Add this line
+        print("Fetching beneficiary details for serialNumber: $serialNumber");
         BeneficiaryModel beneficiary =
             await _beneficiaryRepo.getBeneficiaryDetails(serialNumber);
         if (beneficiary != null) {
           beneficiaryList.clear();
           beneficiaryList.add(beneficiary);
         } else {
-          Get.snackbar("Error", "No Such Records");
+          // No beneficiary data found for the provided serial number
+          Get.snackbar("Error",
+              "No beneficiary data found for the provided serial number");
         }
       } catch (error) {
-        print("Error fetching beneficiary data: $error"); // Add this line
-        Get.snackbar("Error", "An error occurred");
+        // Handle other exceptions
+        print("Error fetching beneficiary data: $error");
+        Get.snackbar("Error", "An error occurred: $error");
       }
     } else {
       Get.snackbar("Error", "Please enter a Stove ID");

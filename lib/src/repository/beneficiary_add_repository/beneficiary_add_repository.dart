@@ -116,7 +116,7 @@ class BeneficiaryAddRepository extends GetxController {
     } else {
       final idNumberSnapshot = await _db
           .collection("BeneficiaryData")
-          .where("idNumber", isEqualTo: serialNumber)
+          .where("IdNumber", isEqualTo: serialNumber)
           .get();
 
       if (idNumberSnapshot.docs.isNotEmpty) {

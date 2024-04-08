@@ -10,9 +10,10 @@ class BeneficiaryAddController extends GetxController {
   final stoveID = TextEditingController(text: 'AL-V2-24-');
   final address1 = TextEditingController();
   final address2 = TextEditingController();
-  final town = TextEditingController();
-  final state = "";
   final zip = TextEditingController();
+  late var state = TextEditingController();
+  late var town = TextEditingController();
+  late var district = TextEditingController();
   final phoneNumber = TextEditingController();
   final idNumber = TextEditingController();
   late var idType = "Aadhar Card";

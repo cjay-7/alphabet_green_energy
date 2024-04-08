@@ -100,7 +100,10 @@ class _SurveyFormState extends State<SurveyForm> {
                                     onPressed: () async {
                                       var result = await Connectivity()
                                           .checkConnectivity();
-                                      if (result != ConnectivityResult.none) {
+                                      if (result.contains(
+                                              ConnectivityResult.mobile) ||
+                                          result.contains(
+                                              ConnectivityResult.wifi)) {
                                         if (_formKey.currentState!.validate() &&
                                             controller.image1.isNotEmpty &&
                                             controller.idImgFront.isNotEmpty) {
@@ -149,8 +152,8 @@ class _SurveyFormState extends State<SurveyForm> {
                                           _resetForm();
                                           Get.back();
                                         }
-                                      } else if (result ==
-                                              ConnectivityResult.none &&
+                                      } else if (result.contains(
+                                              ConnectivityResult.none) &&
                                           _formKey.currentState!.validate() &&
                                           controller.image1.isNotEmpty &&
                                           controller.idImgFront.isNotEmpty) {
@@ -197,7 +200,7 @@ class _SurveyFormState extends State<SurveyForm> {
                                         await _saveSurveyDataToLocalStorage(
                                             survey.toJson());
                                         _resetForm();
-                                        Navigator.of(context).pop();
+                                        Get.back();
                                       }
                                     },
                                     child: Text(
