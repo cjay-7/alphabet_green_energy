@@ -1,31 +1,19 @@
 {
   "project_info": {
     "project_number": "1098077986035",
+    "firebase_url": "https://alphabetgreens-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "alphabetgreens",
     "storage_bucket": "alphabetgreens.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1098077986035:android:13582026ccedd49be7ab86",
+        "mobilesdk_app_id": "1:1098077986035:android:8bb0d243e7ed059ae7ab86",
         "android_client_info": {
-          "package_name": "com.alphabetgreens.alphabet_greens"
+          "package_name": "com.alphabet_greens"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "1098077986035-4npofqdreaskij7u4tikfql1mgpn50h9.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.alphabetgreens.alphabet_greens",
-            "certificate_hash": "9cccf253e3cb26846c772017a259ddad1958eeae"
-          }
-        },
-        {
-          "client_id": "1098077986035-4ccv3grpkqqikh55m7v5n7s6q2vh56aq.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyC20__1AV6bVnSiqKaZkZRO7yx19IrDMA0"
@@ -34,10 +22,6 @@
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
-            {
-              "client_id": "1098077986035-4ccv3grpkqqikh55m7v5n7s6q2vh56aq.apps.googleusercontent.com",
-              "client_type": 3
-            },
             {
               "client_id": "1098077986035-4v68t957erttkm7skggetjvg59v0q6gt.apps.googleusercontent.com",
               "client_type": 2,
