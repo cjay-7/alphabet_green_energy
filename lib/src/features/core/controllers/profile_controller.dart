@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../repository/authentication_repository/authentication_repository.dart';
@@ -21,6 +22,24 @@ class ProfileController extends GetxController {
     getUserData();
   }
 
+  /// Fetching data doesn't need the app to be visually ready, but showing a
+  /// snackbar does — GetX's SnackbarController looks up the Navigator's
+  /// Overlay, which isn't mounted yet immediately after Get.offAll()'s page
+  /// transition starts. Get.overlayContext isn't a reliable readiness check
+  /// here: it returns a child *of the overlay's current content*, which is
+  /// null whenever the overlay happens to be empty and can reference a
+  /// since-disposed element otherwise — either way it doesn't prove an
+  /// Overlay ancestor actually exists for the current route. Ask Flutter
+  /// directly via Overlay.maybeOf on the current route's own context.
+  Future<bool> _waitForOverlay() async {
+    for (var attempt = 0; attempt < 20; attempt++) {
+      final context = Get.context;
+      if (context != null && Overlay.maybeOf(context) != null) return true;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    return false;
+  }
+
   // Method to save user data locally
   saveUserDataLocally(UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
@@ -29,11 +48,6 @@ class ProfileController extends GetxController {
   }
 
   Future<void> getUserData() async {
-    // onInit() runs while Get.offAll()'s page transition (500ms, see
-    // main.dart) may still be in flight — Get.snackbar needs a settled
-    // Overlay, so wait for the transition to finish before any snackbar
-    // call below can run.
-    await Future<void>.delayed(const Duration(milliseconds: 600));
     final email = _authRepo.firebaseUser.value?.email;
     if (email != null) {
       try {
@@ -52,14 +66,12 @@ class ProfileController extends GetxController {
     }
   }
 
-  // GetX's snackbar overlay can still throw (e.g. "No Overlay widget found")
-  // if it's triggered while a page transition hasn't fully settled, even
-  // after the delay above. This is feedback, not the actual state update
-  // (already applied above), so failing to show it shouldn't surface as an
-  // unhandled exception.
-  void _showSnackbarSafely(String title, String message) {
-    try {
-      Get.snackbar(title, message);
-    } catch (_) {}
+  // GetX's SnackbarController schedules its own show() through an internal
+  // queue, so a plain try/catch around Get.snackbar() doesn't reliably catch
+  // "No Overlay widget found" — the failure surfaces after this call has
+  // already returned. Wait until the Overlay genuinely exists instead.
+  Future<void> _showSnackbarSafely(String title, String message) async {
+    if (!await _waitForOverlay()) return;
+    Get.snackbar(title, message);
   }
 }

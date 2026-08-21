@@ -19,7 +19,6 @@ class AuthenticationRepository extends GetxController {
 
   @override
   void onReady() {
-    Future.delayed(const Duration(seconds: 6));
     firebaseUser = Rx<User?>(_auth.currentUser);
     firebaseUser.bindStream(_auth.userChanges());
     ever(firebaseUser, _setInitialScreen);
