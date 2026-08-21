@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constants/text.dart';
+import '../../../utils/safe_snackbar.dart';
 
 class BeneficiaryFormWidget extends StatefulWidget {
   const BeneficiaryFormWidget({super.key});
@@ -178,12 +179,8 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                     beneficiary.toJson());
                                 _resetForm();
                                 Navigator.of(context).pop();
-                                // Shown after navigating back, since GetX's
-                                // snackbar overlay can crash if triggered
-                                // while a page transition is still settling.
-                                Get.snackbar(
+                                showSnackbarSafely(
                                     "Success", ' Beneficiary data saved locally.',
-                                    snackPosition: SnackPosition.BOTTOM,
                                     backgroundColor:
                                         Colors.green.withOpacity(0.1),
                                     colorText: Colors.green);

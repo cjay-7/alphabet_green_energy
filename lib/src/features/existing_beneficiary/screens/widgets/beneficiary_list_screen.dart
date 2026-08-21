@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constants/text.dart';
+import '../../../../utils/safe_snackbar.dart';
 import '../../controllers/add_beneficiary_visit_controller.dart';
 import '../../controllers/get_beneficiary_details_controller.dart';
 import '../../models/add_beneficiary_visit_model.dart';
@@ -343,6 +344,9 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
 
                     _resetForm();
                     Navigator.of(context).pop();
+                    showSnackbarSafely("Success", 'Visit data saved locally.',
+                        backgroundColor: Colors.green.withOpacity(0.1),
+                        colorText: Colors.green);
                   }
                 },
                 child: Text(
@@ -364,11 +368,6 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
     visitDataList.add(jsonEncode(data));
 
     await prefs.setStringList('visitData', visitDataList);
-
-    Get.snackbar("Success", 'Visit data saved locally.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green);
   }
 
   void _resetForm() {

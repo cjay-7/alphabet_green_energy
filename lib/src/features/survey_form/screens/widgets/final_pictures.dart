@@ -133,10 +133,13 @@ class _FinalPicturesState extends State<FinalPictures> {
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result.contains(
+                                          ConnectivityResult.mobile) ||
+                                      result
+                                          .contains(ConnectivityResult.wifi)) {
                                     await uploadImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     await uploadImageToLocalStorage();
                                   }
                                 },

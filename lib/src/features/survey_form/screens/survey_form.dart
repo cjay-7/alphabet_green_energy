@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constants/text.dart';
+import '../../../utils/safe_snackbar.dart';
 
 import '../controllers/survey_add_controller.dart';
 import '../models/survey_model.dart';
@@ -48,10 +49,6 @@ class _SurveyFormState extends State<SurveyForm> {
     surveyDataList.add(jsonEncode(data));
 
     await prefs.setStringList('surveyData', surveyDataList);
-    Get.snackbar("Success", 'Survey data saved locally.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green);
   }
 
   void _resetForm() {
@@ -206,6 +203,11 @@ class _SurveyFormState extends State<SurveyForm> {
                                             survey.toJson());
                                         _resetForm();
                                         Navigator.of(context).pop();
+                                        showSnackbarSafely("Success",
+                                            'Survey data saved locally.',
+                                            backgroundColor: Colors.green
+                                                .withOpacity(0.1),
+                                            colorText: Colors.green);
                                       }
                                     },
                                     child: Text(

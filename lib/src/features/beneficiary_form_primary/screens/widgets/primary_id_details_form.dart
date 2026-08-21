@@ -200,10 +200,13 @@ class _IdDetailsState extends State<PrimaryIdDetails>
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result.contains(
+                                          ConnectivityResult.mobile) ||
+                                      result
+                                          .contains(ConnectivityResult.wifi)) {
                                     uploadFrontImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     uploadFrontImageToLocalStorage();
                                   }
                                 },
@@ -270,10 +273,13 @@ class _IdDetailsState extends State<PrimaryIdDetails>
                               : () async {
                                   var result =
                                       await Connectivity().checkConnectivity();
-                                  if (result != ConnectivityResult.none) {
+                                  if (result.contains(
+                                          ConnectivityResult.mobile) ||
+                                      result
+                                          .contains(ConnectivityResult.wifi)) {
                                     uploadBackImageToFirebase();
-                                  } else if (result ==
-                                      ConnectivityResult.none) {
+                                  } else if (result
+                                      .contains(ConnectivityResult.none)) {
                                     uploadBackImageToLocalStorage();
                                   }
                                 },

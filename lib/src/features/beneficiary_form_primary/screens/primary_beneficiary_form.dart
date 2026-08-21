@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constants/text.dart';
+import '../../../utils/safe_snackbar.dart';
 import '../controllers/primary_beneficiary_add_controller.dart';
 import '../models/primary_beneficiary_model.dart';
 
@@ -82,7 +83,8 @@ class PrimaryBeneficiaryFormWidgetState
                             onPressed: () async {
                               var result =
                                   await Connectivity().checkConnectivity();
-                              if (result != ConnectivityResult.none) {
+                              if (result.contains(ConnectivityResult.mobile) ||
+                                  result.contains(ConnectivityResult.wifi)) {
                                 if (_formKey.currentState!.validate() &&
                                     controller.stoveImg.isNotEmpty &&
                                     // controller.image1.isNotEmpty &&
@@ -117,7 +119,8 @@ class PrimaryBeneficiaryFormWidgetState
                                   // plain Navigator instead.
                                   Navigator.of(context).pop();
                                 }
-                              } else if (result == ConnectivityResult.none &&
+                              } else if (result
+                                      .contains(ConnectivityResult.none) &&
                                   _formKey.currentState!.validate() &&
                                   controller.stoveImg.isNotEmpty &&
                                   controller.image1.isNotEmpty &&
@@ -133,8 +136,8 @@ class PrimaryBeneficiaryFormWidgetState
                                       controller.phoneNumber.text.trim(),
                                   idNumber: controller.idNumber.text.trim(),
                                   stoveImg: controller.stoveImg,
-                                  idImageBack: controller.idImgFront,
-                                  idImageFront: controller.idImgBack,
+                                  idImageFront: controller.idImgFront,
+                                  idImageBack: controller.idImgBack,
                                   currentDate: currentDate,
                                   surveyorName: surveyorName,
                                   image1: controller.image1,
@@ -143,6 +146,11 @@ class PrimaryBeneficiaryFormWidgetState
                                     beneficiary.toJson());
                                 _resetForm();
                                 Navigator.of(context).pop();
+                                showSnackbarSafely("Success",
+                                    'Primary Beneficiary data saved locally.',
+                                    backgroundColor:
+                                        Colors.green.withOpacity(0.1),
+                                    colorText: Colors.green);
                               }
                             },
                             child: Text(
@@ -171,10 +179,6 @@ class PrimaryBeneficiaryFormWidgetState
 
     await prefs.setStringList(
         'primaryBeneficiaryData', primaryBeneficiaryDataList);
-    Get.snackbar("Success", 'Primary Beneficiary data saved locally.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green);
   }
 
   void _resetForm() {
