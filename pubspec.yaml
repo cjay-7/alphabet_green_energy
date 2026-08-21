@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Alphabet Green Energy App
 publish_to: 'none'
-version: 20.0.0+20
+version: 1.0.0+21
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
