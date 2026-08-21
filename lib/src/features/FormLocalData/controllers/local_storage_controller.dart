@@ -402,9 +402,7 @@ class LocalStorageController extends GetxController {
         }
       }
     }
-    // NOTE: this refreshes formDataList, not surveyDataList — pre-existing
-    // behavior carried over as-is from before this refactor.
-    _finishSync(retrieveFormDataFromLocalStorage);
+    _finishSync(retrieveSurveyDataFromLocalStorage);
   }
 
   Future<List<String>> uploadSurveyImagesToStorage(
