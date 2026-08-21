@@ -61,7 +61,7 @@ class PersonalDetailsFormState extends State<PersonalDetailsForm> {
           .map((json) => ZipData(
                 zip: json['Pincode'],
                 state: json['StateName'],
-                district: json['District'],
+                district: json['Districtname'],
               ))
           .toList();
       // Update the state with the loaded data
@@ -236,6 +236,29 @@ class PersonalDetailsFormState extends State<PersonalDetailsForm> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return aTownValidator;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: controller.phoneNumber,
+                  decoration: InputDecoration(
+                      labelText: aPhoneNo,
+                      prefixIcon: const Icon(Icons.phone),
+                      hintText: aPhoneNo,
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      border: const OutlineInputBorder()),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Please enter Phone Number";
+                    } else if (int.tryParse(value) == null) {
+                      return 'Only numbers are allowed';
+                    } else if (value.length != 10) {
+                      return "Please enter valid Number";
                     }
                     return null;
                   },

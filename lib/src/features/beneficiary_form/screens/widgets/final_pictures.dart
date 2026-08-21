@@ -2,25 +2,28 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../controllers/beneficiary_add_controller.dart';
 import 'package:path/path.dart';
 
 class FinalPictures extends StatefulWidget {
   const FinalPictures({
     super.key,
     required this.title,
+    required this.onImageUploaded,
   });
   final String title;
+
+  /// Called with the uploaded (or locally-cached) image path/URL once this
+  /// picture finishes uploading, so the caller decides which controller
+  /// field(s) it belongs to.
+  final ValueChanged<String> onImageUploaded;
 
   @override
   State<FinalPictures> createState() => _FinalPicturesState();
 }
 
 class _FinalPicturesState extends State<FinalPictures> {
-  final controller = Get.put(BeneficiaryAddController());
   File? _imageFile;
   UploadTask? uploadTask;
   final picker = ImagePicker();
@@ -30,9 +33,10 @@ class _FinalPicturesState extends State<FinalPictures> {
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
     setState(() {
-      _imageFile = File(pickedFile!.path);
+      _imageFile = File(pickedFile.path);
     });
   }
 
@@ -42,15 +46,12 @@ class _FinalPicturesState extends State<FinalPictures> {
     });
 
     await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
-    setState(() {
-      if (controller.image1 == "") controller.image1 = _imageFile!.path;
-      if (controller.image2 == "") controller.image2 = _imageFile!.path;
-      if (controller.image3 == "") controller.image3 = _imageFile!.path;
-    });
+    widget.onImageUploaded(_imageFile!.path);
 
     // Simulating upload completion delay
     await Future.delayed(const Duration(seconds: 2));
 
+    if (!mounted) return;
     setState(() {
       isImageUploaded = true;
       isUploading = false;
@@ -70,17 +71,18 @@ class _FinalPicturesState extends State<FinalPictures> {
     try {
       await uploadTask?.whenComplete(() {});
       final imageUrl = await firebaseStorageRef.getDownloadURL();
-      if (controller.image1 == "") controller.image1 = imageUrl;
-      if (controller.image2 == "") controller.image2 = imageUrl;
-      if (controller.image3 == "") controller.image3 = imageUrl;
+      widget.onImageUploaded(imageUrl);
     } catch (e) {
       print('Error uploading image: $e');
       // Handle any errors that occurred during the upload process
     } finally {
-      setState(() {
-        isImageUploaded = true; // Set the flag to true after successful upload
-        isUploading = false; // Set the loading flag back to false
-      });
+      if (mounted) {
+        setState(() {
+          isImageUploaded =
+              true; // Set the flag to true after successful upload
+          isUploading = false; // Set the loading flag back to false
+        });
+      }
     }
   }
 

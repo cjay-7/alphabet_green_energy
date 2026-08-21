@@ -27,9 +27,10 @@ class _FinalPicturesState extends State<PrimaryFinalPictures> {
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
     setState(() {
-      _imageFile = File(pickedFile!.path);
+      _imageFile = File(pickedFile.path);
     });
   }
 
@@ -39,6 +40,7 @@ class _FinalPicturesState extends State<PrimaryFinalPictures> {
     });
 
     await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
+    if (!mounted) return;
     setState(() {
       controller.image1 = _imageFile!.path;
     });
@@ -46,6 +48,7 @@ class _FinalPicturesState extends State<PrimaryFinalPictures> {
     // Simulating upload completion delay
     await Future.delayed(const Duration(seconds: 2));
 
+    if (!mounted) return;
     setState(() {
       isImageUploaded = true;
       isUploading = false;
@@ -72,10 +75,13 @@ class _FinalPicturesState extends State<PrimaryFinalPictures> {
       }
       // Handle any errors that occurred during the upload process
     } finally {
-      setState(() {
-        isImageUploaded = true; // Set the flag to true after successful upload
-        isUploading = false; // Set the loading flag back to false
-      });
+      if (mounted) {
+        setState(() {
+          isImageUploaded =
+              true; // Set the flag to true after successful upload
+          isUploading = false; // Set the loading flag back to false
+        });
+      }
     }
   }
 

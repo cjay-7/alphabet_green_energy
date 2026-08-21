@@ -1,9 +1,11 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../constants/sizes.dart';
 import '../../../../constants/text.dart';
+import '../../../core/screens/dashboard/dashboard.dart';
 import '../../controllers/signin_controller.dart';
 
 class LoginForm extends StatelessWidget {
@@ -99,6 +101,15 @@ class LoginForm extends StatelessWidget {
                 }),
               ),
             ),
+            // TESTING ONLY: lets you reach the Dashboard without a real
+            // Firebase Auth session, for use while App Check enforcement
+            // blocks login on this device/build. Debug-build-only; remove
+            // once the debug token is registered in the Firebase console.
+            if (kDebugMode)
+              TextButton(
+                onPressed: () => Get.offAll(() => const Dashboard()),
+                child: const Text('Skip Login (Testing)'),
+              ),
           ],
         ),
       ),

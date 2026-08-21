@@ -33,17 +33,19 @@ class _IdDetailsState extends State<PrimaryIdDetails> {
 
   Future pickFrontImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
     setState(() {
-      _Frontimage = File(pickedFile!.path);
+      _Frontimage = File(pickedFile.path);
     });
   }
 
   Future pickBackImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
     setState(() {
-      _Backimage = File(pickedFile!.path);
+      _Backimage = File(pickedFile.path);
     });
   }
 
@@ -54,11 +56,13 @@ class _IdDetailsState extends State<PrimaryIdDetails> {
 
     await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
 
+    if (!mounted) return;
     setState(() {
       controller.idImgFront = _Frontimage!.path;
     });
     // Simulating upload completion delay
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
     setState(() {
       isImageUploaded = true;
       isUploading = false;
@@ -72,11 +76,13 @@ class _IdDetailsState extends State<PrimaryIdDetails> {
 
     await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
 
+    if (!mounted) return;
     setState(() {
       controller.idImgBack = _Backimage!.path;
     });
     // Simulating upload completion delay
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
     setState(() {
       isImageUploaded1 = true;
       isUploading1 = false;
@@ -121,10 +127,12 @@ class _IdDetailsState extends State<PrimaryIdDetails> {
       print('Error uploading image: $e');
       // Handle any errors that occurred during the upload process
     } finally {
-      setState(() {
-        isImageUploaded = true;
-        isUploading = false; // Set the loading flag back to false
-      });
+      if (mounted) {
+        setState(() {
+          isImageUploaded = true;
+          isUploading = false; // Set the loading flag back to false
+        });
+      }
     }
   }
 
@@ -168,10 +176,12 @@ class _IdDetailsState extends State<PrimaryIdDetails> {
       print('Error uploading image: $e');
       // Handle any errors that occurred during the upload process
     } finally {
-      setState(() {
-        isImageUploaded1 = true;
-        isUploading1 = false; // Set the loading flag back to false
-      });
+      if (mounted) {
+        setState(() {
+          isImageUploaded1 = true;
+          isUploading1 = false; // Set the loading flag back to false
+        });
+      }
     }
   }
 

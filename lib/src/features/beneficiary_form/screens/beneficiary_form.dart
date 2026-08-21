@@ -58,11 +58,18 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                 const Divider(),
                 const IdDetails(),
                 const Divider(),
-                const FinalPictures(
+                FinalPictures(
                     title:
-                        "Add pictures of giving the stove to the Beneficiary"),
+                        "Add pictures of giving the stove to the Beneficiary",
+                    onImageUploaded: (path) {
+                      controller.image1 = path;
+                      controller.image2 = path;
+                      controller.image3 = path;
+                    }),
                 const Divider(),
-                const FinalPictures(title: "Add Consent Form"),
+                FinalPictures(
+                    title: "Add Consent Form",
+                    onImageUploaded: (path) => controller.consentImg = path),
                 const Divider(),
                 SizedBox(
                   width: double.infinity,
@@ -91,6 +98,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                     controller.image1.isNotEmpty &&
                                     controller.image2.isNotEmpty &&
                                     controller.image3.isNotEmpty &&
+                                    controller.consentImg.isNotEmpty &&
                                     controller.idImgFront.isNotEmpty &&
                                     controller.idImgBack.isNotEmpty) {
                                   _formKey.currentState!.save();
@@ -117,13 +125,18 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                     image3: controller.image3,
                                     idImageFront: controller.idImgFront,
                                     idImageBack: controller.idImgBack,
+                                    consentImg: controller.consentImg,
                                     currentDate: currentDate,
                                     surveyorName: surveyorName,
                                   );
                                   BeneficiaryAddController.instance
                                       .addData(beneficiary);
                                   _resetForm();
-                                  Get.back();
+                                  // Get.back() can silently fail to navigate
+                                  // (or throw) if a snackbar from the write
+                                  // above is still open/animating — use the
+                                  // plain Navigator instead.
+                                  Navigator.of(context).pop();
                                 }
                               } else if (result
                                       .contains(ConnectivityResult.none) &&
@@ -132,6 +145,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                   controller.image1.isNotEmpty &&
                                   controller.image2.isNotEmpty &&
                                   controller.image3.isNotEmpty &&
+                                  controller.consentImg.isNotEmpty &&
                                   controller.idImgFront.isNotEmpty &&
                                   controller.idImgBack.isNotEmpty) {
                                 _formKey.currentState!.save();
@@ -154,15 +168,25 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                   image1: controller.image1,
                                   image2: controller.image2,
                                   image3: controller.image3,
-                                  idImageBack: controller.idImgFront,
-                                  idImageFront: controller.idImgBack,
+                                  idImageFront: controller.idImgFront,
+                                  idImageBack: controller.idImgBack,
+                                  consentImg: controller.consentImg,
                                   currentDate: currentDate,
                                   surveyorName: surveyorName,
                                 );
                                 await _saveFormDataToLocalStorage(
                                     beneficiary.toJson());
                                 _resetForm();
-                                Get.back();
+                                Navigator.of(context).pop();
+                                // Shown after navigating back, since GetX's
+                                // snackbar overlay can crash if triggered
+                                // while a page transition is still settling.
+                                Get.snackbar(
+                                    "Success", ' Beneficiary data saved locally.',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor:
+                                        Colors.green.withOpacity(0.1),
+                                    colorText: Colors.green);
                               }
                             },
                             child: Text(
@@ -188,10 +212,6 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
     formDataList.add(jsonEncode(data));
 
     await prefs.setStringList('formData', formDataList);
-    Get.snackbar("Success", ' Beneficiary data saved locally.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green);
   }
 
   void _resetForm() {

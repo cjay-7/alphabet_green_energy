@@ -150,7 +150,12 @@ class _SurveyFormState extends State<SurveyForm> {
                                           SurveyAddController.instance
                                               .addSurveyData(survey);
                                           _resetForm();
-                                          Get.back();
+                                          // Get.back() can silently fail to
+                                          // navigate (or throw) if a snackbar
+                                          // from the write above is still
+                                          // open/animating — use the plain
+                                          // Navigator instead.
+                                          Navigator.of(context).pop();
                                         }
                                       } else if (result.contains(
                                               ConnectivityResult.none) &&
@@ -200,7 +205,7 @@ class _SurveyFormState extends State<SurveyForm> {
                                         await _saveSurveyDataToLocalStorage(
                                             survey.toJson());
                                         _resetForm();
-                                        Get.back();
+                                        Navigator.of(context).pop();
                                       }
                                     },
                                     child: Text(

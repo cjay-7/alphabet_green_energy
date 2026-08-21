@@ -33,8 +33,9 @@ class _StoveDetailsState extends State<StoveDetails> {
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
     setState(() {
-      _imageFile = File(pickedFile!.path);
+      _imageFile = File(pickedFile.path);
     });
   }
 
@@ -45,6 +46,7 @@ class _StoveDetailsState extends State<StoveDetails> {
 
     await Future.delayed(const Duration(seconds: 2)); // Simulating upload delay
 
+    if (!mounted) return;
     setState(() {
       controller.stoveImg = _imageFile!.path;
       isImageUploaded = true;
@@ -83,6 +85,7 @@ class _StoveDetailsState extends State<StoveDetails> {
 
     controller.stoveImg = await firebaseStorageRef.getDownloadURL();
 
+    if (!mounted) return;
     setState(() {
       isImageUploaded = true;
     });

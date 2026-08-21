@@ -10,6 +10,7 @@ import '../../../../constants/text.dart';
 
 import '../../../FormLocalData/screens/form_local_data_screen.dart';
 import '../../../beneficiary_form/screens/beneficiary_form.dart';
+import '../../../beneficiary_form_primary/screens/primary_beneficiary_form.dart';
 import '../../controllers/profile_controller.dart';
 
 class Dashboard extends StatelessWidget {
@@ -31,35 +32,27 @@ class Dashboard extends StatelessWidget {
               children: [
                 //const DashboardHeading(),
                 const SizedBox(height: 40.0),
-                // Display the user's full name
-                FutureBuilder<void>(
-                  future: profileController.getUserData(), // Call getUserData()
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text('Loading...'); // Show loading message
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      final userData = profileController.userData.value;
-                      final fullName = userData?.fullName ?? "Unknown User";
-                      return Text(
-                        'Welcome, $fullName',
-                        style: const TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    }
-                  },
-                ),
+                // Display the user's full name, reacting to userData once
+                // ProfileController's onInit() fetch completes.
+                Obx(() {
+                  final userData = profileController.userData.value;
+                  final fullName = userData?.fullName ?? "Unknown User";
+                  return Text(
+                    'Welcome, $fullName',
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
                 Column(
                   children: [
                     SizedBox(height: MediaQuery.of(context).size.height * .3),
-                    // DashboardIconButton(
-                    //     onPressed: () =>
-                    //         Get.to(() => const PrimaryBeneficiaryFormWidget()),
-                    //     dashboardIcon: Icons.person_add_rounded,
-                    //     dashboardIconLabel: "Primary Form"),
+                    DashboardIconButton(
+                        onPressed: () =>
+                            Get.to(() => const PrimaryBeneficiaryFormWidget()),
+                        dashboardIcon: Icons.person_add_rounded,
+                        dashboardIconLabel: "Primary Form"),
                     const SizedBox(height: 10),
                     DashboardIconButton(
                         onPressed: () =>

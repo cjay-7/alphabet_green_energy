@@ -47,9 +47,10 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
     setState(() {
-      _imageFile = File(pickedFile!.path);
+      _imageFile = File(pickedFile.path);
     });
   }
 
@@ -62,6 +63,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
       await Future.delayed(
           const Duration(seconds: 2)); // Simulating upload delay
 
+      if (!mounted) return;
       setState(() {
         addBeneficiaryVisitController.stoveImgVisit = _imageFile!.path;
         isImageUploaded = true;
@@ -80,6 +82,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
     TaskSnapshot? taskSnapshot =
         await uploadTask?.whenComplete(() => uploadTask?.snapshot);
     taskSnapshot?.ref.getDownloadURL().then((value) {
+      if (!mounted) return;
       setState(() {
         addBeneficiaryVisitController.stoveImgVisit = value;
         isImageUploaded = true; // Set the flag to true after successful upload

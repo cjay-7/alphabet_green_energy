@@ -23,6 +23,7 @@ class BeneficiaryAddController extends GetxController {
   late var image1 = "";
   late var image2 = "";
   late var image3 = "";
+  late var consentImg = "";
 
   final beneficiaryAddRepo = Get.put(BeneficiaryAddRepository());
 
