@@ -10,27 +10,27 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  google_fonts: ^6.1.0
-  flutter_native_splash: ^2.2.19
-  get: ^4.6.5
+  google_fonts: ^8.2.1
+  flutter_native_splash: ^2.4.8
+  get: 4.6.6
   flutter_otp_text_field: ^1.1.1
   image_picker: ^1.0.2
   path_provider: ^2.0.14
-  firebase_core: ^2.8.0
-  firebase_auth: ^4.3.0
-  cloud_firestore: ^4.9.0
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.0.0
+  cloud_firestore: ^6.0.0
   dropdown_search: ^5.0.6
-  file_picker: ^8.0.0+1
-  firebase_storage: ^11.0.16
+  file_picker: ^12.0.0
+  firebase_storage: ^13.0.0
   shared_preferences: ^2.1.0
-  connectivity_plus: ^6.0.1
+  connectivity_plus: ^7.3.1
   email_validator:
   url_launcher:
-  flutter_launcher_icons: ^0.13.1
-  firebase_app_check: ^0.2.1+8
-  location: ^5.0.3
-  share_plus: ^8.0.2
-  archive: ^3.4.10
+  flutter_launcher_icons: ^0.14.4
+  firebase_app_check: ^0.4.0
+  location: ^10.0.2
+  share_plus: ">=13.0.0 <13.3.0"
+  archive: ^4.0.2
   http: ^1.2.1
   csv:
 
@@ -55,8 +55,7 @@ flutter_launcher_icons:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
-
+  flutter_lints: ^6.0.0
 
 flutter_native_splash:
   color: "#f7f6f1"
