@@ -17,13 +17,7 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     webProvider:
         ReCaptchaV3Provider('6LdQE_snAAAAAEcGORUzcbHyFKfHPw5-39wqZTNS'),
-    // Play Integrity rejects debug builds (they aren't Play Store-signed), so
-    // local/debug runs use App Check's debug provider instead. It prints a
-    // debug token to the log that must be registered once in the Firebase
-    // console (Project Settings > App Check > this app > manage debug
-    // tokens) before requests from this device/build will be accepted.
-    androidProvider:
-        kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    androidProvider: AndroidProvider.playIntegrity,
   );
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());
