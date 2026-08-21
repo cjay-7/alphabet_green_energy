@@ -1,11 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.alphabetgreenenergy.alphabet_green_energy">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- The location plugin declares these unconditionally to support its
+         optional background-location-updates mode, which this app never
+         uses — it only ever calls Location().getLocation() once, while
+         the user is actively tapping Upload. Google Play requires that
+         FOREGROUND_SERVICE_LOCATION only be present when the app performs
+         a task noticeable to the user while they're not interacting with
+         it, which doesn't apply here, so both the permissions and the
+         service they exist for are stripped. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+        tools:node="remove" />
     <application
         android:label="Alphabet Greens"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <service android:name="com.lyokone.location.FlutterLocationService"
+            tools:node="remove" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
