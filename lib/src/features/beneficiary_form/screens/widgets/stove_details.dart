@@ -1,17 +1,15 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:location/location.dart';
 import 'package:path/path.dart';
 
 import '../../../../common_widgets/customInputFormatter.dart';
+import '../../../../utils/location_tagged_upload_mixin.dart';
 import '../../../beneficiary_form/controllers/beneficiary_add_controller.dart';
 
 class StoveDetails extends StatefulWidget {
@@ -21,11 +19,11 @@ class StoveDetails extends StatefulWidget {
   State<StoveDetails> createState() => _StoveDetailsState();
 }
 
-class _StoveDetailsState extends State<StoveDetails> {
+class _StoveDetailsState extends State<StoveDetails>
+    with LocationTaggedUploadMixin {
   final controller = Get.put(BeneficiaryAddController());
 
   File? _imageFile;
-  UploadTask? uploadTask;
   final picker = ImagePicker();
 
   bool isImageUploaded = false;
@@ -55,35 +53,7 @@ class _StoveDetailsState extends State<StoveDetails> {
   }
 
   Future<void> uploadImageToFirebase() async {
-    String fileName = basename(_imageFile!.path);
-    final firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('files/$fileName');
-
-    // Get the current location
-    LocationData locationData = await Location().getLocation();
-    double latitude = locationData.latitude ?? 0.0;
-    double longitude = locationData.longitude ?? 0.0;
-
-    // Create custom metadata
-    final newMetadata = SettableMetadata(
-      customMetadata: {
-        "latitude": latitude.toString(),
-        "longitude": longitude.toString(),
-      },
-    );
-
-    // Upload the image
-    await firebaseStorageRef.putFile(_imageFile!);
-
-    // Set custom metadata for the uploaded file
-    final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
-
-    // Print the metadata to verify
-    if (kDebugMode) {
-      print(await firebaseStorageRef.getMetadata());
-    }
-
-    controller.stoveImg = await firebaseStorageRef.getDownloadURL();
+    controller.stoveImg = await uploadWithLocationTag(_imageFile!);
 
     if (!mounted) return;
     setState(() {

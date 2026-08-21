@@ -1,16 +1,15 @@
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:location/location.dart';
-import '../../../../constants/text.dart';
-import '../../controllers/beneficiary_add_controller.dart';
 import 'package:path/path.dart';
+import '../../../../constants/text.dart';
+import '../../../../utils/location_tagged_upload_mixin.dart';
+import '../../controllers/beneficiary_add_controller.dart';
 
 class IdDetails extends StatefulWidget {
   const IdDetails({super.key});
@@ -19,7 +18,7 @@ class IdDetails extends StatefulWidget {
   State<IdDetails> createState() => _IdDetailsState();
 }
 
-class _IdDetailsState extends State<IdDetails> {
+class _IdDetailsState extends State<IdDetails> with LocationTaggedUploadMixin {
   final controller = Get.put(BeneficiaryAddController());
   _IdDetailsState() {
     idType = _idList[0];
@@ -28,7 +27,6 @@ class _IdDetailsState extends State<IdDetails> {
   String? idType = "";
 
   File? _Frontimage, _Backimage;
-  UploadTask? uploadTask;
   final picker = ImagePicker();
 
   bool isImageUploaded = false; // Flag to track image upload
@@ -99,37 +97,8 @@ class _IdDetailsState extends State<IdDetails> {
       isUploading = true; // Set the loading flag to true
     });
 
-    String fileName = basename(_Frontimage!.path);
-    final firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('files/$fileName');
-    // Get the current location
-    LocationData locationData = await Location().getLocation();
-    double latitude = locationData.latitude ?? 0.0;
-    double longitude = locationData.longitude ?? 0.0;
-
-    // Create custom metadata
-    final newMetadata = SettableMetadata(
-      customMetadata: {
-        "latitude": latitude.toString(),
-        "longitude": longitude.toString(),
-      },
-    );
-
-    // Upload the image
-    await firebaseStorageRef.putFile(_Frontimage!);
-
-    // Set custom metadata for the uploaded file
-    final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
-
-    // Print the metadata to verify
-    if (kDebugMode) {
-      print(await firebaseStorageRef.getMetadata());
-    }
     try {
-      await uploadTask?.whenComplete(() {});
-      final imageUrl = await firebaseStorageRef.getDownloadURL();
-
-      controller.idImgFront = imageUrl;
+      controller.idImgFront = await uploadWithLocationTag(_Frontimage!);
     } catch (e) {
       if (kDebugMode) {
         print('Error uploading image: $e');
@@ -150,39 +119,8 @@ class _IdDetailsState extends State<IdDetails> {
       isUploading1 = true; // Set the loading flag to true
     });
 
-    String fileName = basename(_Backimage!.path);
-    final firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('files/$fileName');
-
-    // Get the current location
-    LocationData locationData = await Location().getLocation();
-    double latitude = locationData.latitude ?? 0.0;
-    double longitude = locationData.longitude ?? 0.0;
-
-    // Create custom metadata
-    final newMetadata = SettableMetadata(
-      customMetadata: {
-        "latitude": latitude.toString(),
-        "longitude": longitude.toString(),
-      },
-    );
-
-    // Upload the image
-    await firebaseStorageRef.putFile(_Backimage!);
-
-    // Set custom metadata for the uploaded file
-    final metadata = await firebaseStorageRef.updateMetadata(newMetadata);
-
-    // Print the metadata to verify
-    if (kDebugMode) {
-      print(await firebaseStorageRef.getMetadata());
-    }
-
     try {
-      await uploadTask?.whenComplete(() {});
-      final imageUrl = await firebaseStorageRef.getDownloadURL();
-
-      controller.idImgBack = imageUrl;
+      controller.idImgBack = await uploadWithLocationTag(_Backimage!);
     } catch (e) {
       if (kDebugMode) {
         print('Error uploading image: $e');
