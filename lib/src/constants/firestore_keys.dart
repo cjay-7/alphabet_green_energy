@@ -76,7 +76,6 @@ class UserFields {
   static const fullName = "FullName";
   static const email = "EMail";
   static const phone = "Phone";
-  static const password = "Password";
 }
 
 class VisitFields {

@@ -67,13 +67,6 @@ class UpdateProfileScreen extends StatelessWidget {
                                   label: Text(aPhoneNo),
                                   prefixIcon: Icon(Icons.phone)),
                             ),
-                            const SizedBox(height: aFormHeight - 20),
-                            TextFormField(
-                              initialValue: userData.password,
-                              decoration: const InputDecoration(
-                                  label: Text(aPassword),
-                                  prefixIcon: Icon(Icons.fingerprint)),
-                            ),
                             const SizedBox(height: aFormHeight),
                             SizedBox(
                               width: double.infinity,

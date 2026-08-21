@@ -9,12 +9,10 @@ class UserModel {
   final String fullName;
   final String email;
   final String phoneNo;
-  final String password;
 
   const UserModel({
     this.id,
     required this.email,
-    required this.password,
     required this.phoneNo,
     required this.fullName,
   });
@@ -23,7 +21,6 @@ class UserModel {
       UserFields.fullName: fullName,
       UserFields.email: email,
       UserFields.phone: phoneNo,
-      UserFields.password: password,
     };
   }
 
@@ -32,7 +29,6 @@ class UserModel {
     return jsonEncode({
       "id": id,
       "email": email,
-      "password": password,
       "phoneNo": phoneNo,
       "fullName": fullName,
     });
@@ -43,7 +39,6 @@ class UserModel {
     return UserModel(
       id: json["id"],
       email: json["email"],
-      password: json["password"],
       phoneNo: json["phoneNo"],
       fullName: json["fullName"],
     );
@@ -55,7 +50,6 @@ class UserModel {
     return UserModel(
         id: data["id"],
         email: data[UserFields.email],
-        password: data[UserFields.password],
         phoneNo: data[UserFields.phone],
         fullName: data[UserFields.fullName]);
   }

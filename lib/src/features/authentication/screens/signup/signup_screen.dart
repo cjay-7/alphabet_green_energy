@@ -134,8 +134,6 @@ class SignUpScreen extends StatelessWidget {
                               final agent = UserModel(
                                   email:
                                       controller.email.text.removeAllWhitespace,
-                                  password: controller
-                                      .password.text.removeAllWhitespace,
                                   phoneNo: controller
                                       .phoneNo.text.removeAllWhitespace,
                                   fullName:
