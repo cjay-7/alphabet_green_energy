@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../constants/firestore_keys.dart';
+
 class UserModel {
   final String? id;
   final String fullName;
@@ -18,10 +20,10 @@ class UserModel {
   });
   toJson() {
     return {
-      "FullName": fullName,
-      "EMail": email,
-      "Phone": phoneNo,
-      "Password": password,
+      UserFields.fullName: fullName,
+      UserFields.email: email,
+      UserFields.phone: phoneNo,
+      UserFields.password: password,
     };
   }
 
@@ -52,9 +54,9 @@ class UserModel {
     final data = document.data()!;
     return UserModel(
         id: data["id"],
-        email: data["Email"],
-        password: data["Password"],
-        phoneNo: data["Phone"],
-        fullName: data["FullName"]);
+        email: data[UserFields.email],
+        password: data[UserFields.password],
+        phoneNo: data[UserFields.phone],
+        fullName: data[UserFields.fullName]);
   }
 }

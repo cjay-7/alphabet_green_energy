@@ -1,18 +1,18 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:alphabet_green_energy/src/features/beneficiary_form_primary/controllers/primary_beneficiary_add_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../constants/firestore_keys.dart';
 import '../../../repository/beneficiary_add_repository/beneficiary_add_repository.dart';
 import '../../../repository/primary_beneficiary_add_repository/primary_beneficiary_add_repository.dart';
 import '../../../repository/survey_add_repository/survey_add_repository.dart';
+import '../../../services/error_log_service.dart';
+import '../../../services/image_upload_service.dart';
+import '../../../services/json_share_service.dart';
 import '../../beneficiary_form/controllers/beneficiary_add_controller.dart';
 import '../../beneficiary_form/models/beneficiary_model.dart';
 import '../../beneficiary_form_primary/models/primary_beneficiary_model.dart';
@@ -35,35 +35,26 @@ class LocalStorageController extends GetxController {
   final primaryBeneficiaryAddRepo = Get.put(PrimaryBeneficiaryAddRepository());
   final beneficiaryAddRepo = Get.put(BeneficiaryAddRepository());
   final surveyRepo = Get.put(SurveyAddRepository());
+  final _imageUploadService = ImageUploadService();
+  final _errorLogService = ErrorLogService();
+  final _jsonShareService = JsonShareService();
   RxInt formDataCount = 0.obs;
   RxInt primaryBeneficiaryDataCount = 0.obs;
   RxInt visitDataCount = 0.obs;
   RxInt surveyDataCount = 0.obs;
   RxBool isUploading = false.obs;
 
-  Future<String> uploadImage(String imagePath) async {
-    String imageName = DateTime.now().millisecondsSinceEpoch.toString();
-
-    Reference ref =
-        FirebaseStorage.instance.ref().child('images/$imageName.jpg');
-
-    UploadTask uploadTask = ref.putFile(File(imagePath));
-    TaskSnapshot storageSnapshot = await uploadTask.whenComplete(() => null);
-    String downloadUrl = await storageSnapshot.ref.getDownloadURL();
-
-    return downloadUrl;
+  Future<String> uploadImage(String imagePath) {
+    final imageName = DateTime.now().millisecondsSinceEpoch.toString();
+    return _imageUploadService.upload(imagePath, fileName: '$imageName.jpg');
   }
 
-  Future<String> uploadImageToFirestore(String imagePath) async {
-    final file = File(imagePath);
-    final fileName = file.path.split('/').last;
+  Future<String> uploadImageToFirestore(String imagePath) {
+    return _imageUploadService.upload(imagePath, folder: 'files');
+  }
 
-    final storageRef = FirebaseStorage.instance.ref().child('files/$fileName');
-    final uploadTask = storageRef.putFile(file);
-    final snapshot = await uploadTask.whenComplete(() {});
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-
-    return downloadUrl;
+  Future<void> writeErrorToFirestore(String error) {
+    return _errorLogService.writeErrorToFirestore(error);
   }
 
   @override
@@ -112,6 +103,13 @@ class LocalStorageController extends GetxController {
     surveyDataCount.value = surveyDataList.length;
   }
 
+  /// Runs `updateCounts()` and re-reads the just-synced cache, so screens
+  /// showing the "still pending" list pick up the removals a sync just made.
+  void _finishSync(Future<void> Function() refresh) {
+    updateCounts();
+    refresh();
+  }
+
   Future<void> syncPrimaryBeneficiaryDataToFirebase() async {
     for (var primaryBeneficiaryData in primaryBeneficiaryDataList) {
       try {
@@ -154,9 +152,7 @@ class LocalStorageController extends GetxController {
         }
       }
     }
-    updateCounts();
-    // Refresh the screen to reflect the updated form data
-    retrievePrimaryBeneficiaryDataFromLocalStorage();
+    _finishSync(retrievePrimaryBeneficiaryDataFromLocalStorage);
   }
 
   Future<List<String>> uploadPrimaryBeneficiaryImagesToStorage(
@@ -222,6 +218,7 @@ class LocalStorageController extends GetxController {
             image3: imageUrls[3],
             idImageFront: imageUrls[4],
             idImageBack: imageUrls[5],
+            consentImg: imageUrls[6],
             fullName: formData.fullName,
             address1: formData.address1,
             address2: formData.address2,
@@ -251,9 +248,7 @@ class LocalStorageController extends GetxController {
           await writeErrorToFirestore(e.toString());
         }
       }
-      updateCounts();
-      // Refresh the screen to reflect the updated form data
-      retrieveFormDataFromLocalStorage();
+      _finishSync(retrieveFormDataFromLocalStorage);
     } catch (e) {
       if (kDebugMode) {
         print('Top-level error during syncFormDataToFirebase: $e');
@@ -262,20 +257,6 @@ class LocalStorageController extends GetxController {
       await writeErrorToFirestore(e.toString());
     }
   }
-
-  Future<void> writeErrorToFirestore(String error) async {
-    try {
-      // Create a new document in the 'error_logs' collection
-      await FirebaseFirestore.instance.collection('error_logs').add({
-        'timestamp': FieldValue.serverTimestamp(),
-        'error_message': error,
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error writing error log to Firestore: $e');
-      }
-    }
-  } // Helper function to upload the error log to Firebase Storage
 
   Future<List<String>> uploadImagesToStorage(BeneficiaryModel formData) async {
     List<String> downloadUrls = [];
@@ -303,6 +284,10 @@ class LocalStorageController extends GetxController {
     String idImageUrl2 = await uploadImage(formData.idImageBack);
     downloadUrls.add(idImageUrl2);
 
+    // Upload ConsentImg to Firebase Storage
+    String consentImgUrl = await uploadImage(formData.consentImg);
+    downloadUrls.add(consentImgUrl);
+
     return downloadUrls;
   }
 
@@ -318,41 +303,25 @@ class LocalStorageController extends GetxController {
   Future<void> saveVisitDataToFirestore(String idNumber, String imageUrl,
       String usedRegularly, String worksProperly) async {
     final db = FirebaseFirestore.instance;
-    final visitCollectionRef =
-        db.collection("BeneficiaryData").doc(idNumber).collection("VisitData");
+    final visitCollectionRef = db
+        .collection(FirestoreCollections.beneficiaryData)
+        .doc(idNumber)
+        .collection(FirestoreCollections.visitData);
 
-    DocumentSnapshot visit1Snapshot =
-        await visitCollectionRef.doc("Visit1").get();
-
-    if (visit1Snapshot.exists) {
-      // Visit1 exists, find the next available Visit document
-      int nextVisitNumber = 2;
-      while (true) {
-        DocumentSnapshot visitSnapshot =
-            await visitCollectionRef.doc("Visit$nextVisitNumber").get();
-        if (!visitSnapshot.exists) {
-          // Set the data to the next available Visit document
-          await visitCollectionRef.doc("Visit$nextVisitNumber").set({
-            "StoveImgVisit": imageUrl,
-            "usedRegularly": usedRegularly,
-            "worksProperly": worksProperly,
-          }).then((value) {});
-          break;
-        }
-        nextVisitNumber++;
-      }
-    } else {
-      // Visit1 does not exist, set the data to Visit1
-      await visitCollectionRef
-          .doc("Visit1")
-          .set({
-            "StoveImgVisit": imageUrl,
-            "usedRegularly": usedRegularly,
-            "worksProperly": worksProperly,
-          })
-          .then((value) {})
-          .catchError((error) {});
+    // Find the first unused "VisitN" document (Visit1 if none exist yet).
+    var visitNumber = 1;
+    while (await visitCollectionRef
+        .doc("Visit$visitNumber")
+        .get()
+        .then((snapshot) => snapshot.exists)) {
+      visitNumber++;
     }
+
+    await visitCollectionRef.doc("Visit$visitNumber").set({
+      VisitFields.stoveImgVisit: imageUrl,
+      VisitFields.usedRegularly: usedRegularly,
+      VisitFields.worksProperly: worksProperly,
+    });
   }
 
   Future<void> syncVisitDataToFirebase() async {
@@ -376,8 +345,7 @@ class LocalStorageController extends GetxController {
         }
       }
     }
-    updateCounts();
-    retrieveVisitDataFromLocalStorage();
+    _finishSync(retrieveVisitDataFromLocalStorage);
   }
 
   Future<void> removeVisitDataFromLocalStorage(
@@ -434,9 +402,9 @@ class LocalStorageController extends GetxController {
         }
       }
     }
-    updateCounts();
-    // Refresh the screen to reflect the updated survey data
-    retrieveFormDataFromLocalStorage();
+    // NOTE: this refreshes formDataList, not surveyDataList — pre-existing
+    // behavior carried over as-is from before this refactor.
+    _finishSync(retrieveFormDataFromLocalStorage);
   }
 
   Future<List<String>> uploadSurveyImagesToStorage(
@@ -466,93 +434,35 @@ class LocalStorageController extends GetxController {
     }
   }
 
-  // Function to share FormDataList as a JSON file
+  Future<void> shareFormData() => _jsonShareService.shareAsJson(
+        formDataList,
+        (data) => data.toJson(),
+        fileName: 'form_data.json',
+        shareText: 'Sharing FormData as JSON with Images',
+        errorContext: 'shareFormData',
+      );
 
-  Future<void> shareFormData() async {
-    try {
-      final jsonData = formDataList.map((formData) {
-        Map<String, dynamic> formDataMap = formData.toJson();
+  Future<void> sharePrimaryBeneficiaryData() => _jsonShareService.shareAsJson(
+        primaryBeneficiaryDataList,
+        (data) => data.toJson(),
+        fileName: 'primary_beneficiary_data.json',
+        shareText: 'Sharing Primary Beneficiary Data as JSON',
+        errorContext: 'sharePrimaryBeneficiaryData',
+      );
 
-        // Convert images to base64 strings and include them in the map
+  Future<void> shareSurveyData() => _jsonShareService.shareAsJson(
+        surveyDataList,
+        (data) => data.toJson(),
+        fileName: 'survey_data.json',
+        shareText: 'Sharing Survey Data as JSON',
+        errorContext: 'shareSurveyData',
+      );
 
-        return formDataMap;
-      }).toList();
-
-      final jsonString = jsonEncode(jsonData);
-
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/form_data.json');
-      await tempFile.writeAsString(jsonString);
-
-      await Share.shareFiles([tempFile.path],
-          text: 'Sharing FormData as JSON with Images');
-
-      await tempFile.delete();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during shareFormData: $e');
-      }
-    }
-  }
-
-  Future<void> sharePrimaryBeneficiaryData() async {
-    try {
-      final jsonData =
-          primaryBeneficiaryDataList.map((data) => data.toJson()).toList();
-      final jsonString = jsonEncode(jsonData);
-
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/primary_beneficiary_data.json');
-      await tempFile.writeAsString(jsonString);
-
-      await Share.shareFiles([tempFile.path],
-          text: 'Sharing Primary Beneficiary Data as JSON');
-
-      await tempFile.delete();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during sharePrimaryBeneficiaryData: $e');
-      }
-    }
-  }
-
-  Future<void> shareSurveyData() async {
-    try {
-      final jsonData = surveyDataList.map((data) => data.toJson()).toList();
-      final jsonString = jsonEncode(jsonData);
-
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/survey_data.json');
-      await tempFile.writeAsString(jsonString);
-
-      await Share.shareFiles([tempFile.path],
-          text: 'Sharing Survey Data as JSON');
-
-      await tempFile.delete();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during shareSurveyData: $e');
-      }
-    }
-  }
-
-  Future<void> shareVisitData() async {
-    try {
-      final jsonData = visitDataList.map((data) => data.toJson()).toList();
-      final jsonString = jsonEncode(jsonData);
-
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/visit_data.json');
-      await tempFile.writeAsString(jsonString);
-
-      await Share.shareFiles([tempFile.path],
-          text: 'Sharing Visit Data as JSON');
-
-      await tempFile.delete();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during shareVisitData: $e');
-      }
-    }
-  }
+  Future<void> shareVisitData() => _jsonShareService.shareAsJson(
+        visitDataList,
+        (data) => data.toJson(),
+        fileName: 'visit_data.json',
+        shareText: 'Sharing Visit Data as JSON',
+        errorContext: 'shareVisitData',
+      );
 }
