@@ -1,37 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-/// Shows a Get.snackbar only once an Overlay ancestor genuinely exists for
-/// the current route.
+import 'app_keys.dart';
+
+/// Shows a snackbar via the app's root ScaffoldMessenger key.
 ///
-/// GetX's SnackbarController looks up the Overlay via Get.overlayContext,
-/// which isn't a reliable readiness check: it returns a child of the
-/// overlay's *current content*, so it's null whenever the overlay is simply
-/// empty (the normal steady state) and can reference a since-removed
-/// element otherwise — neither case proves an Overlay ancestor exists for
-/// the current route. That failure surfaces as an unhandled "No Overlay
-/// widget found" exception, since GetQueue only catches `on Exception` and
-/// the thrown FlutterError isn't one. This is especially likely right after
-/// a Navigator.pop()/push(), while the route transition is still settling.
+/// This used to resolve `Get.context` and check `Overlay.maybeOf(context)`
+/// before calling `Get.snackbar`/`ScaffoldMessenger.of(context)`. Confirmed
+/// live (web signup's duplicate-email error path, 2026-10-01): `Get.context`
+/// in this app resolves to the Navigator widget's own element, which sits
+/// *above* the Overlay the Navigator creates — so `Overlay.maybeOf` can
+/// never find an Overlay ancestor there, no matter how long you poll. Every
+/// call was silently giving up after 20 attempts without ever showing
+/// anything, with no error to indicate why.
 ///
-/// Polls Overlay.maybeOf on the current route's own context instead, which
-/// is what Flutter itself uses to answer "does an Overlay ancestor exist".
+/// `scaffoldMessengerKey` (wired into `GetMaterialApp` in main.dart)
+/// sidesteps context resolution entirely — this is the standard Flutter
+/// pattern for showing a SnackBar from outside the widget tree (a
+/// repository/controller, not a build method). Still retries briefly in
+/// case this is called before the first frame attaches the key's state.
 Future<void> showSnackbarSafely(
   String title,
   String message, {
   Color? backgroundColor,
   Color? colorText,
-  SnackPosition snackPosition = SnackPosition.BOTTOM,
 }) async {
   for (var attempt = 0; attempt < 20; attempt++) {
-    final context = Get.context;
-    if (context != null && Overlay.maybeOf(context) != null) {
-      Get.snackbar(
-        title,
-        message,
-        snackPosition: snackPosition,
-        backgroundColor: backgroundColor,
-        colorText: colorText,
+    final messenger = scaffoldMessengerKey.currentState;
+    if (messenger != null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  '$title: $message',
+                  style: TextStyle(color: colorText),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: backgroundColor,
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.fixed,
+        ),
       );
       return;
     }

@@ -1,5 +1,6 @@
 import 'package:alphabet_green_energy/src/features/authentication/screens/login/login_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_screen.dart';
+import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_success_screen.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../utils/safe_snackbar.dart';
 import '../user_repository/user_repository.dart';
 import 'exceptions/signup_exceptions.dart';
 
@@ -26,8 +28,13 @@ class AuthenticationRepository extends GetxController {
 
   _setInitialScreen(User? user) {
     if (kIsWeb) {
-      Get.offAll(() =>
-          const SignUpScreen()); // Redirect to SignUpScreen for web platform
+      // The web build is a self-service signup kiosk with no Dashboard to
+      // land on — route signed-out visitors to the form, and anyone who
+      // just signed up (or still has a session) to a confirmation screen
+      // instead of silently bouncing them back to the same empty form.
+      user == null
+          ? Get.offAll(() => const SignUpScreen())
+          : Get.offAll(() => const SignUpSuccessScreen());
     } else {
       user == null
           ? Get.offAll(() => const LoginScreen())
@@ -48,11 +55,12 @@ class AuthenticationRepository extends GetxController {
       }
     } on FirebaseAuthException catch (e) {
       final ex = SignUpWithEmailAndPasswordFailure.code(e.code);
-      print("FIREBASE AUTH EXCEPTION - ${ex.message}");
+      print(
+          "FIREBASE AUTH EXCEPTION in createUserWithEmailAndPassword: code=${e.code}, message=${e.message}");
       throw ex;
-    } catch (_) {
+    } catch (e) {
       const ex = SignUpWithEmailAndPasswordFailure();
-      print("EXCEPTION -${ex.message}");
+      print("EXCEPTION in createUserWithEmailAndPassword: $e");
       throw ex;
     }
   }
@@ -185,9 +193,10 @@ class AuthenticationRepository extends GetxController {
       },
       verificationFailed: (e) {
         if (e.code == 'invalid-phone-number') {
-          Get.snackbar('Error', 'The provided phone number is not valid.');
+          showSnackbarSafely(
+              'Error', 'The provided phone number is not valid.');
         } else {
-          Get.snackbar('Error', 'Something went wrong. Try again.');
+          showSnackbarSafely('Error', 'Something went wrong. Try again.');
         }
       },
       codeSent: (verificationId, resendToken) {

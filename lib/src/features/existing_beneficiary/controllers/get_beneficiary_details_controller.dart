@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../utils/safe_snackbar.dart';
 import '../../beneficiary_form/models/beneficiary_model.dart';
 
 class BeneficiaryController extends GetxController {
@@ -27,16 +28,16 @@ class BeneficiaryController extends GetxController {
           beneficiaryList.add(beneficiary);
         } else {
           // No beneficiary data found for the provided serial number
-          Get.snackbar("Error",
+          showSnackbarSafely("Error",
               "No beneficiary data found for the provided serial number");
         }
       } catch (error) {
         // Handle other exceptions
         print("Error fetching beneficiary data: $error");
-        Get.snackbar("Error", "An error occurred: $error");
+        showSnackbarSafely("Error", "An error occurred: $error");
       }
     } else {
-      Get.snackbar("Error", "Please enter a Stove ID");
+      showSnackbarSafely("Error", "Please enter a Stove ID");
     }
   }
 }

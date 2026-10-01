@@ -2,6 +2,7 @@ import 'package:alphabet_green_energy/firebase_options.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_screen.dart';
 import 'package:alphabet_green_energy/src/repository/authentication_repository/authentication_repository.dart';
 import 'package:alphabet_green_energy/src/repository/user_repository/user_repository.dart';
+import 'package:alphabet_green_energy/src/utils/app_keys.dart';
 import 'package:alphabet_green_energy/src/utils/theme/theme.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,7 +18,8 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     webProvider:
         ReCaptchaV3Provider('6LdQE_snAAAAAEcGORUzcbHyFKfHPw5-39wqZTNS'),
-    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    androidProvider:
+        kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
   );
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());
@@ -36,6 +38,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
@@ -53,6 +56,7 @@ class WebHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
