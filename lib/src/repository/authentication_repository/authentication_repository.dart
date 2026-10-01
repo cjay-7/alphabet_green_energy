@@ -40,18 +40,12 @@ class AuthenticationRepository extends GetxController {
     try {
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      firebaseUser.value != null
-          ? Get.offAll(() async {
-              await UserRepository.instance.createUser(agent);
-              const Center(
-                child: Text(
-                  "Account Successfully created.",
-                  style: TextStyle(
-                      color: Colors.white70, decoration: TextDecoration.none),
-                ),
-              );
-            })
-          : Get.to(() => const SignUpScreen());
+      final uid = _auth.currentUser?.uid;
+      if (uid != null) {
+        await UserRepository.instance.createUser(agent, uid);
+      } else {
+        Get.to(() => const SignUpScreen());
+      }
     } on FirebaseAuthException catch (e) {
       final ex = SignUpWithEmailAndPasswordFailure.code(e.code);
       print("FIREBASE AUTH EXCEPTION - ${ex.message}");
@@ -66,11 +60,6 @@ class AuthenticationRepository extends GetxController {
   Future<void> loginWithEmailAndPassword(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      firebaseUser.value != null
-          ? Get.offAll(() async {
-              const Dashboard();
-            })
-          : Get.to(() => const LoginScreen());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
         var snackBar = SnackBar(
@@ -132,10 +121,39 @@ class AuthenticationRepository extends GetxController {
           behavior: SnackBarBehavior.fixed,
         );
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackBar);
+      } else {
+        print("FIREBASE AUTH EXCEPTION in loginWithEmailAndPassword: ${e.code} - ${e.message}");
+        _showLoginErrorSnackBar(e.message ?? "Login failed (${e.code})");
       }
     } catch (e) {
       print("Error in loginWithEmailAndPassword: $e");
+      _showLoginErrorSnackBar("Login failed: $e");
     }
+  }
+
+  void _showLoginErrorSnackBar(String message) {
+    final context = Get.context;
+    if (context == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.redAccent.withOpacity(.3),
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.fixed,
+      ),
+    );
   }
 
   Future<void> logout() async => await _auth.signOut();

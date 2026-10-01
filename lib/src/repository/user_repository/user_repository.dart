@@ -12,21 +12,20 @@ class UserRepository extends GetxController {
 
   final _db = FirebaseFirestore.instance;
 
-  createUser(UserModel user) {
+  createUser(UserModel user, String uid) {
     print("Adding user data to Firestore: ${user.toJson()}");
     return withFirestoreFeedback(
-      () => _db.collection(FirestoreCollections.users).add(user.toJson()),
+      () => _db.collection(FirestoreCollections.users).doc(uid).set(user.toJson()),
       successMessage: "Your account has been created.",
     );
   }
 
-  Future<UserModel> getUserDetails(String email) async {
-    final snapshot = await _db
-        .collection(FirestoreCollections.users)
-        .where(UserFields.email, isEqualTo: email)
-        .get();
-    final userData = snapshot.docs.map((e) => UserModel.fromSnapshot(e)).single;
-    return userData;
+  Future<UserModel> getUserById(String uid) async {
+    final doc = await _db.collection(FirestoreCollections.users).doc(uid).get();
+    if (!doc.exists) {
+      throw Exception("No user profile found for this account.");
+    }
+    return UserModel.fromSnapshot(doc);
   }
 
   Future<List<UserModel>> allUser() async {

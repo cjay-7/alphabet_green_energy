@@ -30,16 +30,12 @@ class ProfileController extends GetxController {
   }
 
   Future<void> getUserData() async {
-    final email = _authRepo.firebaseUser.value?.email;
-    if (email != null) {
+    final uid = _authRepo.firebaseUser.value?.uid;
+    if (uid != null) {
       try {
-        final userData = await _userRepo.getUserDetails(email);
-        if (userData != null) {
-          this.userData.value = userData;
-          saveUserDataLocally(userData);
-        } else {
-          showSnackbarSafely("Error", "User data not found");
-        }
+        final userData = await _userRepo.getUserById(uid);
+        this.userData.value = userData;
+        saveUserDataLocally(userData);
       } catch (e) {
         showSnackbarSafely("Error", "Failed to fetch user data: $e");
       }

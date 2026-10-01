@@ -17,7 +17,7 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     webProvider:
         ReCaptchaV3Provider('6LdQE_snAAAAAEcGORUzcbHyFKfHPw5-39wqZTNS'),
-    androidProvider: AndroidProvider.playIntegrity,
+    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
   );
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());
