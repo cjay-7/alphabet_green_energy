@@ -32,7 +32,8 @@ class _FinalPicturesState extends State<FinalPictures> {
   bool isUploading = false; // Flag to track the upload process
 
   Future pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
     if (pickedFile == null) return;
 
     setState(() {

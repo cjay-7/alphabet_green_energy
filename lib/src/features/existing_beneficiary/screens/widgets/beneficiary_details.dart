@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../constants/colors.dart';
@@ -22,7 +23,7 @@ class BeneficiaryDetails extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.network(imageUrl), // Replace this with your image widget
+              CachedNetworkImage(imageUrl: imageUrl),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();

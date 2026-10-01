@@ -47,7 +47,8 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
   bool isUploading = false; // New flag to track the upload process
 
   Future pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
     if (pickedFile == null) return;
 
     setState(() {

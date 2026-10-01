@@ -36,7 +36,8 @@ class _IdDetailsState extends State<IdDetails> with LocationTaggedUploadMixin {
   bool isUploading1 = false; // Flag to track the upload process
 
   Future pickFrontImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
     if (pickedFile == null) return;
 
     setState(() {
@@ -45,7 +46,8 @@ class _IdDetailsState extends State<IdDetails> with LocationTaggedUploadMixin {
   }
 
   Future pickBackImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
     if (pickedFile == null) return;
 
     setState(() {

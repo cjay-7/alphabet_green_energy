@@ -30,7 +30,8 @@ class _StoveDetailsState extends State<StoveDetails>
   bool isUploading = false;
 
   Future pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
     if (pickedFile == null) return;
     setState(() {
       _imageFile = File(pickedFile.path);
