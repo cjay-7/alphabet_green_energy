@@ -22,8 +22,7 @@ class FormLocalDataScreenState extends State<FormLocalDataScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    localStorageController.retrievePrimaryBeneficiaryDataFromLocalStorage();
+    _tabController = TabController(length: 3, vsync: this);
     localStorageController.retrieveFormDataFromLocalStorage();
     localStorageController.retrieveVisitDataFromLocalStorage();
     localStorageController.retrieveSurveyDataFromLocalStorage();

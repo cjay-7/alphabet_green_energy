@@ -6,7 +6,6 @@
 
 class FirestoreCollections {
   static const beneficiaryData = "BeneficiaryData";
-  static const primaryBeneficiaryData = "PrimaryBeneficiaryData";
   static const surveyData = "SurveyData";
   static const users = "Users";
   static const visitData = "VisitData";
@@ -32,19 +31,6 @@ class BeneficiaryFields {
   static const idImageFront = "IdImageFront";
   static const idImageBack = "IdImageBack";
   static const consentImg = "ConsentImg";
-  static const currentDate = "currentDate";
-  static const surveyorName = "surveyorName";
-}
-
-class PrimaryBeneficiaryFields {
-  static const stoveID = "StoveID";
-  static const stoveImg = "StoveImg";
-  static const fullName = "FullName";
-  static const phoneNumber = "PhoneNumber";
-  static const idNumber = "IdNumber";
-  static const image1 = "Image1";
-  static const idImageFront = "IdImageFront";
-  static const idImageBack = "IdImageBack";
   static const currentDate = "currentDate";
   static const surveyorName = "surveyorName";
 }

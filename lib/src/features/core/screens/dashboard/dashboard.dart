@@ -10,7 +10,6 @@ import '../../../../constants/text.dart';
 
 import '../../../FormLocalData/screens/form_local_data_screen.dart';
 import '../../../beneficiary_form/screens/beneficiary_form.dart';
-import '../../../beneficiary_form_primary/screens/primary_beneficiary_form.dart';
 import '../../controllers/profile_controller.dart';
 
 class Dashboard extends StatelessWidget {
@@ -48,12 +47,6 @@ class Dashboard extends StatelessWidget {
                 Column(
                   children: [
                     SizedBox(height: MediaQuery.of(context).size.height * .3),
-                    DashboardIconButton(
-                        onPressed: () =>
-                            Get.to(() => const PrimaryBeneficiaryFormWidget()),
-                        dashboardIcon: Icons.person_add_rounded,
-                        dashboardIconLabel: "Primary Form"),
-                    const SizedBox(height: 10),
                     DashboardIconButton(
                         onPressed: () =>
                             Get.to(() => const BeneficiaryFormWidget()),

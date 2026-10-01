@@ -24,13 +24,10 @@ class LocalStorageFloatingButton extends StatelessWidget {
                 ? null // Disable the button when uploading
                 : () {
                     if (tabController.index == 0) {
-                      localStorageController
-                          .syncPrimaryBeneficiaryDataToFirebase();
-                    } else if (tabController.index == 1) {
                       localStorageController.syncFormDataToFirebase();
-                    } else if (tabController.index == 2) {
+                    } else if (tabController.index == 1) {
                       localStorageController.syncVisitDataToFirebase();
-                    } else if (tabController.index == 3) {
+                    } else if (tabController.index == 2) {
                       localStorageController.syncSurveyDataToFirebase();
                     }
                   },
@@ -46,12 +43,10 @@ class LocalStorageFloatingButton extends StatelessWidget {
                 ? null // Disable the button when uploading
                 : () {
                     if (tabController.index == 0) {
-                      localStorageController.sharePrimaryBeneficiaryData();
-                    } else if (tabController.index == 1) {
                       localStorageController.shareFormData();
-                    } else if (tabController.index == 2) {
+                    } else if (tabController.index == 1) {
                       localStorageController.shareVisitData();
-                    } else if (tabController.index == 3) {
+                    } else if (tabController.index == 2) {
                       localStorageController.shareSurveyData();
                     }
                   },
