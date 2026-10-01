@@ -80,11 +80,10 @@ class _FuelTypeState extends State<FuelType> {
                 child: TextFormField(
                   controller: controller.fuelType1amount,
                   decoration: InputDecoration(
-                      labelText: "Monthly Consumption",
-                      prefixIcon: const Icon(Icons.monitor_weight),
-                      hintText: "in Kg",
-                      hintStyle: Theme.of(context).textTheme.bodySmall,
-                      border: const OutlineInputBorder()),
+                    labelText: "Monthly Consumption",
+                    prefixIcon: const Icon(Icons.monitor_weight),
+                    hintText: "in Kg",
+                  ),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -141,11 +140,10 @@ class _FuelTypeState extends State<FuelType> {
                 child: TextFormField(
                   controller: controller.fuelType2amount,
                   decoration: InputDecoration(
-                      labelText: "Monthly Consumption",
-                      prefixIcon: const Icon(Icons.monitor_weight),
-                      hintText: "in Kg",
-                      hintStyle: Theme.of(context).textTheme.bodySmall,
-                      border: const OutlineInputBorder()),
+                    labelText: "Monthly Consumption",
+                    prefixIcon: const Icon(Icons.monitor_weight),
+                    hintText: "in Kg",
+                  ),
                   keyboardType: TextInputType.phone,
                 ),
               ),

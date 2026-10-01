@@ -9,6 +9,7 @@ const aAccentColor = Color(0xFF99ca3c);
 const aWhiteColor = Colors.white;
 const aDarkColor = Color(0xff000000);
 const aCardBgColor = Color(0xFFF7F6F1);
+const aSuccessColor = Colors.green;
 
 // -- ON-BOARDING COLORS
 const aOnBoardingPage1Color = Colors.white;

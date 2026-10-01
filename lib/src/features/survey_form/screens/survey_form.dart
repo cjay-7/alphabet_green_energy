@@ -12,6 +12,8 @@ import 'package:get/get.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../constants/colors.dart';
+import '../../../constants/storage_keys.dart';
 import '../../../constants/text.dart';
 import '../../../utils/safe_snackbar.dart';
 
@@ -31,7 +33,7 @@ class _SurveyFormState extends State<SurveyForm> {
 
   Future<String> getFullNameFromLocalStorage() async {
     final prefs = await SharedPreferences.getInstance();
-    final userDataJsonString = prefs.getString('user_data');
+    final userDataJsonString = prefs.getString(aUserDataStorageKey);
     if (userDataJsonString != null) {
       final userDataMap =
           jsonDecode(userDataJsonString) as Map<String, dynamic>;
@@ -44,11 +46,11 @@ class _SurveyFormState extends State<SurveyForm> {
 
   Future<void> _saveSurveyDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
-    final surveyDataList = prefs.getStringList('surveyData') ?? [];
+    final surveyDataList = prefs.getStringList(aSurveyDataStorageKey) ?? [];
 
     surveyDataList.add(jsonEncode(data));
 
-    await prefs.setStringList('surveyData', surveyDataList);
+    await prefs.setStringList(aSurveyDataStorageKey, surveyDataList);
   }
 
   void _resetForm() {
@@ -203,11 +205,11 @@ class _SurveyFormState extends State<SurveyForm> {
                                             survey.toJson());
                                         _resetForm();
                                         Navigator.of(context).pop();
-                                        showSnackbarSafely("Success",
-                                            'Survey data saved locally.',
-                                            backgroundColor: Colors.green
+                                        showSnackbarSafely(aSuccess,
+                                            aSurveyDataSavedLocally,
+                                            backgroundColor: aSuccessColor
                                                 .withOpacity(0.1),
-                                            colorText: Colors.green);
+                                            colorText: aSuccessColor);
                                       }
                                     },
                                     child: Text(

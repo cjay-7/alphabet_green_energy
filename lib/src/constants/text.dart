@@ -76,6 +76,48 @@ const String aIDNoValidator = 'Please enter ID Number';
 const String aIDPhotoFront = "Add ID Front Photo";
 const String aIDPhotoBack = "Add ID Back Photo";
 const String aSave = 'Save';
+const String aZipFieldLabel = "Zip";
+const String aEnterZip = "Enter Zip";
+const String aStateFieldLabel = "State";
+const String aEnterState = "Enter State";
+const String aDistrictFieldLabel = "District";
+const String aEnterDistrict = "Enter District";
+const String aPhoneNumberRequired = "Please enter Phone Number";
+const String aOnlyNumbersAllowed = 'Only numbers are allowed';
+const String aInvalidPhoneNumber = "Please enter valid Number";
+const List<String> aIdTypeOptions = [
+  "Aadhar Card",
+  "Voter Card",
+  "Pan Card",
+  "Ration Card"
+];
+const String aUploaded = "Uploaded";
+const String aUpload = "Upload";
+const String aStoveDetails = "Stove Details";
+const String aEnterStoveID = "Enter Stove ID";
+const String aStoveIDHint = "Stove ID";
+const String aStovePictureWithId = "Stove Picture with ID";
+const String aPleaseEnterZipCode = "Please enter Zip Code";
+const String aInvalidZip = "Please enter valid Zip";
+const String aGenderFieldLabel = "Gender";
+const String aNumberOfPersonsLabel = "Number of Persons living in house";
+const String aEnterNumberHint = "Enter Number";
+const String aAddPicture = "Add picture";
+const String aAddPictureOfSurveyee = "Add picture of Surveyee";
+const String aSurveyeePhoto = "Surveyee Photo";
+const String aStoveIDRequired = "Please enter Stove ID";
+const String aInvalidStoveID = "Please enter a valid Stove ID";
+const String aStateValidator = "Please enter State";
+const String aGenderValidator = "Please select Gender";
+const String aNumberOfPersonsRequired = "Please enter number of persons";
+const String aInvalidNumberOfPersons = "Please enter a valid number of persons";
+const String aAddStovePicturesForBeneficiary =
+    "Add pictures of giving the stove to the Beneficiary";
+const String aAddConsentForm = "Add Consent Form";
+const String aSuccess = "Success";
+const String aBeneficiaryDataSavedLocally = ' Beneficiary data saved locally.';
+const String aVisitDataSavedLocally = 'Visit data saved locally.';
+const String aSurveyDataSavedLocally = 'Survey data saved locally.';
 
 // -- Profile Screen - Text
 const String aProfile = "Profile";

@@ -11,6 +11,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../constants/colors.dart';
+import '../../../../constants/storage_keys.dart';
 import '../../../../constants/text.dart';
 import '../../../../utils/safe_snackbar.dart';
 import '../../controllers/add_beneficiary_visit_controller.dart';
@@ -345,9 +347,9 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
 
                     _resetForm();
                     Navigator.of(context).pop();
-                    showSnackbarSafely("Success", 'Visit data saved locally.',
-                        backgroundColor: Colors.green.withOpacity(0.1),
-                        colorText: Colors.green);
+                    showSnackbarSafely(aSuccess, aVisitDataSavedLocally,
+                        backgroundColor: aSuccessColor.withOpacity(0.1),
+                        colorText: aSuccessColor);
                   }
                 },
                 child: Text(
@@ -364,11 +366,11 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
 
   Future<void> _saveVisitDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
-    final visitDataList = prefs.getStringList('visitData') ?? [];
+    final visitDataList = prefs.getStringList(aVisitDataStorageKey) ?? [];
 
     visitDataList.add(jsonEncode(data));
 
-    await prefs.setStringList('visitData', visitDataList);
+    await prefs.setStringList(aVisitDataStorageKey, visitDataList);
   }
 
   void _resetForm() {

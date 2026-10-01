@@ -84,7 +84,6 @@ class SignUpScreen extends StatelessWidget {
                               prefixIcon: const Icon(Icons.fingerprint),
                               labelText: aPassword,
                               hintText: aPassword,
-                              border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
                                 onPressed: () => togglePasswordVisibility(),
                                 icon: Icon(obscurePassword.value
@@ -106,11 +105,10 @@ class SignUpScreen extends StatelessWidget {
                         child: TextFormField(
                           controller: controller.phoneNo,
                           decoration: InputDecoration(
-                              labelText: aPhoneNo,
-                              prefixIcon: const Icon(Icons.phone),
-                              hintText: aPhoneNo,
-                              hintStyle: Theme.of(context).textTheme.bodySmall,
-                              border: const OutlineInputBorder()),
+                            labelText: aPhoneNo,
+                            prefixIcon: const Icon(Icons.phone),
+                            hintText: aPhoneNo,
+                          ),
                           keyboardType: TextInputType.phone,
                           validator: (value) {
                             if (value!.isEmpty) {

@@ -12,6 +12,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../constants/colors.dart';
+import '../../../constants/sizes.dart';
+import '../../../constants/storage_keys.dart';
 import '../../../constants/text.dart';
 import '../../../utils/safe_snackbar.dart';
 
@@ -28,7 +31,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
 
   Future<String> getFullNameFromLocalStorage() async {
     final prefs = await SharedPreferences.getInstance();
-    final userDataJsonString = prefs.getString('user_data');
+    final userDataJsonString = prefs.getString(aUserDataStorageKey);
     if (userDataJsonString != null) {
       final userDataMap =
           jsonDecode(userDataJsonString) as Map<String, dynamic>;
@@ -47,7 +50,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(aFormPadding),
           child: Form(
             key: _formKey,
             child: Column(
@@ -60,8 +63,7 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                 const IdDetails(),
                 const Divider(),
                 FinalPictures(
-                    title:
-                        "Add pictures of giving the stove to the Beneficiary",
+                    title: aAddStovePicturesForBeneficiary,
                     onImageUploaded: (path) {
                       controller.image1 = path;
                       controller.image2 = path;
@@ -69,12 +71,12 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                     }),
                 const Divider(),
                 FinalPictures(
-                    title: "Add Consent Form",
+                    title: aAddConsentForm,
                     onImageUploaded: (path) => controller.consentImg = path),
                 const Divider(),
                 SizedBox(
                   width: double.infinity,
-                  height: 60.0,
+                  height: aSubmitButtonHeight,
                   child: FutureBuilder<String>(
                       future: getFullNameFromLocalStorage(),
                       builder: (context, snapshot) {
@@ -180,10 +182,10 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                 _resetForm();
                                 Navigator.of(context).pop();
                                 showSnackbarSafely(
-                                    "Success", ' Beneficiary data saved locally.',
+                                    aSuccess, aBeneficiaryDataSavedLocally,
                                     backgroundColor:
-                                        Colors.green.withOpacity(0.1),
-                                    colorText: Colors.green);
+                                        aSuccessColor.withOpacity(0.1),
+                                    colorText: aSuccessColor);
                               }
                             },
                             child: Text(
@@ -204,11 +206,11 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
 
   Future<void> _saveFormDataToLocalStorage(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
-    final formDataList = prefs.getStringList('formData') ?? [];
+    final formDataList = prefs.getStringList(aFormDataStorageKey) ?? [];
 
     formDataList.add(jsonEncode(data));
 
-    await prefs.setStringList('formData', formDataList);
+    await prefs.setStringList(aFormDataStorageKey, formDataList);
   }
 
   void _resetForm() {

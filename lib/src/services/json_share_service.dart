@@ -7,8 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 /// Shared "encode a cached data list as JSON and open the share sheet"
 /// behavior that used to be duplicated across `LocalStorageController`'s
-/// `shareFormData`, `sharePrimaryBeneficiaryData`, `shareSurveyData`, and
-/// `shareVisitData`.
+/// `shareFormData`, `shareSurveyData`, and `shareVisitData`.
 class JsonShareService {
   Future<void> shareAsJson<T>(
     List<T> items,

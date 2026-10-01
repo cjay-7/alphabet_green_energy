@@ -51,7 +51,6 @@ class LoginForm extends StatelessWidget {
                   prefixIcon: const Icon(Icons.fingerprint),
                   labelText: aPassword,
                   hintText: aPassword,
-                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     onPressed: () => togglePasswordVisibility(),
                     icon: Icon(obscurePassword.value

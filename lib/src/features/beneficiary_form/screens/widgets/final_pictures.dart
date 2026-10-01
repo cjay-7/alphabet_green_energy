@@ -1,12 +1,15 @@
 import 'dart:io';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 
-class FinalPictures extends StatefulWidget {
+import '../../../../common_widgets/form_field_padding.dart';
+import '../../../../common_widgets/form_section_card.dart';
+import '../../../../common_widgets/image_upload_field.dart';
+import '../../../../constants/text.dart';
+
+class FinalPictures extends StatelessWidget {
   const FinalPictures({
     super.key,
     required this.title,
@@ -19,174 +22,34 @@ class FinalPictures extends StatefulWidget {
   /// field(s) it belongs to.
   final ValueChanged<String> onImageUploaded;
 
-  @override
-  State<FinalPictures> createState() => _FinalPicturesState();
-}
-
-class _FinalPicturesState extends State<FinalPictures> {
-  File? _imageFile;
-  UploadTask? uploadTask;
-  final picker = ImagePicker();
-
-  bool isImageUploaded = false; // New flag to track image upload
-  bool isUploading = false; // Flag to track the upload process
-
-  Future pickImage() async {
-    final pickedFile = await picker.pickImage(
-        source: ImageSource.camera, imageQuality: 65, maxWidth: 1600);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _imageFile = File(pickedFile.path);
-    });
-  }
-
-  Future<void> uploadImageToLocalStorage() async {
-    setState(() {
-      isUploading = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
-    widget.onImageUploaded(_imageFile!.path);
-
-    // Simulating upload completion delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-    setState(() {
-      isImageUploaded = true;
-      isUploading = false;
-    });
-  }
-
-  Future<void> uploadImageToFirebase() async {
-    setState(() {
-      isUploading = true;
-    });
-
-    String fileName = basename(_imageFile!.path);
+  Future<String> _uploadToFirebase(File file) async {
+    final fileName = basename(file.path);
     final firebaseStorageRef =
         FirebaseStorage.instance.ref().child('files/$fileName');
-    uploadTask = firebaseStorageRef.putFile(_imageFile!);
+    await firebaseStorageRef.putFile(file).whenComplete(() {});
+    return firebaseStorageRef.getDownloadURL();
+  }
 
-    try {
-      await uploadTask?.whenComplete(() {});
-      final imageUrl = await firebaseStorageRef.getDownloadURL();
-      widget.onImageUploaded(imageUrl);
-    } catch (e) {
-      print('Error uploading image: $e');
-      // Handle any errors that occurred during the upload process
-    } finally {
-      if (mounted) {
-        setState(() {
-          isImageUploaded =
-              true; // Set the flag to true after successful upload
-          isUploading = false; // Set the loading flag back to false
-        });
-      }
-    }
+  Future<String> _uploadToLocalStorage(File file) async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulating upload delay
+    await Future.delayed(const Duration(seconds: 2)); // Simulating completion
+    return file.path;
   }
 
   @override
   Widget build(BuildContext context) {
-    final fileName =
-        _imageFile != null ? basename(_imageFile!.path) : 'No File Selected';
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1,
+    return FormSectionCard(
+      title: title,
+      children: [
+        FormFieldPadding(
+          child: ImageUploadField(
+            pickButtonLabel: aAddPicture,
+            onUploadOnline: _uploadToFirebase,
+            onUploadOffline: _uploadToLocalStorage,
+            onUploaded: onImageUploaded,
+          ),
         ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              widget.title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: OutlinedButton(
-                          onPressed: () => pickImage(),
-                          child: Text(
-                            "Add picture",
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        child: ElevatedButton.icon(
-                          onPressed: (_imageFile == null || isUploading)
-                              ? null
-                              : () async {
-                                  var result =
-                                      await Connectivity().checkConnectivity();
-                                  if (result
-                                          .contains(ConnectivityResult.wifi) ||
-                                      result.contains(
-                                          ConnectivityResult.mobile)) {
-                                    await uploadImageToFirebase();
-                                  } else if (result
-                                      .contains(ConnectivityResult.none)) {
-                                    await uploadImageToLocalStorage();
-                                  }
-                                },
-                          icon: isUploading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : (isImageUploaded
-                                  ? const Icon(
-                                      Icons.check) // Show check mark icon
-                                  : const Icon(Icons.upload)),
-                          label: Text(
-                            isImageUploaded ? "Uploaded" : "Upload",
-                            style: GoogleFonts.montserrat(
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  fileName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../constants/storage_keys.dart';
 import '../../../repository/authentication_repository/authentication_repository.dart';
 import '../../../repository/user_repository/user_repository.dart';
 import '../../../utils/safe_snackbar.dart';
@@ -26,7 +27,7 @@ class ProfileController extends GetxController {
   saveUserDataLocally(UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
     final userDataJsonString = userData.toJsonString();
-    prefs.setString('user_data', userDataJsonString);
+    prefs.setString(aUserDataStorageKey, userDataJsonString);
   }
 
   Future<void> getUserData() async {

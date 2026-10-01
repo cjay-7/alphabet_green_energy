@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants/colors.dart';
+
 /// Runs a Firestore write and shows the same success/error snackbar every
 /// repository in this app already shows by hand.
 ///
@@ -21,8 +23,8 @@ Future<void> withFirestoreFeedback(
   return operation().whenComplete(() {
     Get.snackbar(successTitle, successMessage,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green);
+        backgroundColor: aSuccessColor.withOpacity(0.1),
+        colorText: aSuccessColor);
   }).catchError((error, stackTrace) {
     Get.snackbar(errorTitle, errorMessage,
         snackPosition: SnackPosition.BOTTOM,
