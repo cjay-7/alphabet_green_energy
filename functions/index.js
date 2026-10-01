@@ -56,7 +56,10 @@ function functionsBaseUrl(region) {
  * Approve/Deny link pair carrying that token.
  */
 exports.notifyAdminsOnSignup = onDocumentCreated(
-  { document: `${USERS_COLLECTION}/{uid}`, region: "us-central1", secrets: [gmailAppPassword] },
+  // Collocated with the Firestore database's actual region (asia-south1) —
+  // deploying this trigger to a different region works but adds an
+  // unnecessary cross-region hop between Eventarc and the function.
+  { document: `${USERS_COLLECTION}/{uid}`, region: "asia-south1", secrets: [gmailAppPassword] },
   async (event) => {
     const snap = event.data;
     if (!snap) return;
@@ -74,7 +77,7 @@ exports.notifyAdminsOnSignup = onDocumentCreated(
     const token = crypto.randomBytes(32).toString("hex");
     await snap.ref.update({ [FIELDS.approvalToken]: token });
 
-    const base = functionsBaseUrl("us-central1");
+    const base = functionsBaseUrl("asia-south1");
     const approveUrl = `${base}/approveSignup?uid=${event.params.uid}&token=${token}`;
     const denyUrl = `${base}/denySignup?uid=${event.params.uid}&token=${token}`;
 
@@ -179,11 +182,11 @@ function renderPage(message, ok) {
 }
 
 exports.approveSignup = onRequest(
-  { region: "us-central1" },
+  { region: "asia-south1" },
   (req, res) => resolveDecision(req, res, STATUS.approved)
 );
 
 exports.denySignup = onRequest(
-  { region: "us-central1" },
+  { region: "asia-south1" },
   (req, res) => resolveDecision(req, res, STATUS.denied)
 );
