@@ -128,6 +128,14 @@ const String aConfirmPasswordRequired = "Please confirm your new password";
 const String aPasswordMismatch = "Passwords do not match";
 const String aIncorrectCurrentPassword = "Current password is incorrect";
 const String aPasswordUpdated = "Your password has been updated.";
+const String aValidEmailRequired = "Please enter a valid email";
+const String aPasswordRequired = "Please enter Password";
+const String aConfirmPassword = "Confirm Password";
+const String aPleaseConfirmPassword = "Please confirm your password";
+const String aSignUpSuccessTitle = "You're all set!";
+const String aSignUpSuccessMessage =
+    "Your account has been created. An admin will review it before you can start using the app.";
+const String aSignUpAnother = "Sign Up Another Agent";
 const String aAddStovePicturesForBeneficiary =
     "Add pictures of giving the stove to the Beneficiary";
 const String aAddConsentForm = "Add Consent Form";

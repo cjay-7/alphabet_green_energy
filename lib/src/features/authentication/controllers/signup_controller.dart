@@ -3,7 +3,6 @@ import 'package:alphabet_green_energy/src/repository/authentication_repository/a
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
 class SignUpController extends GetxController {
   static SignUpController get instance => Get.find();
 
@@ -14,7 +13,7 @@ class SignUpController extends GetxController {
 
   Future<void> registerUser(
       String email, String password, UserModel agent) async {
-    AuthenticationRepository.instance
+    await AuthenticationRepository.instance
         .createUserWithEmailAndPassword(email, password, agent);
   }
 }

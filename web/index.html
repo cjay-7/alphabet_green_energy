@@ -18,6 +18,21 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Alphabet Green Energy App">
 
+  <script>
+    // App Check debug provider, local development only. Never let this run
+    // on the real deployed domain — it would let anyone reading the page
+    // source bypass App Check's reCAPTCHA enforcement entirely.
+    //
+    // A fixed token string (rather than `true`) is intentional: `true`
+    // generates a brand new random token on every single page load, which
+    // would require re-registering it in Firebase Console's App Check
+    // settings every time you restart the dev server. This fixed token is
+    // already registered there under "Local web dev".
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = 'd9129c5b-c7dd-4caf-9aa4-faa8bf9ce629';
+    }
+  </script>
+
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">

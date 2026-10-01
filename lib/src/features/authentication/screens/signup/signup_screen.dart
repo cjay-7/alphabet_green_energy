@@ -7,28 +7,76 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../constants/image_strings.dart';
+import '../../../../repository/authentication_repository/exceptions/signup_exceptions.dart';
+import '../../../../utils/safe_snackbar.dart';
 import '../../controllers/signup_controller.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(SignUpController());
-    var obscurePassword = true.obs; // Using RxBool for GetX state management
-    void togglePasswordVisibility() {
-      obscurePassword.value = !obscurePassword.value;
-    }
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
 
-    final formKey = GlobalKey<FormState>();
+class _SignUpScreenState extends State<SignUpScreen> {
+  final controller = Get.put(SignUpController());
+  final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final agent = UserModel(
+      email: controller.email.text.removeAllWhitespace,
+      phoneNo: controller.phoneNo.text.removeAllWhitespace,
+      fullName: controller.name.text.removeAllWhitespace,
+    );
+
+    try {
+      await SignUpController.instance.registerUser(
+        controller.email.text.trim(),
+        controller.password.text.trim(),
+        agent,
+      );
+      // On success, AuthenticationRepository's auth-state listener
+      // navigates to SignUpSuccessScreen on its own — nothing else to do.
+    } on SignUpWithEmailAndPasswordFailure catch (e) {
+      if (!mounted) return;
+      showSnackbarSafely("Error", e.message);
+    } catch (e) {
+      if (!mounted) return;
+      showSnackbarSafely("Error", "Something went wrong: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size.width;
 
-    print(screenSize);
     double horizontalPadding = 0;
-    if (screenSize > 399) {
-      horizontalPadding = 100;
-    } else if (screenSize > 599) {
+    if (screenSize > 599) {
       horizontalPadding = 200;
+    } else if (screenSize > 399) {
+      horizontalPadding = 100;
     }
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -45,7 +93,7 @@ class SignUpScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                     vertical: aFormHeight - 10, horizontal: horizontalPadding),
                 child: Form(
-                  key: formKey,
+                  key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -57,6 +105,12 @@ class SignUpScreen extends StatelessWidget {
                             label: Text(aFullName),
                             prefixIcon: Icon(Icons.person_2_outlined),
                           ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return aFullNameRequired;
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
@@ -70,34 +124,63 @@ class SignUpScreen extends StatelessWidget {
                               border: OutlineInputBorder()),
                           validator: (value) => EmailValidator.validate(value!)
                               ? null
-                              : "Please enter a valid email",
+                              : aValidEmailRequired,
                         ),
                       ),
                       const SizedBox(height: aFormHeight - 20),
-                      Obx(
-                        () => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            controller: controller.password,
-                            obscureText: obscurePassword.value,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.fingerprint),
-                              labelText: aPassword,
-                              hintText: aPassword,
-                              suffixIcon: IconButton(
-                                onPressed: () => togglePasswordVisibility(),
-                                icon: Icon(obscurePassword.value
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
-                              ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: controller.password,
+                          obscureText: _obscurePassword,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.fingerprint),
+                            labelText: aPassword,
+                            hintText: aPassword,
+                            suffixIcon: IconButton(
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
+                              icon: Icon(_obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
                             ),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Please enter Password";
-                              }
-                              return null;
-                            },
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return aPasswordRequired;
+                            } else if (value.length < 6) {
+                              return aPasswordTooShort;
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirmPassword,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.fingerprint),
+                            labelText: aConfirmPassword,
+                            hintText: aConfirmPassword,
+                            suffixIcon: IconButton(
+                              onPressed: () => setState(() =>
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword),
+                              icon: Icon(_obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return aPleaseConfirmPassword;
+                            } else if (value != controller.password.text) {
+                              return aPasswordMismatch;
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
@@ -111,12 +194,12 @@ class SignUpScreen extends StatelessWidget {
                           ),
                           keyboardType: TextInputType.phone,
                           validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Please enter Phone Number";
+                            if (value == null || value.isEmpty) {
+                              return aPhoneNumberRequired;
                             } else if (int.tryParse(value) == null) {
-                              return 'Only numbers are allowed';
+                              return aOnlyNumbersAllowed;
                             } else if (value.length != 10) {
-                              return "Please enter valid Number";
+                              return aInvalidPhoneNumber;
                             }
                             return null;
                           },
@@ -127,22 +210,15 @@ class SignUpScreen extends StatelessWidget {
                         width: double.infinity,
                         height: aFormHeight * 2,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              final agent = UserModel(
-                                  email:
-                                      controller.email.text.removeAllWhitespace,
-                                  phoneNo: controller
-                                      .phoneNo.text.removeAllWhitespace,
-                                  fullName:
-                                      controller.name.text.removeAllWhitespace);
-                              SignUpController.instance.registerUser(
-                                  controller.email.text.trim(),
-                                  controller.password.text.trim(),
-                                  agent);
-                            }
-                          },
-                          child: Text(aSignUp.toUpperCase()),
+                          onPressed: _isSubmitting ? null : _submit,
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(aSignUp.toUpperCase()),
                         ),
                       ),
                     ],
