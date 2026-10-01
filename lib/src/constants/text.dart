@@ -127,6 +127,15 @@ const String aPasswordTooShort = "Password must be at least 6 characters";
 const String aConfirmPasswordRequired = "Please confirm your new password";
 const String aPasswordMismatch = "Passwords do not match";
 const String aIncorrectCurrentPassword = "Current password is incorrect";
+
+const String aAccountPendingTitle = "Awaiting Approval";
+const String aAccountPendingMessage =
+    "Your account has been created and an admin has been notified. "
+    "You'll be able to log in here as soon as it's approved.";
+const String aAccountDeniedTitle = "Account Not Approved";
+const String aAccountDeniedMessage =
+    "An admin has not approved this account. Contact your supervisor if "
+    "you believe this is a mistake.";
 const String aPasswordUpdated = "Your password has been updated.";
 const String aValidEmailRequired = "Please enter a valid email";
 const String aPasswordRequired = "Please enter Password";

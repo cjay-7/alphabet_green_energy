@@ -45,7 +45,7 @@ lib/
     constants/                   # text.dart, sizes.dart, colors.dart, storage_keys.dart,
                                   # firestore_keys.dart — centralized literals, not per-widget
     features/
-      authentication/            # Login, signup, forget password
+      authentication/            # Login, signup, forget password, account-approval holding screen
       beneficiary_form/          # "Add Beneficiary" multi-section form
       beneficiary_form_primary/  # Note: removed — superseded by Survey Form
       survey_form/                # Household survey form
@@ -58,7 +58,10 @@ lib/
     utils/                       # Theme, snackbar helper, location-tagged upload mixin
 android/                         # Android project (applicationId: com.alphabet_greens)
 web/                             # Web project (signup kiosk only)
-firestore.rules / storage.rules  # Require request.auth != null on every path
+functions/                       # Cloud Functions: admin signup-approval emails + links
+firestore.rules / storage.rules  # Require request.auth != null on every path (Users
+                                  # collection additionally restricts ApprovalStatus/
+                                  # ApprovalToken — see Signup architecture below)
 ```
 
 ## Getting started
@@ -127,6 +130,52 @@ Firebase Auth account, write a Firestore profile doc keyed by `uid`
 (`SignUpSuccessScreen`) — there is no Dashboard/Login reachable from web by
 design. Validation and error handling live in
 `lib/src/features/authentication/screens/signup/`.
+
+### Admin approval gate
+
+Every new signup is created with `ApprovalStatus: "pending"` and cannot read
+past a holding screen in the Android app until an admin approves it —
+otherwise anyone who finds the signup link could create a working field-agent
+account. The flow:
+
+1. `UserRepository.createUser` writes the pending `Users/{uid}` doc.
+2. A Firestore-triggered Cloud Function, `notifyAdminsOnSignup`
+   (`functions/index.js`), fires on that doc's creation. It generates a
+   one-time `ApprovalToken`, stores it on the doc, and emails the admin
+   addresses in `functions/.env` (`ADMIN_EMAILS`) an Approve/Deny link pair.
+3. Clicking either link hits an HTTPS Cloud Function (`approveSignup` /
+   `denySignup`) that checks the token, flips `ApprovalStatus` to
+   `"approved"`/`"denied"`, and deletes the token so the link can't be
+   replayed. No admin login required — the token in the link is the auth.
+4. On the Android side, `AuthenticationRepository._setInitialScreen` checks
+   `ApprovalStatus` on every auth-state change and routes anything other than
+   `"approved"` to `AccountStatusScreen`
+   (`lib/src/features/authentication/screens/account_status/`), which
+   streams the doc live so an agent waiting there lands on the Dashboard the
+   moment an admin approves them — no app restart needed.
+5. `firestore.rules` enforces this server-side too: a client can create its
+   own `Users` doc only with `ApprovalStatus: "pending"` and no
+   `ApprovalToken`, and can never change either field afterward via a normal
+   profile update — only the Cloud Functions (Admin SDK, bypasses rules) can
+   change approval state. Without this, any authenticated client could just
+   set its own `ApprovalStatus` to `"approved"` directly.
+
+#### Cloud Functions setup (one-time)
+
+```bash
+cd functions
+npm install
+
+# Gmail App Password for the sender account — https://myaccount.google.com/apppasswords
+# (the account's normal login password will not work over SMTP)
+firebase functions:secrets:set GMAIL_APP_PASSWORD
+
+# ADMIN_EMAILS / SENDER_EMAIL live in functions/.env (gitignored — copy
+# functions/.env.example and fill in real addresses before deploying)
+
+firebase deploy --only firestore:rules
+firebase deploy --only functions
+```
 
 ## Offline support
 

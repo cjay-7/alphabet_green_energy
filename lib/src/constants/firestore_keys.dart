@@ -63,6 +63,14 @@ class UserFields {
   static const email = "EMail";
   static const phone = "Phone";
   static const profileImage = "ProfileImage";
+  static const approvalStatus = "ApprovalStatus";
+  static const approvalToken = "ApprovalToken";
+}
+
+class ApprovalStatus {
+  static const pending = "pending";
+  static const approved = "approved";
+  static const denied = "denied";
 }
 
 class VisitFields {

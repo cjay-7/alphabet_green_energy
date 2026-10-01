@@ -1,7 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+    match /Users/{uid} {
+      allow read: if request.auth != null;
+
+      // A new agent may only create their own doc, and only in the
+      // "pending" state with no approval token — both of those are set
+      // server-side from here on (doc creation + the notifyAdminsOnSignup
+      // Cloud Function), never by the signing-up client itself.
+      allow create: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.data.ApprovalStatus == 'pending'
+          && !('ApprovalToken' in request.resource.data);
+
+      // Agents can update their own profile (name, phone, photo, etc.) but
+      // can never change ApprovalStatus/ApprovalToken themselves — those are
+      // only ever changed by the approveSignup/denySignup Cloud Functions,
+      // which use the Admin SDK and bypass these rules entirely.
+      allow update: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.data.ApprovalStatus == resource.data.ApprovalStatus
+          && request.resource.data.get('ApprovalToken', null) == resource.data.get('ApprovalToken', null);
+    }
+
+    // Firestore rules are evaluated as an OR across every matching block —
+    // a generic match /{document=**} here would re-grant unconditional
+    // write access to Users and defeat the rule above, so each collection
+    // is enumerated explicitly instead of using a catch-all.
+    match /BeneficiaryData/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /SurveyData/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /VisitData/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /error_logs/{docId} {
       allow read, write: if request.auth != null;
     }
   }

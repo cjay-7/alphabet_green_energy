@@ -13,12 +13,17 @@ class UserRepository extends GetxController {
   final _db = FirebaseFirestore.instance;
 
   createUser(UserModel user, String uid) {
-    print("Adding user data to Firestore: ${user.toJson()}");
+    // Every new signup starts pending — a Cloud Function (notifyAdminsOnSignup)
+    // emails the admins an Approve/Deny link, and nothing flips this to
+    // "approved" except that function. Set here, not in UserModel.toJson(),
+    // so a later profile edit (which also calls toJson()) can never touch it.
+    final Map<String, dynamic> data = {
+      ...user.toJson(),
+      UserFields.approvalStatus: ApprovalStatus.pending,
+    };
+    print("Adding user data to Firestore: $data");
     return withFirestoreFeedback(
-      () => _db
-          .collection(FirestoreCollections.users)
-          .doc(uid)
-          .set(user.toJson()),
+      () => _db.collection(FirestoreCollections.users).doc(uid).set(data),
       successMessage: "Your account has been created.",
     );
   }

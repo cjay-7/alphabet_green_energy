@@ -1,8 +1,11 @@
+import 'package:alphabet_green_energy/src/constants/firestore_keys.dart';
+import 'package:alphabet_green_energy/src/features/authentication/screens/account_status/account_status_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/login/login_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_success_screen.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
 import 'package:alphabet_green_energy/src/features/core/screens/dashboard/dashboard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +29,7 @@ class AuthenticationRepository extends GetxController {
     ever(firebaseUser, _setInitialScreen);
   }
 
-  _setInitialScreen(User? user) {
+  Future<void> _setInitialScreen(User? user) async {
     if (kIsWeb) {
       // The web build is a self-service signup kiosk with no Dashboard to
       // land on — route signed-out visitors to the form, and anyone who
@@ -35,10 +38,33 @@ class AuthenticationRepository extends GetxController {
       user == null
           ? Get.offAll(() => const SignUpScreen())
           : Get.offAll(() => const SignUpSuccessScreen());
-    } else {
-      user == null
-          ? Get.offAll(() => const LoginScreen())
-          : Get.offAll(() => const Dashboard());
+      return;
+    }
+
+    if (user == null) {
+      Get.offAll(() => const LoginScreen());
+      return;
+    }
+
+    // Native app: every agent now needs an admin to approve their signup
+    // (notifyAdminsOnSignup Cloud Function emails the Approve/Deny link)
+    // before they get past a pending/denied holding screen into the
+    // Dashboard. Read straight from Firestore rather than UserRepository's
+    // cached copy, since this check has to reflect the live approval state.
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(FirestoreCollections.users)
+          .doc(user.uid)
+          .get();
+      final status =
+          doc.data()?[UserFields.approvalStatus] as String? ??
+              ApprovalStatus.pending;
+      status == ApprovalStatus.approved
+          ? Get.offAll(() => const Dashboard())
+          : Get.offAll(() => const AccountStatusScreen());
+    } catch (e) {
+      // Can't confirm approval — fail closed, not into the Dashboard.
+      Get.offAll(() => const AccountStatusScreen());
     }
   }
 

@@ -10,6 +10,7 @@ class UserModel {
   final String email;
   final String phoneNo;
   final String profileImageUrl;
+  final String approvalStatus;
 
   const UserModel({
     this.id,
@@ -17,7 +18,13 @@ class UserModel {
     required this.phoneNo,
     required this.fullName,
     this.profileImageUrl = '',
+    this.approvalStatus = ApprovalStatus.pending,
   });
+
+  // approvalStatus is deliberately left out of toJson(): it's set once at
+  // signup (UserRepository.createUser) and afterwards changed only by the
+  // admin-approval Cloud Function, never by a client-side profile update.
+  // Firestore rules enforce the same thing server-side.
   toJson() {
     return {
       UserFields.fullName: fullName,
@@ -35,6 +42,7 @@ class UserModel {
       "phoneNo": phoneNo,
       "fullName": fullName,
       "profileImageUrl": profileImageUrl,
+      "approvalStatus": approvalStatus,
     });
   }
 
@@ -46,6 +54,7 @@ class UserModel {
       phoneNo: json["phoneNo"] ?? '',
       fullName: json["fullName"] ?? '',
       profileImageUrl: json["profileImageUrl"] ?? '',
+      approvalStatus: json["approvalStatus"] ?? ApprovalStatus.pending,
     );
   }
 
@@ -57,6 +66,7 @@ class UserModel {
         email: data[UserFields.email] ?? '',
         phoneNo: data[UserFields.phone] ?? '',
         fullName: data[UserFields.fullName] ?? '',
-        profileImageUrl: data[UserFields.profileImage] ?? '');
+        profileImageUrl: data[UserFields.profileImage] ?? '',
+        approvalStatus: data[UserFields.approvalStatus] ?? ApprovalStatus.pending);
   }
 }
