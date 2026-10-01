@@ -15,8 +15,21 @@ class UserRepository extends GetxController {
   createUser(UserModel user, String uid) {
     print("Adding user data to Firestore: ${user.toJson()}");
     return withFirestoreFeedback(
-      () => _db.collection(FirestoreCollections.users).doc(uid).set(user.toJson()),
+      () => _db
+          .collection(FirestoreCollections.users)
+          .doc(uid)
+          .set(user.toJson()),
       successMessage: "Your account has been created.",
+    );
+  }
+
+  Future<void> updateUser(String uid, UserModel user) {
+    return withFirestoreFeedback(
+      () => _db
+          .collection(FirestoreCollections.users)
+          .doc(uid)
+          .update(user.toJson()),
+      successMessage: "Your profile has been updated.",
     );
   }
 

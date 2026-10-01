@@ -111,6 +111,23 @@ const String aStateValidator = "Please enter State";
 const String aGenderValidator = "Please select Gender";
 const String aNumberOfPersonsRequired = "Please enter number of persons";
 const String aInvalidNumberOfPersons = "Please enter a valid number of persons";
+const String aFullNameRequired = "Please enter your name";
+const String aEmailNotEditable =
+    "Email can't be changed here since it's your login";
+const String aChangePhoto = "Change Photo";
+const String aTakePhoto = "Take Photo";
+const String aChooseFromGallery = "Choose from Gallery";
+const String aChangePassword = "Change Password";
+const String aCurrentPassword = "Current Password";
+const String aNewPassword = "New Password";
+const String aConfirmNewPassword = "Confirm New Password";
+const String aCurrentPasswordRequired = "Please enter your current password";
+const String aNewPasswordRequired = "Please enter a new password";
+const String aPasswordTooShort = "Password must be at least 6 characters";
+const String aConfirmPasswordRequired = "Please confirm your new password";
+const String aPasswordMismatch = "Passwords do not match";
+const String aIncorrectCurrentPassword = "Current password is incorrect";
+const String aPasswordUpdated = "Your password has been updated.";
 const String aAddStovePicturesForBeneficiary =
     "Add pictures of giving the stove to the Beneficiary";
 const String aAddConsentForm = "Add Consent Form";

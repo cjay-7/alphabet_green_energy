@@ -122,7 +122,8 @@ class AuthenticationRepository extends GetxController {
         );
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackBar);
       } else {
-        print("FIREBASE AUTH EXCEPTION in loginWithEmailAndPassword: ${e.code} - ${e.message}");
+        print(
+            "FIREBASE AUTH EXCEPTION in loginWithEmailAndPassword: ${e.code} - ${e.message}");
         _showLoginErrorSnackBar(e.message ?? "Login failed (${e.code})");
       }
     } catch (e) {
@@ -157,6 +158,24 @@ class AuthenticationRepository extends GetxController {
   }
 
   Future<void> logout() async => await _auth.signOut();
+
+  /// Re-authenticates with [currentPassword] before setting [newPassword],
+  /// since Firebase Auth requires a recent sign-in to change a password.
+  /// Throws [FirebaseAuthException] on failure (e.g. code 'wrong-password'/
+  /// 'invalid-credential' if currentPassword doesn't match).
+  Future<void> changePassword(
+      String currentPassword, String newPassword) async {
+    final user = _auth.currentUser;
+    final email = user?.email;
+    if (user == null || email == null) {
+      throw FirebaseAuthException(
+          code: 'no-current-user', message: 'You are not logged in.');
+    }
+    final credential =
+        EmailAuthProvider.credential(email: email, password: currentPassword);
+    await user.reauthenticateWithCredential(credential);
+    await user.updatePassword(newPassword);
+  }
 
   Future<void> phoneAuthentication(String phoneNo) async {
     await _auth.verifyPhoneNumber(

@@ -44,4 +44,21 @@ class ProfileController extends GetxController {
       showSnackbarSafely("Error", "Login to Continue");
     }
   }
+
+  Future<bool> updateUserData(UserModel updated) async {
+    final uid = _authRepo.firebaseUser.value?.uid;
+    if (uid == null) {
+      showSnackbarSafely("Error", "Login to Continue");
+      return false;
+    }
+    try {
+      await _userRepo.updateUser(uid, updated);
+      userData.value = updated;
+      saveUserDataLocally(updated);
+      return true;
+    } catch (e) {
+      showSnackbarSafely("Error", "Failed to update profile: $e");
+      return false;
+    }
+  }
 }

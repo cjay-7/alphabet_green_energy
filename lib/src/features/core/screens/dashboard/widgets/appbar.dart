@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../constants/colors.dart';
 import '../../../../../constants/image_strings.dart';
 import '../../../../../constants/text.dart';
+import '../../../controllers/profile_controller.dart';
 import '../../profile/profile_screen.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -12,6 +14,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final controller = Get.put(ProfileController());
 
     return AppBar(
       backgroundColor:
@@ -37,7 +40,17 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Get.to(() => const ProfileScreen());
           },
-          icon: const Icon(Icons.person_outline_rounded, color: Colors.black),
+          icon: Obx(() {
+            final imageUrl = controller.userData.value?.profileImageUrl;
+            if (imageUrl != null && imageUrl.isNotEmpty) {
+              return CircleAvatar(
+                radius: 16,
+                backgroundImage: CachedNetworkImageProvider(imageUrl),
+              );
+            }
+            return const Icon(Icons.person_outline_rounded,
+                color: Colors.black);
+          }),
         )
       ],
     );
