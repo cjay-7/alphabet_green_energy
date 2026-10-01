@@ -50,31 +50,31 @@ class PrimaryBeneficiaryModel {
     final data = document.data()!;
     return PrimaryBeneficiaryModel(
       id: data[PrimaryBeneficiaryFields.idNumber],
-      stoveID: data[PrimaryBeneficiaryFields.stoveID],
-      stoveImg: data[PrimaryBeneficiaryFields.stoveImg],
-      fullName: data[PrimaryBeneficiaryFields.fullName],
-      phoneNumber: data[PrimaryBeneficiaryFields.phoneNumber],
-      idNumber: data[PrimaryBeneficiaryFields.idNumber],
-      image1: data[PrimaryBeneficiaryFields.image1],
-      idImageFront: data[PrimaryBeneficiaryFields.idImageFront],
-      idImageBack: data[PrimaryBeneficiaryFields.idImageBack],
-      currentDate: data[PrimaryBeneficiaryFields.currentDate],
-      surveyorName: data[PrimaryBeneficiaryFields.surveyorName],
+      stoveID: data[PrimaryBeneficiaryFields.stoveID] ?? '',
+      stoveImg: data[PrimaryBeneficiaryFields.stoveImg] ?? '',
+      fullName: data[PrimaryBeneficiaryFields.fullName] ?? '',
+      phoneNumber: data[PrimaryBeneficiaryFields.phoneNumber] ?? '',
+      idNumber: data[PrimaryBeneficiaryFields.idNumber] ?? '',
+      image1: data[PrimaryBeneficiaryFields.image1] ?? '',
+      idImageFront: data[PrimaryBeneficiaryFields.idImageFront] ?? '',
+      idImageBack: data[PrimaryBeneficiaryFields.idImageBack] ?? '',
+      currentDate: data[PrimaryBeneficiaryFields.currentDate] ?? '',
+      surveyorName: data[PrimaryBeneficiaryFields.surveyorName] ?? '',
     );
   }
 
   factory PrimaryBeneficiaryModel.fromJson(Map<String, dynamic> json) {
     return PrimaryBeneficiaryModel(
-      stoveID: json[PrimaryBeneficiaryFields.stoveID],
-      stoveImg: json[PrimaryBeneficiaryFields.stoveImg],
-      fullName: json[PrimaryBeneficiaryFields.fullName],
-      phoneNumber: json[PrimaryBeneficiaryFields.phoneNumber],
-      idNumber: json[PrimaryBeneficiaryFields.idNumber],
-      image1: json[PrimaryBeneficiaryFields.image1],
-      idImageFront: json[PrimaryBeneficiaryFields.idImageFront],
-      idImageBack: json[PrimaryBeneficiaryFields.idImageBack],
-      currentDate: json[PrimaryBeneficiaryFields.currentDate],
-      surveyorName: json[PrimaryBeneficiaryFields.surveyorName],
+      stoveID: json[PrimaryBeneficiaryFields.stoveID] ?? '',
+      stoveImg: json[PrimaryBeneficiaryFields.stoveImg] ?? '',
+      fullName: json[PrimaryBeneficiaryFields.fullName] ?? '',
+      phoneNumber: json[PrimaryBeneficiaryFields.phoneNumber] ?? '',
+      idNumber: json[PrimaryBeneficiaryFields.idNumber] ?? '',
+      image1: json[PrimaryBeneficiaryFields.image1] ?? '',
+      idImageFront: json[PrimaryBeneficiaryFields.idImageFront] ?? '',
+      idImageBack: json[PrimaryBeneficiaryFields.idImageBack] ?? '',
+      currentDate: json[PrimaryBeneficiaryFields.currentDate] ?? '',
+      surveyorName: json[PrimaryBeneficiaryFields.surveyorName] ?? '',
     );
   }
 }
