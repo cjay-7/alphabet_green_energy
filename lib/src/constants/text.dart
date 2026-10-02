@@ -136,6 +136,9 @@ const String aAccountDeniedTitle = "Account Not Approved";
 const String aAccountDeniedMessage =
     "An admin has not approved this account. Contact your supervisor if "
     "you believe this is a mistake.";
+const String aResendApprovalEmail = "Resend Notification Email";
+const String aResendApprovalEmailSuccess =
+    "Email resent to the admins.";
 const String aPasswordUpdated = "Your password has been updated.";
 const String aValidEmailRequired = "Please enter a valid email";
 const String aPasswordRequired = "Please enter Password";

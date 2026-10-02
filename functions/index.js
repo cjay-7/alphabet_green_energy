@@ -18,8 +18,10 @@ const FIELDS = {
   phone: "Phone",
   approvalStatus: "ApprovalStatus",
   approvalToken: "ApprovalToken",
+  lastResendAt: "LastResendAt",
 };
 const STATUS = { pending: "pending", approved: "approved", denied: "denied" };
+const RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 // Set once with: firebase functions:secrets:set GMAIL_APP_PASSWORD
 // (an App Password for the sender Gmail account, not its login password —
@@ -50,6 +52,47 @@ function functionsBaseUrl(region) {
 }
 
 /**
+ * Shared by the initial signup notification and the agent-triggered resend —
+ * same email, same links, just invoked from two different places.
+ */
+async function sendApprovalEmail(uid, data, token) {
+  const base = functionsBaseUrl("asia-south1");
+  const approveUrl = `${base}/approveSignup?uid=${uid}&token=${token}`;
+  const denyUrl = `${base}/denySignup?uid=${uid}&token=${token}`;
+
+  const name = data[FIELDS.fullName] || "(no name given)";
+  const email = data[FIELDS.email] || "(no email)";
+  const phone = data[FIELDS.phone] || "(no phone)";
+
+  await getTransporter().sendMail({
+    from: `Alphabet Green Energy <${SENDER_EMAIL}>`,
+    to: ADMIN_EMAILS.join(","),
+    subject: `New agent signup awaiting approval: ${name}`,
+    html: `
+      <p>A new agent signed up and needs approval before they can use the app:</p>
+      <ul>
+        <li><strong>Name:</strong> ${name}</li>
+        <li><strong>Email:</strong> ${email}</li>
+        <li><strong>Phone:</strong> ${phone}</li>
+      </ul>
+      <p>
+        <a href="${approveUrl}"
+           style="background:#2e7d32;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;margin-right:10px;display:inline-block;">
+          Approve
+        </a>
+        <a href="${denyUrl}"
+           style="background:#c62828;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+          Deny
+        </a>
+      </p>
+      <p style="color:#888;font-size:12px;">Each link works once. If you've already acted on this signup, clicking again will just say so.</p>
+    `,
+  });
+
+  logger.info(`Approval email sent for ${email} (uid=${uid}).`);
+}
+
+/**
  * Fires when a new agent signs up (UserRepository.createUser writes the
  * Users/{uid} doc with ApprovalStatus: "pending"). Generates a one-time
  * approval token, stores it on the doc, and emails the admins an
@@ -75,42 +118,12 @@ exports.notifyAdminsOnSignup = onDocumentCreated(
     if (data[FIELDS.approvalStatus] !== STATUS.pending) return;
 
     const token = crypto.randomBytes(32).toString("hex");
-    await snap.ref.update({ [FIELDS.approvalToken]: token });
-
-    const base = functionsBaseUrl("asia-south1");
-    const approveUrl = `${base}/approveSignup?uid=${event.params.uid}&token=${token}`;
-    const denyUrl = `${base}/denySignup?uid=${event.params.uid}&token=${token}`;
-
-    const name = data[FIELDS.fullName] || "(no name given)";
-    const email = data[FIELDS.email] || "(no email)";
-    const phone = data[FIELDS.phone] || "(no phone)";
-
-    await getTransporter().sendMail({
-      from: `Alphabet Green Energy <${SENDER_EMAIL}>`,
-      to: ADMIN_EMAILS.join(","),
-      subject: `New agent signup awaiting approval: ${name}`,
-      html: `
-        <p>A new agent signed up and needs approval before they can use the app:</p>
-        <ul>
-          <li><strong>Name:</strong> ${name}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Phone:</strong> ${phone}</li>
-        </ul>
-        <p>
-          <a href="${approveUrl}"
-             style="background:#2e7d32;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;margin-right:10px;display:inline-block;">
-            Approve
-          </a>
-          <a href="${denyUrl}"
-             style="background:#c62828;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
-            Deny
-          </a>
-        </p>
-        <p style="color:#888;font-size:12px;">Each link works once. If you've already acted on this signup, clicking again will just say so.</p>
-      `,
+    await snap.ref.update({
+      [FIELDS.approvalToken]: token,
+      [FIELDS.lastResendAt]: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    logger.info(`Signup notification sent for ${email} (uid=${event.params.uid}).`);
+    await sendApprovalEmail(event.params.uid, data, token);
   }
 );
 
@@ -189,4 +202,76 @@ exports.approveSignup = onRequest(
 exports.denySignup = onRequest(
   { region: "asia-south1" },
   (req, res) => resolveDecision(req, res, STATUS.denied)
+);
+
+/**
+ * Fallback for when the original signup email never arrives (spam filter,
+ * typo'd ADMIN_EMAILS, etc). Called by the agent themselves from the
+ * "Awaiting Approval" screen — authenticated via their own Firebase ID
+ * token (not a uid passed in the request body, so one agent can never
+ * trigger a resend for another's account), and rate-limited to once per 24h
+ * per account so this can't be used to spam the admins' inbox.
+ */
+exports.resendApprovalEmail = onRequest(
+  { region: "asia-south1", secrets: [gmailAppPassword] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Use POST." });
+      return;
+    }
+
+    const authHeader = req.get("Authorization") || "";
+    const idToken = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : "";
+    if (!idToken) {
+      res.status(401).json({ error: "Missing Authorization header." });
+      return;
+    }
+
+    let uid;
+    try {
+      uid = (await admin.auth().verifyIdToken(idToken)).uid;
+    } catch (e) {
+      res.status(401).json({ error: "Invalid or expired session." });
+      return;
+    }
+
+    const ref = admin.firestore().collection(USERS_COLLECTION).doc(uid);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      res.status(404).json({ error: "No profile found for this account." });
+      return;
+    }
+
+    const data = snap.data();
+    if (data[FIELDS.approvalStatus] !== STATUS.pending) {
+      res.status(409).json({
+        error: `This account has already been ${data[FIELDS.approvalStatus]}.`,
+      });
+      return;
+    }
+
+    const lastResendAt = data[FIELDS.lastResendAt];
+    const lastResendMs = lastResendAt ? lastResendAt.toMillis() : 0;
+    const elapsedMs = Date.now() - lastResendMs;
+    if (elapsedMs < RESEND_COOLDOWN_MS) {
+      const hoursLeft = Math.ceil((RESEND_COOLDOWN_MS - elapsedMs) / 3600000);
+      res.status(429).json({
+        error: `You can request this again in about ${hoursLeft} hour${hoursLeft === 1 ? "" : "s"}.`,
+      });
+      return;
+    }
+
+    // Reuse the existing token if the original email's links are still
+    // live, rather than invalidating them by minting a new one.
+    const token = data[FIELDS.approvalToken] || crypto.randomBytes(32).toString("hex");
+    await ref.update({
+      [FIELDS.approvalToken]: token,
+      [FIELDS.lastResendAt]: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await sendApprovalEmail(uid, data, token);
+    res.status(200).json({ ok: true });
+  }
 );

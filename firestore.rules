@@ -5,22 +5,27 @@ service cloud.firestore {
       allow read: if request.auth != null;
 
       // A new agent may only create their own doc, and only in the
-      // "pending" state with no approval token — both of those are set
-      // server-side from here on (doc creation + the notifyAdminsOnSignup
-      // Cloud Function), never by the signing-up client itself.
+      // "pending" state with no approval token/resend timestamp — all of
+      // those are set server-side from here on (doc creation +
+      // notifyAdminsOnSignup), never by the signing-up client itself.
       allow create: if request.auth != null
           && request.auth.uid == uid
           && request.resource.data.ApprovalStatus == 'pending'
-          && !('ApprovalToken' in request.resource.data);
+          && !('ApprovalToken' in request.resource.data)
+          && !('LastResendAt' in request.resource.data);
 
       // Agents can update their own profile (name, phone, photo, etc.) but
-      // can never change ApprovalStatus/ApprovalToken themselves — those are
-      // only ever changed by the approveSignup/denySignup Cloud Functions,
-      // which use the Admin SDK and bypass these rules entirely.
+      // can never change ApprovalStatus/ApprovalToken/LastResendAt
+      // themselves — those are only ever changed by the
+      // approveSignup/denySignup/resendApprovalEmail Cloud Functions, which
+      // use the Admin SDK and bypass these rules entirely. LastResendAt in
+      // particular has to be locked down here too, or an agent could just
+      // reset it themselves to defeat the 24h resend cooldown.
       allow update: if request.auth != null
           && request.auth.uid == uid
           && request.resource.data.ApprovalStatus == resource.data.ApprovalStatus
-          && request.resource.data.get('ApprovalToken', null) == resource.data.get('ApprovalToken', null);
+          && request.resource.data.get('ApprovalToken', null) == resource.data.get('ApprovalToken', null)
+          && request.resource.data.get('LastResendAt', null) == resource.data.get('LastResendAt', null);
     }
 
     // Firestore rules are evaluated as an OR across every matching block —
