@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 
 import '../../../../constants/sizes.dart';
 import '../../../../constants/text.dart';
+import '../../../../repository/authentication_repository/authentication_repository.dart';
 import '../../controllers/signin_controller.dart';
+import '../forget_password/forget_password_phone/forget_password_phone.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({
@@ -16,6 +18,7 @@ class LoginForm extends StatelessWidget {
     final controller = Get.put(SignInController());
     var obscurePassword = true.obs;
     var isLoading = false.obs;
+    var isGoogleLoading = false.obs;
 
     void togglePasswordVisibility() {
       obscurePassword.value = !obscurePassword.value;
@@ -67,14 +70,13 @@ class LoginForm extends StatelessWidget {
               ),
             ),
             const SizedBox(height: aFormHeight - 20),
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: TextButton(
-            //       onPressed: () {
-            //         ForgetPasswordScreen.buildShowModalBottomSheet(context);
-            //       },
-            //       child: const Text(aForgetPassword)),
-            // ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                  onPressed: () =>
+                      Get.to(() => const ForgetPasswordPhoneScreen()),
+                  child: const Text(aForgetPassword)),
+            ),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -95,6 +97,30 @@ class LoginForm extends StatelessWidget {
                   return isLoading.value
                       ? const CircularProgressIndicator()
                       : Text(aLogin.toUpperCase());
+                }),
+              ),
+            ),
+            const SizedBox(height: aFormHeight - 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  isGoogleLoading.value = true;
+                  try {
+                    await AuthenticationRepository.instance.signInWithGoogle();
+                  } finally {
+                    isGoogleLoading.value = false;
+                  }
+                },
+                icon: const Icon(Icons.g_mobiledata, size: 28),
+                label: Obx(() {
+                  return isGoogleLoading.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text(aSignInWithGoogle);
                 }),
               ),
             ),

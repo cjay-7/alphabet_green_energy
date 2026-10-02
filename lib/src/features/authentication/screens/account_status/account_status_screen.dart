@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:alphabet_green_energy/src/constants/cloud_functions.dart';
 import 'package:alphabet_green_energy/src/constants/firestore_keys.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
@@ -11,11 +12,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
-/// Cloud Functions base URL for this project/region — same project as
-/// firebase_options.dart, same region as functions/index.js's functions.
-const String _kFunctionsBaseUrl =
-    'https://asia-south1-alphabetgreens.cloudfunctions.net';
 
 /// Shown instead of the Dashboard while an agent's account is "pending" or
 /// "denied". Streams the Users doc directly (rather than a one-off fetch) so
@@ -39,7 +35,7 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
     try {
       final idToken = await user.getIdToken();
       final response = await http.post(
-        Uri.parse('$_kFunctionsBaseUrl/resendApprovalEmail'),
+        Uri.parse('$kFunctionsBaseUrl/resendApprovalEmail'),
         headers: {'Authorization': 'Bearer $idToken'},
       );
 

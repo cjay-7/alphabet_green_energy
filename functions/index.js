@@ -275,3 +275,91 @@ exports.resendApprovalEmail = onRequest(
     res.status(200).json({ ok: true });
   }
 );
+
+/**
+ * Phone-based "forgot password" recovery. The client has already verified
+ * an OTP via Firebase Phone Auth (which — since no agent proactively links
+ * phone sign-in — almost always signs into a brand-new ephemeral phone-only
+ * Auth user, never an existing agent's account) and sends that ephemeral
+ * session's ID token here.
+ *
+ * This looks up the agent whose *signup-time* phone number (the `Phone`
+ * field collected by the web signup form, not a Firebase Auth provider
+ * link) matches the verified number, mints a custom token for THEIR
+ * existing uid, and deletes the now-unneeded ephemeral user. The client
+ * then signs in with that custom token, landing on the agent's real
+ * account — never a new one, regardless of whether this phone number was
+ * ever linked to anything in Firebase Auth before.
+ */
+exports.recoverAccountByPhone = onRequest(
+  { region: "asia-south1" },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Use POST." });
+      return;
+    }
+
+    const authHeader = req.get("Authorization") || "";
+    const idToken = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : "";
+    if (!idToken) {
+      res.status(401).json({ error: "Missing Authorization header." });
+      return;
+    }
+
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (e) {
+      res.status(401).json({ error: "Invalid or expired session." });
+      return;
+    }
+
+    const verifiedPhone = decoded.phone_number;
+    if (!verifiedPhone) {
+      res.status(400).json({ error: "This session wasn't verified via phone OTP." });
+      return;
+    }
+
+    // Firestore's Phone field is a plain 10-digit number with no country
+    // code (collected by the signup form's validator) — normalize the
+    // verified E.164 number (e.g. "+919876543210") the same way to compare.
+    const last10Digits = verifiedPhone.replace(/\D/g, "").slice(-10);
+
+    const snap = await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .where(FIELDS.phone, "==", last10Digits)
+      .limit(2)
+      .get();
+
+    if (snap.empty) {
+      res.status(404).json({ error: "No agent account found for this phone number." });
+      return;
+    }
+    if (snap.size > 1) {
+      logger.error(`Multiple Users docs share phone ${last10Digits} — refusing to guess.`);
+      res.status(409).json({
+        error: "This phone number is on file for more than one account. Contact an admin.",
+      });
+      return;
+    }
+
+    const matchedUid = snap.docs[0].id;
+
+    // Clean up the ephemeral phone-only Auth user this request authenticated
+    // with, unless it's somehow already the matched account (e.g. a repeat
+    // recovery) — no reason to leave orphaned phone-only users behind.
+    if (decoded.uid !== matchedUid) {
+      try {
+        await admin.auth().deleteUser(decoded.uid);
+      } catch (e) {
+        logger.warn(`Couldn't delete ephemeral phone user ${decoded.uid}: ${e}`);
+      }
+    }
+
+    const customToken = await admin.auth().createCustomToken(matchedUid);
+    res.status(200).json({ customToken });
+  }
+);

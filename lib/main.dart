@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'src/features/authentication/screens/login/login_screen.dart';
 
@@ -21,6 +22,12 @@ void main() async {
     androidProvider:
         kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
   );
+  if (!kIsWeb) {
+    // Google Sign-In is an Android-login-only feature — the web build is a
+    // signup-only kiosk with no Dashboard to sign into. initialize() must
+    // complete before AuthenticationRepository.signInWithGoogle() runs.
+    await GoogleSignIn.instance.initialize();
+  }
   Get.put(AuthenticationRepository());
   Get.put(UserRepository());
   if (kIsWeb) {

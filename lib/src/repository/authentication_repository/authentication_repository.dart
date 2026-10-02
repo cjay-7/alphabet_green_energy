@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:alphabet_green_energy/src/constants/cloud_functions.dart';
 import 'package:alphabet_green_energy/src/constants/firestore_keys.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/account_status/account_status_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/login/login_screen.dart';
+import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/set_new_password/set_new_password_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_success_screen.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
@@ -10,6 +14,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
 import '../../utils/safe_snackbar.dart';
 import '../user_repository/user_repository.dart';
@@ -21,6 +27,12 @@ class AuthenticationRepository extends GetxController {
   final _auth = FirebaseAuth.instance;
   late final Rx<User?> firebaseUser;
   var verificationId = ''.obs;
+
+  // Set right before signInWithCustomToken in a phone-recovery exchange, so
+  // _setInitialScreen routes to SetNewPasswordScreen for that one sign-in
+  // instead of the normal approval-status gate. A custom-token sign-in still
+  // needs a new password set before the agent is usably "back in".
+  bool _pendingPasswordReset = false;
 
   @override
   void onReady() {
@@ -43,6 +55,11 @@ class AuthenticationRepository extends GetxController {
 
     if (user == null) {
       Get.offAll(() => const LoginScreen());
+      return;
+    }
+
+    if (_pendingPasswordReset) {
+      Get.offAll(() => const SetNewPasswordScreen());
       return;
     }
 
@@ -191,7 +208,56 @@ class AuthenticationRepository extends GetxController {
     );
   }
 
-  Future<void> logout() async => await _auth.signOut();
+  Future<void> logout() async {
+    await _auth.signOut();
+    // Best-effort: clears the cached Google session too, so logging back in
+    // (possibly as a different agent) shows the account picker again instead
+    // of silently reusing whichever Google account was signed in last. Not
+    // every session got here via Google, so failures here are expected/fine.
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
+  }
+
+  /// Signs in with Google, but — deliberately — can never be used to create
+  /// a new agent account. Signup only happens through the web kiosk, gated
+  /// by admin approval; if Google sign-in could create accounts too, that
+  /// gate would be trivially bypassable by anyone with a Google account. If
+  /// Firebase reports this as a brand-new Auth user (no existing agent
+  /// behind this Google account), the just-created account is deleted and
+  /// the sign-in is rejected instead of silently granting access.
+  Future<void> signInWithGoogle() async {
+    try {
+      final googleAccount = await GoogleSignIn.instance.authenticate();
+      final idToken = googleAccount.authentication.idToken;
+      if (idToken == null) {
+        showSnackbarSafely(
+            "Error", "Google didn't return a valid token. Try again.");
+        return;
+      }
+
+      final credential = GoogleAuthProvider.credential(idToken: idToken);
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        await userCredential.user?.delete();
+        await GoogleSignIn.instance.signOut();
+        showSnackbarSafely("Error",
+            "No existing agent account for this Google account. Sign up first and wait for admin approval.");
+        return;
+      }
+      // Existing account — ever(firebaseUser, _setInitialScreen) handles
+      // navigation (including the approval-status check) from here.
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return;
+      showSnackbarSafely(
+          "Error", "Google sign-in failed: ${e.description ?? e.code}");
+    } on FirebaseAuthException catch (e) {
+      showSnackbarSafely("Error", e.message ?? "Google sign-in failed.");
+    } catch (e) {
+      showSnackbarSafely("Error", "Google sign-in failed: $e");
+    }
+  }
 
   /// Re-authenticates with [currentPassword] before setting [newPassword],
   /// since Firebase Auth requires a recent sign-in to change a password.
@@ -211,11 +277,15 @@ class AuthenticationRepository extends GetxController {
     await user.updatePassword(newPassword);
   }
 
+  /// Step 1 of phone-based account recovery ("forgot password"): sends an
+  /// OTP to [phoneNo] (raw 10-digit number, matching what the signup form
+  /// collects — E.164 formatting happens here). This can never create a new
+  /// agent account; see verifyOTP/_completePhoneRecovery for why.
   Future<void> phoneAuthentication(String phoneNo) async {
     await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNo,
+      phoneNumber: '+91$phoneNo',
       verificationCompleted: (credential) async {
-        await _auth.signInWithCredential(credential);
+        await _completePhoneRecovery(credential);
       },
       verificationFailed: (e) {
         if (e.code == 'invalid-phone-number') {
@@ -234,10 +304,63 @@ class AuthenticationRepository extends GetxController {
     );
   }
 
+  /// Step 2: verifies [otp], then exchanges it (via the recoverAccountByPhone
+  /// Cloud Function) for a sign-in to whichever EXISTING agent's signup
+  /// phone number matches — never a new account created from a phone number
+  /// alone. Returns false (with an error snackbar already shown) on failure.
   Future<bool> verifyOTP(String otp) async {
-    var credentials = await _auth.signInWithCredential(
-        PhoneAuthProvider.credential(
-            verificationId: verificationId.value, smsCode: otp));
-    return credentials.user != null ? true : false;
+    final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId.value, smsCode: otp);
+    return _completePhoneRecovery(credential);
+  }
+
+  /// Firebase's phone sign-in has no concept of "verify this number against
+  /// an existing email/password account" — signing in with a phone
+  /// credential either finds an account that previously *linked* that
+  /// phone number as an Auth provider, or creates a brand-new one. Since no
+  /// agent here does that linking step, this almost always creates an
+  /// ephemeral, otherwise-useless phone-only account.
+  ///
+  /// So instead: sign in with it anyway (this is just OTP verification,
+  /// Firebase has no lower-level "verify without signing in" primitive),
+  /// send that ephemeral session's ID token to recoverAccountByPhone, which
+  /// looks up the agent whose *signup-time* Phone field matches, mints a
+  /// custom token for THEIR uid, and deletes the ephemeral user server-side.
+  /// Signing in with that custom token replaces the ephemeral session with
+  /// the agent's real one.
+  Future<bool> _completePhoneRecovery(PhoneAuthCredential credential) async {
+    try {
+      final ephemeralCredential = await _auth.signInWithCredential(credential);
+      final idToken = await ephemeralCredential.user?.getIdToken();
+      if (idToken == null) {
+        throw Exception("Phone verification didn't return a session.");
+      }
+
+      final response = await http.post(
+        Uri.parse('$kFunctionsBaseUrl/recoverAccountByPhone'),
+        headers: {'Authorization': 'Bearer $idToken'},
+      );
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode != 200) {
+        throw Exception(body['error'] as String? ??
+            'No agent account found for this phone number.');
+      }
+
+      _pendingPasswordReset = true;
+      await _auth.signInWithCustomToken(body['customToken'] as String);
+      return true;
+    } catch (e) {
+      showSnackbarSafely('Error', 'Could not verify phone: $e');
+      return false;
+    }
+  }
+
+  /// Called by SetNewPasswordScreen once the agent has set a new password
+  /// after a phone-recovery sign-in. Clears the one-shot redirect flag and
+  /// re-runs the normal screen routing (approval-status gate, etc.) for the
+  /// now-current user.
+  Future<void> completePasswordReset() async {
+    _pendingPasswordReset = false;
+    await _setInitialScreen(_auth.currentUser);
   }
 }
