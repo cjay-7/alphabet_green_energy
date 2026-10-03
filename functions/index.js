@@ -322,23 +322,28 @@ exports.recoverAccountByPhone = onRequest(
       return;
     }
 
-    // Firestore's Phone field is a plain 10-digit number with no country
-    // code (collected by the signup form's validator) — normalize the
-    // verified E.164 number (e.g. "+919876543210") the same way to compare.
+    // The signup form's Phone field is meant to be a plain 10-digit number,
+    // but existing docs aren't consistent — at least one legacy/manually
+    // edited doc stores it as full E.164 ("+919876543210") instead. An exact
+    // Firestore `where` match would silently miss those, so this compares
+    // the last 10 digits of both sides instead of relying on stored format.
+    // Fine at this app's scale (dozens of agents, not millions).
     const last10Digits = verifiedPhone.replace(/\D/g, "").slice(-10);
 
-    const snap = await admin
-      .firestore()
-      .collection(USERS_COLLECTION)
-      .where(FIELDS.phone, "==", last10Digits)
-      .limit(2)
-      .get();
+    const allUsers = await admin.firestore().collection(USERS_COLLECTION).get();
+    const matches = allUsers.docs.filter((doc) => {
+      const storedPhone = doc.data()[FIELDS.phone];
+      return (
+        typeof storedPhone === "string" &&
+        storedPhone.replace(/\D/g, "").slice(-10) === last10Digits
+      );
+    });
 
-    if (snap.empty) {
+    if (matches.length === 0) {
       res.status(404).json({ error: "No agent account found for this phone number." });
       return;
     }
-    if (snap.size > 1) {
+    if (matches.length > 1) {
       logger.error(`Multiple Users docs share phone ${last10Digits} — refusing to guess.`);
       res.status(409).json({
         error: "This phone number is on file for more than one account. Contact an admin.",
@@ -346,7 +351,7 @@ exports.recoverAccountByPhone = onRequest(
       return;
     }
 
-    const matchedUid = snap.docs[0].id;
+    const matchedUid = matches[0].id;
 
     // Clean up the ephemeral phone-only Auth user this request authenticated
     // with, unless it's somehow already the matched account (e.g. a repeat
