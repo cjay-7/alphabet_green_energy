@@ -127,33 +127,42 @@ class PhoneNumberFieldState extends FormFieldState<String> {
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(_flagEmoji(_country.iso2),
-                        style: const TextStyle(fontSize: 20)),
-                    const SizedBox(width: 4),
+                        style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 2),
                     Text(_country.dialCode,
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    const Icon(Icons.arrow_drop_down),
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    const Icon(Icons.arrow_drop_down, size: 18),
                   ],
                 ),
               ),
             ),
+            // OtpTextField lays out its fields at a fixed width regardless
+            // of the space it's given — Expanded alone won't stop an
+            // overflow if 10 boxes don't fit (confirmed live: they didn't,
+            // at this screen's aDefaultSize=30 padding on each side). The
+            // scroll view is a safety net for narrower screens/larger font
+            // scales even after sizing the boxes down to fit comfortably.
             Expanded(
-              child: OtpTextField(
-                numberOfFields: 10,
-                showFieldAsBox: true,
-                fieldWidth: 26,
-                margin: const EdgeInsets.only(right: 4),
-                keyboardType: TextInputType.number,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                handleControllers: handleControllers,
-                onCodeChanged: (value) {
-                  _digits = value;
-                  _emitChange();
-                },
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: OtpTextField(
+                  numberOfFields: 10,
+                  showFieldAsBox: true,
+                  fieldWidth: 20,
+                  margin: const EdgeInsets.only(right: 2),
+                  keyboardType: TextInputType.number,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  handleControllers: handleControllers,
+                  onCodeChanged: (value) {
+                    _digits = value;
+                    _emitChange();
+                  },
+                ),
               ),
             ),
           ],
