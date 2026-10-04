@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pinput/pinput.dart';
 
 import '../constants/colors.dart';
 import '../constants/country_codes.dart';
 import '../constants/text.dart';
+import 'digit_boxes_field.dart';
 
 /// Matches [value] against kCountryCodes by the LONGEST matching dial-code
 /// prefix, not just the first list match — several dial codes are prefixes
@@ -121,20 +121,6 @@ class PhoneNumberFieldState extends FormFieldState<String> {
   }
 
   Widget _build() {
-    const boxTheme = PinTheme(
-      width: 30,
-      height: 48,
-      textStyle: TextStyle(
-          color: aPrimaryColor, fontSize: 20, fontWeight: FontWeight.w600),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: aPrimaryColor, width: 2)),
-      ),
-    );
-    final focusedBoxTheme = boxTheme.copyDecorationWith(
-      border: const Border(
-          bottom: BorderSide(color: aAccentColor, width: 2)),
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -164,38 +150,15 @@ class PhoneNumberFieldState extends FormFieldState<String> {
           ),
         ),
         const SizedBox(height: 4),
-        // Switched from flutter_otp_text_field to pinput: the former builds
-        // one real TextFormField per digit box and synchronizes them by
-        // hand, which is what caused three separate bugs here (invisible
-        // text, a callback that only ever passed the latest keystroke
-        // instead of the accumulated code, and a maxLength quirk that let
-        // one box's input spill into every other box). pinput renders all
-        // boxes from a single underlying TextEditingController, so there's
-        // nothing to keep in sync and no separate per-box focus/maxLength
-        // logic to go wrong. 10 boxes at this size fit this screen's
-        // available width directly; the scroll view is a safety net for
-        // narrower screens/larger font scales, not the primary fit strategy.
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          // Pinput's underlying TextField needs a Material ancestor to find
-          // (standard Flutter requirement for text selection/cursor
-          // rendering) — confirmed live, this screen's Scaffold wasn't
-          // close enough through the ScrollView/gesture-detector layers in
-          // between. A transparent Material satisfies that directly rather
-          // than depending on exactly how the surrounding tree is shaped.
-          child: Material(
-            type: MaterialType.transparency,
-            child: Pinput(
-              length: 10,
-              controller: _digitsController,
-              defaultPinTheme: boxTheme,
-              focusedPinTheme: focusedBoxTheme,
-              submittedPinTheme: boxTheme,
-              separatorBuilder: (index) => const SizedBox(width: 4),
-              keyboardType: TextInputType.number,
-              mainAxisAlignment: MainAxisAlignment.start,
-              onChanged: (_) => _emitChange(),
-            ),
+          child: DigitBoxesField(
+            length: 10,
+            controller: _digitsController,
+            boxWidth: 30,
+            boxHeight: 48,
+            fontSize: 20,
+            onChanged: (_) => _emitChange(),
           ),
         ),
         if (errorText != null)

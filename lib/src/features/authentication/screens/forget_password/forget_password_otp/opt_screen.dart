@@ -1,10 +1,9 @@
-import 'package:alphabet_green_energy/src/constants/colors.dart';
+import 'package:alphabet_green_energy/src/common_widgets/digit_boxes_field.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/authentication/controllers/otp_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pinput/pinput.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({super.key});
@@ -25,20 +24,6 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     final otpController = Get.put(OTPController());
-
-    const boxTheme = PinTheme(
-      width: 48,
-      height: 64,
-      textStyle: TextStyle(
-          color: aPrimaryColor, fontSize: 28, fontWeight: FontWeight.w600),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: aPrimaryColor, width: 2)),
-      ),
-    );
-    final focusedBoxTheme = boxTheme.copyDecorationWith(
-      border: const Border(bottom: BorderSide(color: aAccentColor, width: 2)),
-    );
-
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(aDefaultSize),
@@ -50,32 +35,16 @@ class _OTPScreenState extends State<OTPScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 40.0),
-            // Switched from flutter_otp_text_field to pinput: the former
-            // builds one real TextFormField per digit box kept in sync by
-            // hand, which is what caused the invisible-text and
-            // input-leaking-across-boxes bugs found on the phone-number
-            // field (same package). pinput renders every box from a single
-            // underlying TextEditingController, so there's no per-box
-            // state to go out of sync.
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              // Pinput's underlying TextField needs a Material ancestor to
-              // find (standard Flutter requirement for text selection/
-              // cursor rendering) — confirmed live on the phone-number
-              // field's identical layout, this screen's Scaffold wasn't
-              // close enough through the ScrollView/gesture-detector layers
-              // in between. A transparent Material satisfies that directly.
-              child: Material(
-                type: MaterialType.transparency,
-                child: Pinput(
-                  length: 6,
-                  controller: _otpController,
-                  defaultPinTheme: boxTheme,
-                  focusedPinTheme: focusedBoxTheme,
-                  submittedPinTheme: boxTheme,
-                  separatorBuilder: (index) => const SizedBox(width: 6),
-                  onCompleted: otpController.verifyOTP,
-                ),
+              child: DigitBoxesField(
+                length: 6,
+                controller: _otpController,
+                boxWidth: 48,
+                boxHeight: 64,
+                fontSize: 28,
+                onChanged: (_) {},
+                onCompleted: otpController.verifyOTP,
               ),
             ),
           ],

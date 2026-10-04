@@ -34,7 +34,6 @@ dependencies:
   http: ^1.2.1
   cached_network_image: ^3.4.1
   csv:
-  pinput: ^7.0.0
 flutter_launcher_icons:
   android: true
   ios: true
