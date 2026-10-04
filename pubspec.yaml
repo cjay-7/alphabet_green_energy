@@ -13,7 +13,6 @@ dependencies:
   google_fonts: ^8.2.1
   flutter_native_splash: ^2.4.8
   get: 4.6.6
-  flutter_otp_text_field: ^1.1.1
   image_picker: ^1.0.2
   path_provider: ^2.0.14
   firebase_core: ^4.0.0
@@ -35,6 +34,7 @@ dependencies:
   http: ^1.2.1
   cached_network_image: ^3.4.1
   csv:
+  pinput: ^7.0.0
 flutter_launcher_icons:
   android: true
   ios: true

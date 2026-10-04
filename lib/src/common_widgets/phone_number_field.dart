@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:pinput/pinput.dart';
 
 import '../constants/colors.dart';
 import '../constants/country_codes.dart';
@@ -69,9 +68,7 @@ class PhoneNumberField extends FormField<String> {
 
 class PhoneNumberFieldState extends FormFieldState<String> {
   late CountryCode _country;
-  String _digits = '';
-  bool _prefilled = false;
-  List<TextEditingController?> _digitControllers = const [];
+  late final TextEditingController _digitsController;
 
   @override
   PhoneNumberField get widget => super.widget as PhoneNumberField;
@@ -80,9 +77,10 @@ class PhoneNumberFieldState extends FormFieldState<String> {
   void initState() {
     super.initState();
     final initial = widget.initialValue ?? '';
+    String digits;
     if (initial.startsWith('+')) {
       _country = _matchDialCode(initial);
-      _digits = initial.substring(_country.dialCode.length);
+      digits = initial.substring(_country.dialCode.length);
     } else {
       // Legacy data predates country codes entirely — these were always a
       // plain national number with no prefix at all, collected back when
@@ -90,12 +88,20 @@ class PhoneNumberFieldState extends FormFieldState<String> {
       // the national digits rather than failing to match any dial code and
       // silently showing empty boxes.
       _country = kCountryCodes.first;
-      _digits = initial;
+      digits = initial;
     }
+    _digitsController = TextEditingController(text: digits);
+  }
+
+  @override
+  void dispose() {
+    _digitsController.dispose();
+    super.dispose();
   }
 
   void _emitChange() {
-    final combined = _digits.isEmpty ? '' : '${_country.dialCode}$_digits';
+    final digits = _digitsController.text;
+    final combined = digits.isEmpty ? '' : '${_country.dialCode}$digits';
     didChange(combined);
     widget.onChanged?.call(combined);
   }
@@ -115,24 +121,19 @@ class PhoneNumberFieldState extends FormFieldState<String> {
   }
 
   Widget _build() {
-    // flutter_otp_text_field has no initialValue of its own — handleControllers
-    // is the only way in, but it fires on every one of OtpTextField's own
-    // rebuilds (not just the first), so this has to guard itself to actually
-    // run only once. Otherwise every keystroke would re-stamp _digits back
-    // into the controllers right after OtpTextField's own backspace/advance
-    // logic just changed them, fighting its internal state continuously.
-    void handleControllers(List<TextEditingController?> controllers) {
-      // Same controller instances every call (OtpTextField creates them
-      // once, not per build), so just keeping a live reference here is
-      // enough to read each box's current text later from onCodeChanged —
-      // no need to re-fetch it there.
-      _digitControllers = controllers;
-      if (_prefilled || _digits.isEmpty) return;
-      _prefilled = true;
-      for (var i = 0; i < controllers.length && i < _digits.length; i++) {
-        controllers[i]?.text = _digits[i];
-      }
-    }
+    const boxTheme = PinTheme(
+      width: 30,
+      height: 48,
+      textStyle: TextStyle(
+          color: aPrimaryColor, fontSize: 20, fontWeight: FontWeight.w600),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: aPrimaryColor, width: 2)),
+      ),
+    );
+    final focusedBoxTheme = boxTheme.copyDecorationWith(
+      border: const Border(
+          bottom: BorderSide(color: aAccentColor, width: 2)),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,66 +164,29 @@ class PhoneNumberFieldState extends FormFieldState<String> {
           ),
         ),
         const SizedBox(height: 4),
-        // OtpTextField lays out its fields at a fixed width regardless of
-        // the space it's given — a plain Row would overflow if 10 boxes at
-        // this size don't quite fit (confirmed live at the smaller size
-        // this replaced). The scroll view is a safety net for narrower
-        // screens/larger font scales rather than relying on getting the
-        // exact fit right for every device.
+        // Switched from flutter_otp_text_field to pinput: the former builds
+        // one real TextFormField per digit box and synchronizes them by
+        // hand, which is what caused three separate bugs here (invisible
+        // text, a callback that only ever passed the latest keystroke
+        // instead of the accumulated code, and a maxLength quirk that let
+        // one box's input spill into every other box). pinput renders all
+        // boxes from a single underlying TextEditingController, so there's
+        // nothing to keep in sync and no separate per-box focus/maxLength
+        // logic to go wrong. 10 boxes at this size fit this screen's
+        // available width directly; the scroll view is a safety net for
+        // narrower screens/larger font scales, not the primary fit strategy.
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: OtpTextField(
-            numberOfFields: 10,
-            showFieldAsBox: true,
-            // Sized to comfortably fit the digit without clipping, not to
-            // fit all 10 on screen at once — reported live as still too
-            // small/cut off at 28x48. This is wider than most screens can
-            // show unscrolled, which is what the horizontal scroll wrapper
-            // above is for.
-            fieldWidth: 44,
-            fieldHeight: 64,
-            contentPadding: EdgeInsets.zero,
-            margin: const EdgeInsets.only(right: 6),
+          child: Pinput(
+            length: 10,
+            controller: _digitsController,
+            defaultPinTheme: boxTheme,
+            focusedPinTheme: focusedBoxTheme,
+            submittedPinTheme: boxTheme,
+            separatorBuilder: (index) => const SizedBox(width: 4),
             keyboardType: TextInputType.number,
             mainAxisAlignment: MainAxisAlignment.start,
-            // OtpTextField sets maxLength on each individual box's
-            // TextFormField to numberOfFields (10) instead of 1, relying
-            // entirely on its onChanged logic to redistribute any
-            // multi-character input across the other boxes as a "paste".
-            // Confirmed live: something (predictive text, a key-repeat,
-            // the Samsung keyboard) delivered more than one character to a
-            // single box, and every box ended up with the same digit as a
-            // result. Enforcing a hard 1-character limit here, at the
-            // Flutter level, stops that regardless of what the IME sends.
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(1),
-            ],
-            // OtpTextField's own default text style doesn't pick up this
-            // app's dark theme — confirmed live, digits typed were
-            // invisible (black-on-black) against the box. Every other
-            // color here was already explicit in the package's defaults
-            // (hence the borders being visible); only the digit text
-            // itself needed one.
-            textStyle: const TextStyle(
-                color: aPrimaryColor,
-                fontSize: 26,
-                fontWeight: FontWeight.w600),
-            cursorColor: aAccentColor,
-            enabledBorderColor: aPrimaryColor,
-            focusedBorderColor: aAccentColor,
-            handleControllers: handleControllers,
-            // OtpTextField's onCodeChanged passes only the single digit
-            // just typed (see _onDigitEntered in its source), not the
-            // accumulated code — confirmed live: using it directly left
-            // _digits as just the last keystroke typed (e.g. "7" instead
-            // of "9594204097"), always failing validation. Read the real
-            // combined value straight from the controllers instead of
-            // trusting that parameter.
-            onCodeChanged: (_) {
-              _digits = _digitControllers.map((c) => c?.text ?? '').join();
-              _emitChange();
-            },
+            onChanged: (_) => _emitChange(),
           ),
         ),
         if (errorText != null)
