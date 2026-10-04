@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 
 import '../constants/colors.dart';
@@ -178,6 +179,19 @@ class PhoneNumberFieldState extends FormFieldState<String> {
             margin: const EdgeInsets.only(right: 4),
             keyboardType: TextInputType.number,
             mainAxisAlignment: MainAxisAlignment.start,
+            // OtpTextField sets maxLength on each individual box's
+            // TextFormField to numberOfFields (10) instead of 1, relying
+            // entirely on its onChanged logic to redistribute any
+            // multi-character input across the other boxes as a "paste".
+            // Confirmed live: something (predictive text, a key-repeat,
+            // the Samsung keyboard) delivered more than one character to a
+            // single box, and every box ended up with the same digit as a
+            // result. Enforcing a hard 1-character limit here, at the
+            // Flutter level, stops that regardless of what the IME sends.
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(1),
+            ],
             // OtpTextField's own default text style doesn't pick up this
             // app's dark theme — confirmed live, digits typed were
             // invisible (black-on-black) against the box. Every other
