@@ -59,14 +59,23 @@ class _OTPScreenState extends State<OTPScreen> {
             // state to go out of sync.
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Pinput(
-                length: 6,
-                controller: _otpController,
-                defaultPinTheme: boxTheme,
-                focusedPinTheme: focusedBoxTheme,
-                submittedPinTheme: boxTheme,
-                separatorBuilder: (index) => const SizedBox(width: 6),
-                onCompleted: otpController.verifyOTP,
+              // Pinput's underlying TextField needs a Material ancestor to
+              // find (standard Flutter requirement for text selection/
+              // cursor rendering) — confirmed live on the phone-number
+              // field's identical layout, this screen's Scaffold wasn't
+              // close enough through the ScrollView/gesture-detector layers
+              // in between. A transparent Material satisfies that directly.
+              child: Material(
+                type: MaterialType.transparency,
+                child: Pinput(
+                  length: 6,
+                  controller: _otpController,
+                  defaultPinTheme: boxTheme,
+                  focusedPinTheme: focusedBoxTheme,
+                  submittedPinTheme: boxTheme,
+                  separatorBuilder: (index) => const SizedBox(width: 6),
+                  onCompleted: otpController.verifyOTP,
+                ),
               ),
             ),
           ],

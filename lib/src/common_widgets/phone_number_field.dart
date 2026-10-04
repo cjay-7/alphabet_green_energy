@@ -177,16 +177,25 @@ class PhoneNumberFieldState extends FormFieldState<String> {
         // narrower screens/larger font scales, not the primary fit strategy.
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Pinput(
-            length: 10,
-            controller: _digitsController,
-            defaultPinTheme: boxTheme,
-            focusedPinTheme: focusedBoxTheme,
-            submittedPinTheme: boxTheme,
-            separatorBuilder: (index) => const SizedBox(width: 4),
-            keyboardType: TextInputType.number,
-            mainAxisAlignment: MainAxisAlignment.start,
-            onChanged: (_) => _emitChange(),
+          // Pinput's underlying TextField needs a Material ancestor to find
+          // (standard Flutter requirement for text selection/cursor
+          // rendering) — confirmed live, this screen's Scaffold wasn't
+          // close enough through the ScrollView/gesture-detector layers in
+          // between. A transparent Material satisfies that directly rather
+          // than depending on exactly how the surrounding tree is shaped.
+          child: Material(
+            type: MaterialType.transparency,
+            child: Pinput(
+              length: 10,
+              controller: _digitsController,
+              defaultPinTheme: boxTheme,
+              focusedPinTheme: focusedBoxTheme,
+              submittedPinTheme: boxTheme,
+              separatorBuilder: (index) => const SizedBox(width: 4),
+              keyboardType: TextInputType.number,
+              mainAxisAlignment: MainAxisAlignment.start,
+              onChanged: (_) => _emitChange(),
+            ),
           ),
         ),
         if (errorText != null)
