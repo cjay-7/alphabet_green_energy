@@ -143,7 +143,7 @@ const String aSignUpSuccessMessage =
     "Your account has been created. An admin will review it before you can start using the app.";
 const String aSignUpAnother = "Sign Up Another Agent";
 const String aAddStovePicturesForBeneficiary =
-    "Add pictures of giving the stove to the Beneficiary";
+    "Add picture of Beneficiary and Stove";
 const String aAddConsentForm = "Add Consent Form";
 const String aSuccess = "Success";
 const String aBeneficiaryDataSavedLocally = ' Beneficiary data saved locally.';
