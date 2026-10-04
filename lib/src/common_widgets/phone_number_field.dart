@@ -174,9 +174,15 @@ class PhoneNumberFieldState extends FormFieldState<String> {
           child: OtpTextField(
             numberOfFields: 10,
             showFieldAsBox: true,
-            fieldWidth: 28,
-            fieldHeight: 48,
-            margin: const EdgeInsets.only(right: 4),
+            // Sized to comfortably fit the digit without clipping, not to
+            // fit all 10 on screen at once — reported live as still too
+            // small/cut off at 28x48. This is wider than most screens can
+            // show unscrolled, which is what the horizontal scroll wrapper
+            // above is for.
+            fieldWidth: 44,
+            fieldHeight: 64,
+            contentPadding: EdgeInsets.zero,
+            margin: const EdgeInsets.only(right: 6),
             keyboardType: TextInputType.number,
             mainAxisAlignment: MainAxisAlignment.start,
             // OtpTextField sets maxLength on each individual box's
@@ -200,7 +206,7 @@ class PhoneNumberFieldState extends FormFieldState<String> {
             // itself needed one.
             textStyle: const TextStyle(
                 color: aPrimaryColor,
-                fontSize: 20,
+                fontSize: 26,
                 fontWeight: FontWeight.w600),
             cursorColor: aAccentColor,
             enabledBorderColor: aPrimaryColor,
