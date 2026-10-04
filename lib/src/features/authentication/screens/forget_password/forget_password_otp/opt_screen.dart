@@ -1,3 +1,4 @@
+import 'package:alphabet_green_energy/src/constants/colors.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/authentication/controllers/otp_controller.dart';
@@ -10,8 +11,7 @@ class OTPScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var otpController = Get.put(OTPController());
-    String otp;
+    final otpController = Get.put(OTPController());
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(aDefaultSize),
@@ -25,21 +25,15 @@ class OTPScreen extends StatelessWidget {
             const SizedBox(height: 40.0),
             OtpTextField(
               numberOfFields: 6,
-              fillColor: Colors.black.withOpacity(0.1),
-              filled: true,
-              onSubmit: (code) {
-                otp = code;
-                OTPController.instance.verifyOTP(otp);
-              },
-            ),
-            const SizedBox(height: 20.0),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                  onPressed: () {
-                    // OTPController.instance.verifyOTP(otp);
-                  },
-                  child: const Text(aNext)),
+              // OtpTextField's own default text style doesn't pick up this
+              // app's dark theme — confirmed live, typed digits were
+              // invisible (black-on-black) against the box.
+              textStyle: const TextStyle(color: aPrimaryColor, fontSize: 18),
+              cursorColor: aAccentColor,
+              enabledBorderColor: aPrimaryColor,
+              focusedBorderColor: aAccentColor,
+              showFieldAsBox: true,
+              onSubmit: otpController.verifyOTP,
             ),
           ],
         ),

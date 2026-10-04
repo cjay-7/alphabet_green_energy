@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 
+import '../constants/colors.dart';
 import '../constants/country_codes.dart';
 import '../constants/text.dart';
 
@@ -157,6 +158,16 @@ class PhoneNumberFieldState extends FormFieldState<String> {
                   margin: const EdgeInsets.only(right: 2),
                   keyboardType: TextInputType.number,
                   mainAxisAlignment: MainAxisAlignment.start,
+                  // OtpTextField's own default text style doesn't pick up
+                  // this app's dark theme — confirmed live, digits typed
+                  // were invisible (black-on-black) against the box. Every
+                  // other color here was already explicit in the package's
+                  // defaults (hence the borders being visible); only the
+                  // digit text itself needed one.
+                  textStyle: const TextStyle(color: aPrimaryColor, fontSize: 16),
+                  cursorColor: aAccentColor,
+                  enabledBorderColor: aPrimaryColor,
+                  focusedBorderColor: aAccentColor,
                   handleControllers: handleControllers,
                   onCodeChanged: (value) {
                     _digits = value;
