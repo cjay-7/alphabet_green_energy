@@ -5,14 +5,27 @@ import '../constants/colors.dart';
 import '../constants/country_codes.dart';
 import '../constants/text.dart';
 
+/// Matches [value] against kCountryCodes by the LONGEST matching dial-code
+/// prefix, not just the first list match — several dial codes are prefixes
+/// of other, longer ones (e.g. US "+1" vs. Bahamas "+1242"), and with India
+/// listed first/United States second for the picker's sake, a plain
+/// firstWhere would misidentify a Bahamas number as a US one.
+CountryCode _matchDialCode(String value) {
+  CountryCode? best;
+  for (final country in kCountryCodes) {
+    if (value.startsWith(country.dialCode) &&
+        (best == null || country.dialCode.length > best.dialCode.length)) {
+      best = country;
+    }
+  }
+  return best ?? kCountryCodes.first;
+}
+
 /// Shared validator for PhoneNumberField's combined value (e.g.
 /// "+919876543210") — required, and exactly 10 digits after the dial code.
 String? validatePhoneNumber(String? value) {
   if (value == null || value.isEmpty) return aPhoneNumberRequired;
-  final country = kCountryCodes.firstWhere(
-    (c) => value.startsWith(c.dialCode),
-    orElse: () => kCountryCodes.first,
-  );
+  final country = _matchDialCode(value);
   final digits = value.substring(country.dialCode.length);
   if (digits.length != 10) return aInvalidPhoneNumber;
   return null;
@@ -57,6 +70,7 @@ class PhoneNumberFieldState extends FormFieldState<String> {
   late CountryCode _country;
   String _digits = '';
   bool _prefilled = false;
+  List<TextEditingController?> _digitControllers = const [];
 
   @override
   PhoneNumberField get widget => super.widget as PhoneNumberField;
@@ -66,10 +80,7 @@ class PhoneNumberFieldState extends FormFieldState<String> {
     super.initState();
     final initial = widget.initialValue ?? '';
     if (initial.startsWith('+')) {
-      _country = kCountryCodes.firstWhere(
-        (c) => initial.startsWith(c.dialCode),
-        orElse: () => kCountryCodes.first,
-      );
+      _country = _matchDialCode(initial);
       _digits = initial.substring(_country.dialCode.length);
     } else {
       // Legacy data predates country codes entirely — these were always a
@@ -110,6 +121,11 @@ class PhoneNumberFieldState extends FormFieldState<String> {
     // into the controllers right after OtpTextField's own backspace/advance
     // logic just changed them, fighting its internal state continuously.
     void handleControllers(List<TextEditingController?> controllers) {
+      // Same controller instances every call (OtpTextField creates them
+      // once, not per build), so just keeping a live reference here is
+      // enough to read each box's current text later from onCodeChanged —
+      // no need to re-fetch it there.
+      _digitControllers = controllers;
       if (_prefilled || _digits.isEmpty) return;
       _prefilled = true;
       for (var i = 0; i < controllers.length && i < _digits.length; i++) {
@@ -169,8 +185,16 @@ class PhoneNumberFieldState extends FormFieldState<String> {
                   enabledBorderColor: aPrimaryColor,
                   focusedBorderColor: aAccentColor,
                   handleControllers: handleControllers,
-                  onCodeChanged: (value) {
-                    _digits = value;
+                  // OtpTextField's onCodeChanged passes only the single
+                  // digit just typed (see _onDigitEntered in its source),
+                  // not the accumulated code — confirmed live: using it
+                  // directly left _digits as just the last keystroke typed
+                  // (e.g. "7" instead of "9594204097"), always failing
+                  // validation. Read the real combined value straight from
+                  // the controllers instead of trusting that parameter.
+                  onCodeChanged: (_) {
+                    _digits =
+                        _digitControllers.map((c) => c?.text ?? '').join();
                     _emitChange();
                   },
                 ),
