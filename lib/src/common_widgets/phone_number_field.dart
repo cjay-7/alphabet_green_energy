@@ -136,71 +136,74 @@ class PhoneNumberFieldState extends FormFieldState<String> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            InkWell(
-              onTap: _openCountryPicker,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(_flagEmoji(_country.iso2),
-                        style: const TextStyle(fontSize: 18)),
-                    const SizedBox(width: 2),
-                    Text(_country.dialCode,
-                        style: Theme.of(context).textTheme.bodyMedium),
-                    const Icon(Icons.arrow_drop_down, size: 18),
-                  ],
-                ),
-              ),
+        // Country picker gets its own row rather than sitting beside the 10
+        // boxes — fitting both side by side (tried first) forced the boxes
+        // down to 20dp wide, which read as barely-visible even after fixing
+        // their text color. Full width here lets them be comfortably larger.
+        InkWell(
+          onTap: _openCountryPicker,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(_flagEmoji(_country.iso2),
+                    style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 4),
+                Text(_country.dialCode,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: aPrimaryColor)),
+                const Icon(Icons.arrow_drop_down, color: aPrimaryColor),
+              ],
             ),
-            // OtpTextField lays out its fields at a fixed width regardless
-            // of the space it's given — Expanded alone won't stop an
-            // overflow if 10 boxes don't fit (confirmed live: they didn't,
-            // at this screen's aDefaultSize=30 padding on each side). The
-            // scroll view is a safety net for narrower screens/larger font
-            // scales even after sizing the boxes down to fit comfortably.
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: OtpTextField(
-                  numberOfFields: 10,
-                  showFieldAsBox: true,
-                  fieldWidth: 20,
-                  margin: const EdgeInsets.only(right: 2),
-                  keyboardType: TextInputType.number,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  // OtpTextField's own default text style doesn't pick up
-                  // this app's dark theme — confirmed live, digits typed
-                  // were invisible (black-on-black) against the box. Every
-                  // other color here was already explicit in the package's
-                  // defaults (hence the borders being visible); only the
-                  // digit text itself needed one.
-                  textStyle: const TextStyle(color: aPrimaryColor, fontSize: 16),
-                  cursorColor: aAccentColor,
-                  enabledBorderColor: aPrimaryColor,
-                  focusedBorderColor: aAccentColor,
-                  handleControllers: handleControllers,
-                  // OtpTextField's onCodeChanged passes only the single
-                  // digit just typed (see _onDigitEntered in its source),
-                  // not the accumulated code — confirmed live: using it
-                  // directly left _digits as just the last keystroke typed
-                  // (e.g. "7" instead of "9594204097"), always failing
-                  // validation. Read the real combined value straight from
-                  // the controllers instead of trusting that parameter.
-                  onCodeChanged: (_) {
-                    _digits =
-                        _digitControllers.map((c) => c?.text ?? '').join();
-                    _emitChange();
-                  },
-                ),
-              ),
-            ),
-          ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        // OtpTextField lays out its fields at a fixed width regardless of
+        // the space it's given — a plain Row would overflow if 10 boxes at
+        // this size don't quite fit (confirmed live at the smaller size
+        // this replaced). The scroll view is a safety net for narrower
+        // screens/larger font scales rather than relying on getting the
+        // exact fit right for every device.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: OtpTextField(
+            numberOfFields: 10,
+            showFieldAsBox: true,
+            fieldWidth: 28,
+            fieldHeight: 48,
+            margin: const EdgeInsets.only(right: 4),
+            keyboardType: TextInputType.number,
+            mainAxisAlignment: MainAxisAlignment.start,
+            // OtpTextField's own default text style doesn't pick up this
+            // app's dark theme — confirmed live, digits typed were
+            // invisible (black-on-black) against the box. Every other
+            // color here was already explicit in the package's defaults
+            // (hence the borders being visible); only the digit text
+            // itself needed one.
+            textStyle: const TextStyle(
+                color: aPrimaryColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w600),
+            cursorColor: aAccentColor,
+            enabledBorderColor: aPrimaryColor,
+            focusedBorderColor: aAccentColor,
+            handleControllers: handleControllers,
+            // OtpTextField's onCodeChanged passes only the single digit
+            // just typed (see _onDigitEntered in its source), not the
+            // accumulated code — confirmed live: using it directly left
+            // _digits as just the last keystroke typed (e.g. "7" instead
+            // of "9594204097"), always failing validation. Read the real
+            // combined value straight from the controllers instead of
+            // trusting that parameter.
+            onCodeChanged: (_) {
+              _digits = _digitControllers.map((c) => c?.text ?? '').join();
+              _emitChange();
+            },
+          ),
         ),
         if (errorText != null)
           Padding(
