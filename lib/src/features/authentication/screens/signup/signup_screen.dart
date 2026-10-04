@@ -1,4 +1,5 @@
 import 'package:alphabet_green_energy/src/common_widgets/form_header_widget.dart';
+import 'package:alphabet_green_energy/src/common_widgets/phone_number_field.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
@@ -25,6 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isSubmitting = false;
+  String _phoneNo = '';
 
   @override
   void dispose() {
@@ -41,7 +43,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     final agent = UserModel(
       email: controller.email.text.removeAllWhitespace,
-      phoneNo: controller.phoneNo.text.removeAllWhitespace,
+      phoneNo: _phoneNo,
       fullName: controller.name.text.removeAllWhitespace,
     );
 
@@ -185,24 +187,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller: controller.phoneNo,
-                          decoration: InputDecoration(
-                            labelText: aPhoneNo,
-                            prefixIcon: const Icon(Icons.phone),
-                            hintText: aPhoneNo,
-                          ),
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return aPhoneNumberRequired;
-                            } else if (int.tryParse(value) == null) {
-                              return aOnlyNumbersAllowed;
-                            } else if (value.length != 10) {
-                              return aInvalidPhoneNumber;
-                            }
-                            return null;
-                          },
+                        child: PhoneNumberField(
+                          onChanged: (value) => _phoneNo = value,
+                          validator: validatePhoneNumber,
                         ),
                       ),
                       const SizedBox(height: aFormHeight - 20),

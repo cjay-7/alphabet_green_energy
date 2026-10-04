@@ -278,12 +278,14 @@ class AuthenticationRepository extends GetxController {
   }
 
   /// Step 1 of phone-based account recovery ("forgot password"): sends an
-  /// OTP to [phoneNo] (raw 10-digit number, matching what the signup form
-  /// collects — E.164 formatting happens here). This can never create a new
-  /// agent account; see verifyOTP/_completePhoneRecovery for why.
-  Future<void> phoneAuthentication(String phoneNo) async {
+  /// OTP to [phoneNumber] (already a full E.164 string, e.g.
+  /// "+919876543210" — PhoneNumberField's country-code picker produces this
+  /// directly, so there's no single hardcoded country to assume here).
+  /// This can never create a new agent account; see
+  /// verifyOTP/_completePhoneRecovery for why.
+  Future<void> phoneAuthentication(String phoneNumber) async {
     await _auth.verifyPhoneNumber(
-      phoneNumber: '+91$phoneNo',
+      phoneNumber: phoneNumber,
       verificationCompleted: (credential) async {
         await _completePhoneRecovery(credential);
       },

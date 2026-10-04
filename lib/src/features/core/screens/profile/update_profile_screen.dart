@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:alphabet_green_energy/src/common_widgets/phone_number_field.dart';
 import 'package:alphabet_green_energy/src/constants/colors.dart';
 import 'package:alphabet_green_energy/src/features/core/controllers/profile_controller.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
@@ -26,23 +27,22 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final controller = Get.put(ProfileController());
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _picker = ImagePicker();
   bool _isSaving = false;
   bool _isUploadingPhoto = false;
+  late String _phoneNo;
 
   @override
   void initState() {
     super.initState();
     final user = controller.userData.value;
     _fullNameController.text = user?.fullName ?? '';
-    _phoneController.text = user?.phoneNo ?? '';
+    _phoneNo = user?.phoneNo ?? '';
   }
 
   @override
   void dispose() {
     _fullNameController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
@@ -58,7 +58,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       id: current?.id,
       fullName: _fullNameController.text.trim(),
       email: current?.email ?? '',
-      phoneNo: _phoneController.text.trim(),
+      phoneNo: _phoneNo,
       profileImageUrl: current?.profileImageUrl ?? '',
     );
     final success = await controller.updateUserData(updated);
@@ -226,22 +226,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                 helperText: aEmailNotEditable),
                           ),
                           const SizedBox(height: aFormHeight - 20),
-                          TextFormField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            decoration: const InputDecoration(
-                                label: Text(aPhoneNo),
-                                prefixIcon: Icon(Icons.phone)),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return aPhoneNumberRequired;
-                              } else if (int.tryParse(value) == null) {
-                                return aOnlyNumbersAllowed;
-                              } else if (value.length != 10) {
-                                return aInvalidPhoneNumber;
-                              }
-                              return null;
-                            },
+                          PhoneNumberField(
+                            initialValue: _phoneNo,
+                            onChanged: (value) => _phoneNo = value,
+                            validator: validatePhoneNumber,
                           ),
                           const SizedBox(height: aFormHeight),
                           SizedBox(

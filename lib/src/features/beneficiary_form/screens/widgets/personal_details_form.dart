@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../../../common_widgets/form_field_padding.dart';
 import '../../../../common_widgets/form_section_card.dart';
+import '../../../../common_widgets/phone_number_field.dart';
 import '../../../../constants/text.dart';
 import '../../controllers/beneficiary_add_controller.dart';
 
@@ -218,24 +219,10 @@ class PersonalDetailsFormState extends State<PersonalDetailsForm> {
               ),
             ),
             FormFieldPadding(
-              child: TextFormField(
-                controller: controller.phoneNumber,
-                decoration: InputDecoration(
-                  labelText: aPhoneNo,
-                  prefixIcon: const Icon(Icons.phone),
-                  hintText: aPhoneNo,
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return aPhoneNumberRequired;
-                  } else if (int.tryParse(value) == null) {
-                    return aOnlyNumbersAllowed;
-                  } else if (value.length != 10) {
-                    return aInvalidPhoneNumber;
-                  }
-                  return null;
-                },
+              child: PhoneNumberField(
+                initialValue: controller.phoneNumber.text,
+                onChanged: (value) => controller.phoneNumber.text = value,
+                validator: validatePhoneNumber,
               ),
             ),
           ],

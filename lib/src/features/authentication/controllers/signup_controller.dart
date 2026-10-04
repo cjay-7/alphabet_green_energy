@@ -9,7 +9,6 @@ class SignUpController extends GetxController {
   final name = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
-  final phoneNo = TextEditingController();
 
   Future<void> registerUser(
       String email, String password, UserModel agent) async {

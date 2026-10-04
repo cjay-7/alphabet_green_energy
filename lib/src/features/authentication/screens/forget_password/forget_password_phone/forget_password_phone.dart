@@ -1,4 +1,5 @@
 import 'package:alphabet_green_energy/src/common_widgets/form_header_widget.dart';
+import 'package:alphabet_green_energy/src/common_widgets/phone_number_field.dart';
 import 'package:alphabet_green_energy/src/constants/image_strings.dart';
 import 'package:alphabet_green_energy/src/constants/sizes.dart';
 import 'package:alphabet_green_energy/src/constants/text.dart';
@@ -19,22 +20,15 @@ class ForgetPasswordPhoneScreen extends StatefulWidget {
 class _ForgetPasswordPhoneScreenState
     extends State<ForgetPasswordPhoneScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  String _phoneNo = '';
   bool _isSending = false;
-
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    super.dispose();
-  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSending = true);
     try {
-      await AuthenticationRepository.instance
-          .phoneAuthentication(_phoneController.text.trim());
+      await AuthenticationRepository.instance.phoneAuthentication(_phoneNo);
       if (!mounted) return;
       Get.to(() => const OTPScreen());
     } catch (e) {
@@ -68,23 +62,9 @@ class _ForgetPasswordPhoneScreenState
                   key: _formKey,
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                            label: Text(aPhoneNo),
-                            hintText: aPhoneNo,
-                            prefixIcon: Icon(Icons.phone)),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return aPhoneNumberRequired;
-                          } else if (int.tryParse(value) == null) {
-                            return aOnlyNumbersAllowed;
-                          } else if (value.length != 10) {
-                            return aInvalidPhoneNumber;
-                          }
-                          return null;
-                        },
+                      PhoneNumberField(
+                        onChanged: (value) => _phoneNo = value,
+                        validator: validatePhoneNumber,
                       ),
                       const SizedBox(height: 20.0),
                       SizedBox(
