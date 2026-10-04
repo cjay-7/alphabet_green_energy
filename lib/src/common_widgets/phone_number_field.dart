@@ -124,6 +124,18 @@ class PhoneNumberFieldState extends FormFieldState<String> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Reported live as having no visible label at all, unlike every
+        // other TextFormField around it in these forms (which get theirs
+        // via InputDecoration.label) — this widget isn't a TextFormField,
+        // so it needs its own. Using the theme's bodySmall (not a flat
+        // color constant) specifically because aSecondaryColor is a
+        // near-black color meant for something else — using it directly
+        // here would repeat the exact invisible-text mistake from the
+        // digit boxes themselves.
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 4),
+          child: Text(aPhoneNo, style: Theme.of(context).textTheme.bodySmall),
+        ),
         // Country picker gets its own row rather than sitting beside the 10
         // boxes — fitting both side by side (tried first) forced the boxes
         // down to 20dp wide, which read as barely-visible even after fixing
