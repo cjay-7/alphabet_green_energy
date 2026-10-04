@@ -133,6 +133,41 @@ const String aAccountDeniedMessage =
 const String aResendApprovalEmail = "Resend Notification Email";
 const String aResendApprovalEmailSuccess =
     "Email resent to the admins.";
+
+// -- First-login onboarding (shown once, right after an agent's first
+// approval — see AuthenticationRepository._setInitialScreen)
+const String aOnboardingWelcomeTitle = "Welcome to Alphabet Greens!";
+const String aOnboardingWelcomeMessage =
+    "You're approved. Let's walk through the basics before you get started.";
+const String aOnboardingAddBeneficiaryTitle = "Add Beneficiary";
+const String aOnboardingAddBeneficiaryMessage =
+    "Register a new beneficiary and record their stove installation here.";
+const String aOnboardingSurveyTitle = "Survey Form";
+const String aOnboardingSurveyMessage =
+    "Run a household survey for an existing beneficiary from here.";
+const String aOnboardingLocalStorageTitle = "Local Storage Data";
+const String aOnboardingLocalStorageMessage =
+    "No signal in the field? Submissions made offline are saved here and "
+    "sync automatically the next time you're connected.";
+const String aOnboardingConfirmDetailsTitle = "Confirm Your Details";
+const String aOnboardingConfirmDetailsMessage =
+    "Make sure your name, email, and phone number are correct — admins use "
+    "these to reach you.";
+const String aOnboardingNext = "Next";
+const String aOnboardingBack = "Back";
+const String aOnboardingFinish = "Get Started";
+
+// -- First-visit tips for screens with their own, lighter walkthrough
+// (shown once per device, not bundled into the main onboarding flow)
+const String aExistingBeneficiaryTipTitle = "Existing Beneficiary";
+const String aExistingBeneficiaryTipMessage =
+    "Search by Stove ID to view a beneficiary's details, revisit, or verify "
+    "their stove.";
+const String aProfileTipTitle = "Your Profile";
+const String aProfileTipMessage =
+    "Update your photo, name, phone number, or password any time from "
+    "here.";
+const String aGotIt = "Got it";
 const String aPasswordUpdated = "Your password has been updated.";
 const String aValidEmailRequired = "Please enter a valid email";
 const String aPasswordRequired = "Please enter Password";

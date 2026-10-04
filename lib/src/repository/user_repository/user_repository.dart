@@ -20,6 +20,7 @@ class UserRepository extends GetxController {
     final Map<String, dynamic> data = {
       ...user.toJson(),
       UserFields.approvalStatus: ApprovalStatus.pending,
+      UserFields.hasCompletedOnboarding: false,
     };
     print("Adding user data to Firestore: $data");
     return withFirestoreFeedback(
@@ -36,6 +37,16 @@ class UserRepository extends GetxController {
           .update(user.toJson()),
       successMessage: "Your profile has been updated.",
     );
+  }
+
+  /// Called once, when the agent finishes the first-login onboarding flow.
+  /// Separate from updateUser() since hasCompletedOnboarding is deliberately
+  /// excluded from UserModel.toJson() — see the comment there.
+  Future<void> markOnboardingComplete(String uid) {
+    return _db
+        .collection(FirestoreCollections.users)
+        .doc(uid)
+        .update({UserFields.hasCompletedOnboarding: true});
   }
 
   Future<UserModel> getUserById(String uid) async {

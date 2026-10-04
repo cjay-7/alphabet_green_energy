@@ -11,6 +11,7 @@ class UserModel {
   final String phoneNo;
   final String profileImageUrl;
   final String approvalStatus;
+  final bool hasCompletedOnboarding;
 
   const UserModel({
     this.id,
@@ -19,12 +20,17 @@ class UserModel {
     required this.fullName,
     this.profileImageUrl = '',
     this.approvalStatus = ApprovalStatus.pending,
+    this.hasCompletedOnboarding = false,
   });
 
-  // approvalStatus is deliberately left out of toJson(): it's set once at
-  // signup (UserRepository.createUser) and afterwards changed only by the
-  // admin-approval Cloud Function, never by a client-side profile update.
-  // Firestore rules enforce the same thing server-side.
+  // approvalStatus/hasCompletedOnboarding are deliberately left out of
+  // toJson(): approvalStatus is set once at signup (UserRepository.createUser)
+  // and afterwards changed only by the admin-approval Cloud Function, never
+  // by a client-side profile update (Firestore rules enforce the same thing
+  // server-side). hasCompletedOnboarding is set once, by
+  // UserRepository.markOnboardingComplete, when the agent finishes the
+  // onboarding flow — a generic profile edit (name/phone/photo) shouldn't be
+  // able to silently flip it back to false by re-sending a stale value.
   toJson() {
     return {
       UserFields.fullName: fullName,
@@ -43,6 +49,7 @@ class UserModel {
       "fullName": fullName,
       "profileImageUrl": profileImageUrl,
       "approvalStatus": approvalStatus,
+      "hasCompletedOnboarding": hasCompletedOnboarding,
     });
   }
 
@@ -55,6 +62,7 @@ class UserModel {
       fullName: json["fullName"] ?? '',
       profileImageUrl: json["profileImageUrl"] ?? '',
       approvalStatus: json["approvalStatus"] ?? ApprovalStatus.pending,
+      hasCompletedOnboarding: json["hasCompletedOnboarding"] ?? false,
     );
   }
 
@@ -67,6 +75,9 @@ class UserModel {
         phoneNo: data[UserFields.phone] ?? '',
         fullName: data[UserFields.fullName] ?? '',
         profileImageUrl: data[UserFields.profileImage] ?? '',
-        approvalStatus: data[UserFields.approvalStatus] ?? ApprovalStatus.pending);
+        approvalStatus:
+            data[UserFields.approvalStatus] ?? ApprovalStatus.pending,
+        hasCompletedOnboarding:
+            data[UserFields.hasCompletedOnboarding] ?? false);
   }
 }

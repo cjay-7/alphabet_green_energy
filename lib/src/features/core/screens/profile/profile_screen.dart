@@ -7,11 +7,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../constants/colors.dart';
+import '../../../../constants/storage_keys.dart';
 import '../../../../repository/authentication_repository/authentication_repository.dart';
+import '../../../../utils/first_visit_tip.dart';
 import '../../controllers/profile_controller.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => showFirstVisitTip(
+          context,
+          prefsKey: aProfileTipSeenKey,
+          title: aProfileTipTitle,
+          message: aProfileTipMessage,
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {

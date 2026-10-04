@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../common_widgets/customInputFormatter.dart';
+import '../../../constants/storage_keys.dart';
+import '../../../constants/text.dart';
+import '../../../utils/first_visit_tip.dart';
 import 'widgets/beneficiary_list_screen.dart';
 import '../controllers/get_beneficiary_details_controller.dart';
 
@@ -23,6 +26,12 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
   void initState() {
     super.initState();
     checkConnectivity();
+    WidgetsBinding.instance.addPostFrameCallback((_) => showFirstVisitTip(
+          context,
+          prefsKey: aExistingBeneficiaryTipSeenKey,
+          title: aExistingBeneficiaryTipTitle,
+          message: aExistingBeneficiaryTipMessage,
+        ));
   }
 
   Future<void> checkConnectivity() async {

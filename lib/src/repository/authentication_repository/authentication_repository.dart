@@ -5,6 +5,7 @@ import 'package:alphabet_green_energy/src/constants/firestore_keys.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/account_status/account_status_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/login/login_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/forget_password/set_new_password/set_new_password_screen.dart';
+import 'package:alphabet_green_energy/src/features/authentication/screens/onboarding/onboarding_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_screen.dart';
 import 'package:alphabet_green_energy/src/features/authentication/screens/signup/signup_success_screen.dart';
 import 'package:alphabet_green_energy/src/features/core/models/user_model.dart';
@@ -76,9 +77,19 @@ class AuthenticationRepository extends GetxController {
       final status =
           doc.data()?[UserFields.approvalStatus] as String? ??
               ApprovalStatus.pending;
-      status == ApprovalStatus.approved
+      if (status != ApprovalStatus.approved) {
+        Get.offAll(() => const AccountStatusScreen());
+        return;
+      }
+      // First sign-in after approval: walk through the Dashboard's main
+      // actions and have the agent confirm their name/email/phone before
+      // Dashboard itself. UserRepository.markOnboardingComplete flips this
+      // once they finish, so it only ever shows the one time.
+      final hasCompletedOnboarding =
+          doc.data()?[UserFields.hasCompletedOnboarding] as bool? ?? false;
+      hasCompletedOnboarding
           ? Get.offAll(() => const Dashboard())
-          : Get.offAll(() => const AccountStatusScreen());
+          : Get.offAll(() => const OnboardingScreen());
     } catch (e) {
       // Can't confirm approval — fail closed, not into the Dashboard.
       Get.offAll(() => const AccountStatusScreen());

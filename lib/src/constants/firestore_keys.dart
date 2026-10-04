@@ -65,6 +65,7 @@ class UserFields {
   static const profileImage = "ProfileImage";
   static const approvalStatus = "ApprovalStatus";
   static const approvalToken = "ApprovalToken";
+  static const hasCompletedOnboarding = "HasCompletedOnboarding";
 }
 
 class ApprovalStatus {
