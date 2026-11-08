@@ -47,6 +47,10 @@ class _OTPScreenState extends State<OTPScreen> {
                 onCompleted: otpController.verifyOTP,
               ),
             ),
+            const SizedBox(height: 24.0),
+            Obx(() => otpController.isVerifying.value
+                ? const CircularProgressIndicator()
+                : const SizedBox.shrink()),
           ],
         ),
       ),

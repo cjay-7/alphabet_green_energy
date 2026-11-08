@@ -68,6 +68,14 @@ class UserFields {
   static const hasCompletedOnboarding = "HasCompletedOnboarding";
 }
 
+/// Attribution fields stamped onto every beneficiary/survey/visit document at
+/// write time, so the dashboard can count a caseworker's work from any device.
+class SubmissionFields {
+  static const submittedBy = "SubmittedBy"; // Firebase Auth uid
+  static const submittedDay = "SubmittedDay"; // yyyy-MM-dd, device-local
+  static const submittedAt = "SubmittedAt"; // server timestamp
+}
+
 class ApprovalStatus {
   static const pending = "pending";
   static const approved = "approved";

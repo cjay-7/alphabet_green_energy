@@ -15,10 +15,12 @@ class BeneficiaryController extends GetxController {
   final TextEditingController stoveID = TextEditingController();
   final TextEditingController idNumber = TextEditingController();
   final RxList<BeneficiaryModel> beneficiaryList = <BeneficiaryModel>[].obs;
+  final RxBool isLoading = false.obs;
 
   Future<void> getBeneficiaryData(
       String serialNumber, BeneficiaryController beneficiaryController) async {
     if (serialNumber.isNotEmpty) {
+      isLoading.value = true;
       try {
         print("Fetching beneficiary details for serialNumber: $serialNumber");
         BeneficiaryModel beneficiary =
@@ -35,6 +37,8 @@ class BeneficiaryController extends GetxController {
         // Handle other exceptions
         print("Error fetching beneficiary data: $error");
         showSnackbarSafely("Error", "An error occurred: $error");
+      } finally {
+        isLoading.value = false;
       }
     } else {
       showSnackbarSafely("Error", "Please enter a Stove ID");

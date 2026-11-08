@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/colors.dart';
 import '../../../constants/storage_keys.dart';
 import '../../../constants/text.dart';
+import '../../../services/activity_stats_service.dart';
+import '../../../utils/loading_overlay.dart';
 import '../../../utils/safe_snackbar.dart';
 
 import '../controllers/survey_add_controller.dart';
@@ -146,8 +148,12 @@ class _SurveyFormState extends State<SurveyForm> {
                                             currentDate: currentDate,
                                             surveyorName: surveyorName,
                                           );
-                                          SurveyAddController.instance
-                                              .addSurveyData(survey);
+                                          await runWithLoader(
+                                              context,
+                                              () => SurveyAddController.instance
+                                                  .addSurveyData(survey));
+                                          recordActivity(ActivityStat.forms);
+                                          if (!context.mounted) return;
                                           _resetForm();
                                           // Get.back() can silently fail to
                                           // navigate (or throw) if a snackbar
@@ -203,6 +209,8 @@ class _SurveyFormState extends State<SurveyForm> {
                                         );
                                         await _saveSurveyDataToLocalStorage(
                                             survey.toJson());
+                                        recordActivity(ActivityStat.forms);
+                                        recordActivity(ActivityStat.localIn);
                                         _resetForm();
                                         Navigator.of(context).pop();
                                         showSnackbarSafely(aSuccess,

@@ -16,6 +16,8 @@ import '../../../constants/colors.dart';
 import '../../../constants/sizes.dart';
 import '../../../constants/storage_keys.dart';
 import '../../../constants/text.dart';
+import '../../../services/activity_stats_service.dart';
+import '../../../utils/loading_overlay.dart';
 import '../../../utils/safe_snackbar.dart';
 
 class BeneficiaryFormWidget extends StatefulWidget {
@@ -132,8 +134,12 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                     currentDate: currentDate,
                                     surveyorName: surveyorName,
                                   );
-                                  BeneficiaryAddController.instance
-                                      .addData(beneficiary);
+                                  await runWithLoader(
+                                      context,
+                                      () => BeneficiaryAddController.instance
+                                          .addData(beneficiary));
+                                  recordActivity(ActivityStat.forms);
+                                  if (!context.mounted) return;
                                   _resetForm();
                                   // Get.back() can silently fail to navigate
                                   // (or throw) if a snackbar from the write
@@ -179,6 +185,8 @@ class BeneficiaryFormWidgetState extends State<BeneficiaryFormWidget> {
                                 );
                                 await _saveFormDataToLocalStorage(
                                     beneficiary.toJson());
+                                recordActivity(ActivityStat.forms);
+                                recordActivity(ActivityStat.localIn);
                                 _resetForm();
                                 Navigator.of(context).pop();
                                 showSnackbarSafely(

@@ -1,9 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 import '../constants/firestore_keys.dart';
 import '../features/existing_beneficiary/models/add_beneficiary_visit_model.dart';
 import '../utils/firestore_feedback.dart';
+
+/// Fields identifying who submitted a record and when, merged into every
+/// beneficiary / survey / visit write.
+Map<String, dynamic> submissionStamp() {
+  final n = DateTime.now();
+  final day =
+      '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
+  return {
+    SubmissionFields.submittedBy: FirebaseAuth.instance.currentUser?.uid,
+    SubmissionFields.submittedDay: day,
+    SubmissionFields.submittedAt: FieldValue.serverTimestamp(),
+  };
+}
 
 /// Shared "write one document to a fixed collection, show the standard
 /// success/error snackbar" behavior that every *AddRepository in this app
@@ -18,7 +32,7 @@ abstract class FirestoreAddRepository<TModel> extends GetxController {
 
   Future<void> add(TModel model) {
     return withFirestoreFeedback(
-      () => db.collection(collectionName).doc(docIdFor(model)).set(toJson(model)),
+      () => db.collection(collectionName).doc(docIdFor(model)).set({...toJson(model), ...submissionStamp()}),
       successMessage: "$entityLabel details have been added to cloud",
     );
   }
@@ -48,7 +62,7 @@ mixin VisitSubcollectionMixin {
     }
 
     return withFirestoreFeedback(
-      () => visitCollectionRef.doc("Visit$visitNumber").set(addVisit.toJson()),
+      () => visitCollectionRef.doc("Visit$visitNumber").set({...addVisit.toJson(), ...submissionStamp()}),
       successMessage: "Visit details have been added to cloud",
     );
   }

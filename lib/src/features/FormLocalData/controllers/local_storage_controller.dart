@@ -8,7 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/firestore_keys.dart';
 import '../../../constants/storage_keys.dart';
 import '../../../repository/beneficiary_add_repository/beneficiary_add_repository.dart';
+import '../../../repository/firestore_add_repository.dart' show submissionStamp;
 import '../../../repository/survey_add_repository/survey_add_repository.dart';
+import '../../../services/activity_stats_service.dart';
 import '../../../services/error_log_service.dart';
 import '../../../services/image_upload_service.dart';
 import '../../../services/json_share_service.dart';
@@ -132,6 +134,7 @@ class LocalStorageController extends GetxController {
 
           // Remove synced form data from local storage
           await removeFormDataFromLocalStorage(formData);
+          recordActivity(ActivityStat.localOut);
           isUploading.value = false;
         } catch (e) {
           if (kDebugMode) {
@@ -211,6 +214,7 @@ class LocalStorageController extends GetxController {
     }
 
     await visitCollectionRef.doc("Visit$visitNumber").set({
+      ...submissionStamp(),
       VisitFields.stoveImgVisit: imageUrl,
       VisitFields.usedRegularly: usedRegularly,
       VisitFields.worksProperly: worksProperly,
@@ -230,6 +234,7 @@ class LocalStorageController extends GetxController {
 
           // Remove synced visit data from local storage
           await removeVisitDataFromLocalStorage(visitData);
+          recordActivity(ActivityStat.localOut);
           isUploading.value = false;
         }
       } catch (e) {
@@ -288,6 +293,7 @@ class LocalStorageController extends GetxController {
 
         // Remove synced survey data from local storage
         await removeSurveyDataFromLocalStorage(surveyData);
+        recordActivity(ActivityStat.localOut);
         isUploading.value = false;
       } catch (e) {
         if (kDebugMode) {

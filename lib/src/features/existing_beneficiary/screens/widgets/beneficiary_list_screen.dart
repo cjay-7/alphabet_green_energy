@@ -14,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../constants/colors.dart';
 import '../../../../constants/storage_keys.dart';
 import '../../../../constants/text.dart';
+import '../../../../services/activity_stats_service.dart';
+import '../../../../utils/loading_overlay.dart';
 import '../../../../utils/safe_snackbar.dart';
 import '../../controllers/add_beneficiary_visit_controller.dart';
 import '../../controllers/get_beneficiary_details_controller.dart';
@@ -114,6 +116,9 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
       ),
       body: Obx(
         () {
+          if (_beneficiaryController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
           if (_beneficiaryController.beneficiaryList.isEmpty) {
             idNumber = ModalRoute.of(context)?.settings.arguments as String?;
             return revisitForm(context, fileName, idNumber!);
@@ -122,7 +127,7 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
               future: checkConnectivity(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Show loading indicator while checking connectivity
+                  return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasData &&
                     snapshot.data != ConnectivityResult.none) {
@@ -322,8 +327,12 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
                             addBeneficiaryVisitController.worksProperly,
                         idNumber: idNumber,
                       );
-                      AddBeneficiaryVisitController.instance
-                          .addVisitData(addVisit, idNumber);
+                      await runWithLoader(
+                          context,
+                          () => AddBeneficiaryVisitController.instance
+                              .addVisitData(addVisit, idNumber));
+                      recordActivity(ActivityStat.visits);
+                      if (!context.mounted) return;
                       _resetForm();
                       // Get.back() can silently fail to navigate (or throw)
                       // if a snackbar from the write above is still
@@ -344,6 +353,8 @@ class BeneficiaryListScreenState extends State<BeneficiaryListScreen> {
                       idNumber: idNumber,
                     );
                     await _saveVisitDataToLocalStorage(addVisit.toJson());
+                    recordActivity(ActivityStat.visits);
+                    recordActivity(ActivityStat.localIn);
 
                     _resetForm();
                     Navigator.of(context).pop();

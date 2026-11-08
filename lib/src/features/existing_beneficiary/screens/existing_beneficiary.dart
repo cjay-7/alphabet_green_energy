@@ -94,6 +94,7 @@ class _ExistingBeneficiaryState extends State<ExistingBeneficiary> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
+                          _beneficiaryController.isLoading.value = true;
                           _beneficiaryController.getBeneficiaryData(
                             connectivityResult!
                                     .contains(ConnectivityResult.none)

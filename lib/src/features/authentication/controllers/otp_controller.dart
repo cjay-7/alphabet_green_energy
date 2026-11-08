@@ -4,8 +4,16 @@ import 'package:get/get.dart';
 class OTPController extends GetxController {
   static OTPController get instance => Get.find();
 
+  final RxBool isVerifying = false.obs;
+
   void verifyOTP(String otp) async {
-    var isVerified = await AuthenticationRepository.instance.verifyOTP(otp);
+    isVerifying.value = true;
+    bool isVerified;
+    try {
+      isVerified = await AuthenticationRepository.instance.verifyOTP(otp);
+    } finally {
+      isVerifying.value = false;
+    }
     // Don't navigate to Dashboard directly on success — that would skip the
     // admin-approval check. AuthenticationRepository's firebaseUser listener
     // (ever(firebaseUser, _setInitialScreen)) already fires on this sign-in
