@@ -1,7 +1,7 @@
 name: alphabet_green_energy
 description: Field app for Alphabet Green Energy caseworkers to register beneficiaries, record stove visits and run surveys, online or offline.
 publish_to: 'none'
-version: 1.0.2+25
+version: 1.0.3+26
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
