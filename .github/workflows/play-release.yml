@@ -21,6 +21,11 @@ on:
     paths: [pubspec.yaml]
   # Manual "Run workflow" button: always bumps, from the latest master.
   workflow_dispatch:
+    inputs:
+      bump:
+        description: Bump the version before releasing
+        type: boolean
+        default: true
 
 # One release at a time; never cancel one mid-upload.
 concurrency:
@@ -46,7 +51,10 @@ jobs:
         run: |
           current=$(grep -E '^version:' pubspec.yaml | awk '{print $2}')
           previous=$(git show HEAD~1:pubspec.yaml 2>/dev/null | grep -E '^version:' | awk '{print $2}' || true)
-          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$current" != "$previous" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${{ inputs.bump }}" = "false" ]; then
+            echo "Manual run with bump disabled; keeping $current."
+            echo "bumped=false" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$current" != "$previous" ]; then
             echo "Version already changed in this push ($previous -> $current); not bumping."
             echo "bumped=false" >> "$GITHUB_OUTPUT"
           else
@@ -100,10 +108,23 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Sign in to Google (keyless)
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+
+      # Diagnostic: asks the Play API for an edit directly so a failure shows
+      # Google's real error message instead of the upload action's generic one.
+      - name: Check Play API access
+        continue-on-error: true
+        run: |
+          curl -s -w '\nHTTP %{http_code}\n' -X POST \
+            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Content-Type: application/json" -d '{}' \
+            "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.alphabet_greens/edits"
 
       # Picks up the credentials the step above exports via
       # GOOGLE_APPLICATION_CREDENTIALS.
