@@ -19,6 +19,8 @@ on:
   push:
     branches: [master]
     paths: [pubspec.yaml]
+  # Manual "Run workflow" button: always bumps, from the latest master.
+  workflow_dispatch:
 
 # One release at a time; never cancel one mid-upload.
 concurrency:
@@ -44,7 +46,7 @@ jobs:
         run: |
           current=$(grep -E '^version:' pubspec.yaml | awk '{print $2}')
           previous=$(git show HEAD~1:pubspec.yaml 2>/dev/null | grep -E '^version:' | awk '{print $2}' || true)
-          if [ "$current" != "$previous" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$current" != "$previous" ]; then
             echo "Version already changed in this push ($previous -> $current); not bumping."
             echo "bumped=false" >> "$GITHUB_OUTPUT"
           else
